@@ -1,4 +1,4 @@
-package auctionTalk.auction.api.subscribe;
+package auctionTalk.auction.api.subscribe.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

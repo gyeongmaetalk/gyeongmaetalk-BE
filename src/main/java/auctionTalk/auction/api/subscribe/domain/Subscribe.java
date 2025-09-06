@@ -1,4 +1,4 @@
-package auctionTalk.auction.api.subscribe;
+package auctionTalk.auction.api.subscribe.domain;
 
 import auctionTalk.auction.api.counselor.domain.Counselor;
 import auctionTalk.auction.api.user.domain.User;
