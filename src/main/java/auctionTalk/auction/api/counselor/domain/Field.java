@@ -1,5 +1,6 @@
-package auctionTalk.auction.api.field.domain;
+package auctionTalk.auction.api.counselor.domain;
 
+import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,7 +12,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Field {
+public class Field extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

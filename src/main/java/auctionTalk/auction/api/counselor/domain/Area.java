@@ -1,4 +1,4 @@
-package auctionTalk.auction.api.area.domain;
+package auctionTalk.auction.api.counselor.domain;
 
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.Entity;

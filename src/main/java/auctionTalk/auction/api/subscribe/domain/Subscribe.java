@@ -1,5 +1,7 @@
-package auctionTalk.auction.api.counselor.domain;
+package auctionTalk.auction.api.subscribe;
 
+import auctionTalk.auction.api.counselor.domain.Counselor;
+import auctionTalk.auction.api.user.domain.User;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,16 +11,18 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CounselorField extends BaseEntity {
+public class Subscribe extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    private Counselor counselor;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    private Field field;
+    private Counselor counselor;
+
+    private SubscribeStatus status;
 }
