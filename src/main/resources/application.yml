@@ -32,14 +32,14 @@ logging:
     org.springframework.security.web.FilterChainProxy: DEBUG
 spring:
   application:
-    name: routebox-server-dev
+    name: auctiontalk-server-dev
   config:
     activate:
       on-profile: "dev"
   datasource:
     username: ${AWS_DB_USERNAME}
     password: ${AWS_DB_PASSWORD}
-    url: jdbc:mysql://${AWS_DB_URL}
+    url: ${AWS_DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -60,10 +60,6 @@ spring:
         hbm2ddl:
           auto: update
         default_batch_fetch_size: 1000
-  data:
-    redis:
-      host: ${REDIS_URL}
-      port: 6379
 jwt:
   header: Authorization
   # dev server

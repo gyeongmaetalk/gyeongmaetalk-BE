@@ -1,5 +1,6 @@
 package auctionTalk.auction.global.config;
 
+import auctionTalk.auction.global.security.handler.annonation.resolver.AuthMemberArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
