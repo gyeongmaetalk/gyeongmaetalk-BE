@@ -109,8 +109,13 @@ public enum GlobalErrorCode implements BaseErrorCode{
     FCM_ALREADY_EXISTS_TOKEN(BAD_REQUEST, "FCM400_1", "이미 저장되어 있는 FCM 토큰입니다."),
     FCM_TOKEN_NOT_EXISTS(BAD_REQUEST,"FCM400_2", "해당 유저의 FCM Token 이 존재하지 않습니다."),
     FCM_ACCESS_TOKEN_REQUEST_ERROR(INTERNAL_SERVER_ERROR, "FCM500_2", "서버 에러, FCM 서버에 AccessToken 요청할 때 에러 발생."),
-    FCM_SEND_MESSAGE_ERROR(INTERNAL_SERVER_ERROR    , "FCM500_3", "서버 에러, FCM 서버에 메시지를 전송할 때 에러 발생. FcmToken이 유효한지 확인해주세요."), ;
+    FCM_SEND_MESSAGE_ERROR(INTERNAL_SERVER_ERROR    , "FCM500_3", "서버 에러, FCM 서버에 메시지를 전송할 때 에러 발생. FcmToken이 유효한지 확인해주세요."),
 
+    //COUNSEL + 404 NOT FOUND - 찾을 수 없음
+    COUNSEL_NOT_FOUND(NOT_FOUND, "COUNSEL404_1", "찾을 수 없는 상담입니다."),
+
+    //REVIEW + 400 BAD_REQUEST - 잘못된 요청
+    INVALID_REVIEW_SORT_TYPE(BAD_REQUEST, "REVIEW400_1", "유효하지 않은 리뷰 정렬 타입 입니다."),
     ;
 
 

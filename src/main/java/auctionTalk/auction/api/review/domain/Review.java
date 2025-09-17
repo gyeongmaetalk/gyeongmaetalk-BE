@@ -27,10 +27,22 @@ public class Review extends BaseEntity {
     @JoinColumn
     private Counsel counsel;
 
-    private float score;
+    private int score;
 
     private String content;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewImage> images = new ArrayList<>();
+
+    public void changeImages(List<ReviewImage> reviewImages) {
+        // 새로운 이미지로 변경
+        this.images = reviewImages;
+    }
+
+    public String getThumbnail() {
+        return this.images.stream()
+                .findFirst()
+                .map(ReviewImage::getUrl)
+                .orElse(null);
+    }
 }
