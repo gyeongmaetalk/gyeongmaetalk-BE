@@ -114,6 +114,9 @@ public enum GlobalErrorCode implements BaseErrorCode{
     //COUNSEL + 404 NOT FOUND - 찾을 수 없음
     COUNSEL_NOT_FOUND(NOT_FOUND, "COUNSEL404_1", "찾을 수 없는 상담입니다."),
 
+    //REVIEW + 404 NOT FOUND - 찾을 수 없음
+    REVIEW_NOT_FOUND(NOT_FOUND, "REVIEW404_1", "찾을 수 없는 후기 입니다."),
+
     //REVIEW + 400 BAD_REQUEST - 잘못된 요청
     INVALID_REVIEW_SORT_TYPE(BAD_REQUEST, "REVIEW400_1", "유효하지 않은 리뷰 정렬 타입 입니다."),
     ;

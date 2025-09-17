@@ -47,6 +47,14 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
+    public ReviewDto.ReviewDetailResponseDto inquiryReview(Long reviewId, User user){
+
+        Review review = reviewQueryAdapter.inquiryReview(reviewId);
+
+        return reviewMapper.toReviewDetailResponseDto(review,user);
+    }
+
+    @Transactional(readOnly = true)
     public ReviewDto.ReviewPagingResponseDto<ReviewDto.ReviewSummaryResponseDto> inquiryReviews(
             Long counselorId, ReviewSortType sortType, User user, int page, int size
     ){

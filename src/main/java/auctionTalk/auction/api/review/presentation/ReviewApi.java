@@ -54,4 +54,13 @@ public class ReviewApi {
         return  CommonResponse.onSuccess(reviewService.inquiryReviews(counselorId, type, user, page, size));
     }
 
+    @Operation(summary = "상담 후기 상세 조회 API")
+    @GetMapping("/{reviewId}")
+    public CommonResponse<ReviewDto.ReviewDetailResponseDto> inquiryReview(
+            @AuthMember User user,
+            @PathVariable("reviewId") Long reviewId
+    ){
+        return CommonResponse.onSuccess(reviewService.inquiryReview(reviewId, user));
+    }
+
 }

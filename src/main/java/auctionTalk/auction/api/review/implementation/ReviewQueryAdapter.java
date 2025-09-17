@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
 @Adapter
 @RequiredArgsConstructor
 public class ReviewQueryAdapter {
@@ -20,6 +22,13 @@ public class ReviewQueryAdapter {
     private final ReviewRepository reviewRepository;
 
     private final ReviewMapper reviewMapper;
+
+    public Review inquiryReview(Long reviewId) {
+
+        return reviewRepository.findById(reviewId).orElseThrow(
+                () -> new ReviewException(GlobalErrorCode.REVIEW_NOT_FOUND)
+        );
+    }
 
     public Page<ReviewDto.ReviewSummaryResponseDto> inquiryReviews(Long counselorId, User user, ReviewSortType sortType, Pageable pageable) {
 

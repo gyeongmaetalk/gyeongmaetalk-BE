@@ -25,4 +25,5 @@ public class ReviewCommandAdapter {
 
         return reviewRepository.save(review);
     }
+
 }

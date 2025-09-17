@@ -7,6 +7,7 @@ import auctionTalk.auction.api.user.domain.User;
 import org.springframework.stereotype.Component;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -33,6 +34,19 @@ public class ReviewMapper {
                 .build();
     }
 
+    public ReviewDto.ReviewDetailResponseDto toReviewDetailResponseDto(Review review, User user) {
+        return ReviewDto.ReviewDetailResponseDto.builder()
+                .reviewId(review.getId())
+                .score(review.getScore())
+                .name(review.getUser().getName())
+                .createAt(review.getCreatedAt())
+                .counselDateTime(review.getCounsel().getBookedDate())
+                .isMine(Objects.equals(review.getUser().getId(), user.getId()))
+                .images(toImageUrls(review.getImages()))
+                .content(review.getContent())
+                .build();
+    }
+
     public <T> ReviewDto.ReviewPagingResponseDto<T> toReviewPagingResponseDto(Page<T> reviews) {
         return ReviewDto.ReviewPagingResponseDto.<T>builder()
                 .reviews(reviews.getContent())
@@ -42,5 +56,9 @@ public class ReviewMapper {
                 .isFirst(reviews.isFirst())
                 .isLast(reviews.isLast())
                 .build();
+    }
+
+    private List<String> toImageUrls(List<ReviewImage> images) {
+        return images.stream().map(ReviewImage::getUrl).toList();
     }
 }
