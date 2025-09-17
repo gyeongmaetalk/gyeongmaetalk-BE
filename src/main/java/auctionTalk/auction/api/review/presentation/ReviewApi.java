@@ -47,6 +47,15 @@ public class ReviewApi {
         return CommonResponse.onSuccess(reviewService.updateReview(reviewId, requestDto, reviewImages, user));
     }
 
+    @Operation(summary = "상담 후기 삭제 API")
+    @DeleteMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse<ReviewDto.ReviewIdResponseDto> deleteReview(
+            @AuthMember User user,
+            @Parameter(description = "삭제할 리뷰 id") @PathVariable Long reviewId
+    ){
+        return CommonResponse.onSuccess(reviewService.deleteReview(reviewId, user));
+    }
+
     @Operation(summary = "상당 후기 목록 조회 API")
     @GetMapping("/{counselorId}")
     @Parameters(value = {

@@ -47,4 +47,16 @@ public class ReviewCommandAdapter {
 
         return review;
     }
+
+    public Long deleteReview(Long reviewId){
+
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new ReviewException(GlobalErrorCode.REVIEW_NOT_FOUND)
+        );
+        reviewImageCommandAdapter.deleteExistingImages(review.getImages());
+
+        reviewRepository.delete(review);
+
+        return review.getId();
+    }
 }

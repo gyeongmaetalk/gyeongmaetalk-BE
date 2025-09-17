@@ -55,6 +55,12 @@ public class ReviewService {
         return new  ReviewDto.ReviewIdResponseDto(review.getId());
     }
 
+    @Transactional
+    public ReviewDto.ReviewIdResponseDto deleteReview(Long reviewId, User user) {
+
+        return new  ReviewDto.ReviewIdResponseDto(reviewCommandAdapter.deleteReview(reviewId));
+    }
+
     @Transactional(readOnly = true)
     public ReviewDto.ReviewDetailResponseDto inquiryReview(Long reviewId, User user){
 
