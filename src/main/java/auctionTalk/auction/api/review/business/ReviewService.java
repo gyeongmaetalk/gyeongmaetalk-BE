@@ -46,6 +46,15 @@ public class ReviewService {
         return new ReviewDto.ReviewIdResponseDto(newReview.getId());
     }
 
+    @Transactional
+    public ReviewDto.ReviewIdResponseDto updateReview(Long reviewId, ReviewDto.ReviewUpdateRequestDto requestDto, List<MultipartFile> newImages, User user) {
+
+        //todo 수정 유효성 검사 추가.
+        Review review = reviewCommandAdapter.updateReview(reviewId,requestDto, newImages);
+
+        return new  ReviewDto.ReviewIdResponseDto(review.getId());
+    }
+
     @Transactional(readOnly = true)
     public ReviewDto.ReviewDetailResponseDto inquiryReview(Long reviewId, User user){
 

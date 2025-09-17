@@ -1,6 +1,7 @@
 package auctionTalk.auction.api.review.domain;
 
 import auctionTalk.auction.api.counsel.domain.Counsel;
+import auctionTalk.auction.api.review.presentation.dto.ReviewDto;
 import auctionTalk.auction.api.user.domain.User;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -33,6 +34,11 @@ public class Review extends BaseEntity {
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewImage> images = new ArrayList<>();
+
+    public void updateReviewInfo(ReviewDto.ReviewUpdateRequestDto requestDto){
+        this.score = requestDto.getScore();
+        this.content = requestDto.getContent();
+    }
 
     public void changeImages(List<ReviewImage> reviewImages) {
         // 새로운 이미지로 변경

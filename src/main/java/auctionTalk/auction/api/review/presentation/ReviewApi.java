@@ -36,6 +36,17 @@ public class ReviewApi {
         return CommonResponse.onSuccess(reviewService.createReview(requestDto, reviewImages, user));
     }
 
+    @Operation(summary = "상담 후기 수정 API")
+    @PatchMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse<ReviewDto.ReviewIdResponseDto> updateReview(
+            @AuthMember User user,
+            @Parameter(description = "수정할 리뷰 id") @PathVariable Long reviewId,
+            @Parameter(description = "상담 후기 이미지 파일들(없을 시 사용 x)") @RequestPart(value = "reviewImages", required = false) List<MultipartFile> reviewImages,
+            @Parameter(description = "상담 후기 수정 요청 json")  @Valid @RequestPart("request") ReviewDto.ReviewUpdateRequestDto requestDto
+    ){
+        return CommonResponse.onSuccess(reviewService.updateReview(reviewId, requestDto, reviewImages, user));
+    }
+
     @Operation(summary = "상당 후기 목록 조회 API")
     @GetMapping("/{counselorId}")
     @Parameters(value = {
