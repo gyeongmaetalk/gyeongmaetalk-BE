@@ -1,6 +1,6 @@
 package auctionTalk.auction.config.security.auth;
 
-import auctionTalk.api.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

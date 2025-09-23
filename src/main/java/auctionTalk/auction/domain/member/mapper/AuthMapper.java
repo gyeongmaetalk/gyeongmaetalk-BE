@@ -1,10 +1,10 @@
 package auctionTalk.auction.domain.member.mapper;
 
-import auctionTalk.api.confing.security.jwt.JwtToken;
-import auctionTalk.api.domain.member.dto.response.AuthTokenResponse;
-import auctionTalk.api.domain.member.entity.LoginType;
-import auctionTalk.api.domain.member.entity.Member;
-import auctionTalk.api.domain.member.entity.Role;
+import auctionTalk.auction.config.security.jwt.JwtToken;
+import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.entity.LoginType;
+import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.entity.Role;
 import org.springframework.stereotype.Component;
 
 @Component

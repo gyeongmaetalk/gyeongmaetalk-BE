@@ -1,11 +1,10 @@
 package auctionTalk.auction.config.security.jwt;
 
-
-import auctionTalk.api.confing.security.auth.PrincipalDetails;
-import auctionTalk.api.domain.member.entity.Member;
-import auctionTalk.api.domain.member.repository.MemberRepository;
-import auctionTalk.api.global.exception.ErrorCode;
-import auctionTalk.api.global.exception.JwtAuthenticationException;
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.repository.MemberRepository;
+import auctionTalk.auction.global.exception.ErrorCode;
+import auctionTalk.auction.global.exception.JwtAuthenticationException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

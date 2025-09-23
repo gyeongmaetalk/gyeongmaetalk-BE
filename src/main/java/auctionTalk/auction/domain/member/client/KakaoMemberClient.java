@@ -1,8 +1,8 @@
 package auctionTalk.auction.domain.member.client;
 
-import auctionTalk.api.domain.member.dto.client.KakaoMemberResponse;
-import auctionTalk.api.global.exception.CustomApiException;
-import auctionTalk.api.global.exception.ErrorCode;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
+import auctionTalk.auction.domain.member.dto.client.KakaoMemberResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 

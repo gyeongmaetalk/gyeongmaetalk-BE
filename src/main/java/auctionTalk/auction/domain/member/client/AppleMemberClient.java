@@ -1,7 +1,7 @@
 package auctionTalk.auction.domain.member.client;
 
-import auctionTalk.api.global.exception.CustomApiException;
-import auctionTalk.api.global.exception.ErrorCode;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;

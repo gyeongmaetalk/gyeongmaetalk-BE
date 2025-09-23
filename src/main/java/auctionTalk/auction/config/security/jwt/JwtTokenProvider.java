@@ -1,10 +1,9 @@
 package auctionTalk.auction.config.security.jwt;
 
-
-import auctionTalk.api.domain.member.repository.TokenRepository;
-import auctionTalk.api.global.exception.CustomApiException;
-import auctionTalk.api.global.exception.ErrorCode;
-import auctionTalk.api.global.exception.JwtAuthenticationException;
+import auctionTalk.auction.domain.member.repository.TokenRepository;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
+import auctionTalk.auction.global.exception.JwtAuthenticationException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

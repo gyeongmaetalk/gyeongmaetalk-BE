@@ -1,10 +1,10 @@
 package auctionTalk.auction.config.security;
 
-import auctionTalk.api.confing.security.jwt.CustomAccessDeniedHandler;
-import auctionTalk.api.confing.security.jwt.CustomAuthenticationEntryPoint;
-import auctionTalk.api.confing.security.jwt.JwtAuthorizationFilter;
-import auctionTalk.api.confing.security.jwt.JwtTokenProvider;
-import auctionTalk.api.domain.member.repository.MemberRepository;
+import auctionTalk.auction.config.security.jwt.CustomAccessDeniedHandler;
+import auctionTalk.auction.config.security.jwt.CustomAuthenticationEntryPoint;
+import auctionTalk.auction.config.security.jwt.JwtAuthorizationFilter;
+import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
+import auctionTalk.auction.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

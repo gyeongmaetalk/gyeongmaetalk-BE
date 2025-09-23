@@ -1,7 +1,8 @@
 package auctionTalk.auction.domain.member.service;
 
-import auctionTalk.api.domain.member.dto.response.AuthTokenResponse;
-import auctionTalk.api.domain.member.entity.LoginType;
+
+import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.entity.LoginType;
 
 public interface AuthService {
     AuthTokenResponse login(String accessToken, LoginType provider);

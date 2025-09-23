@@ -1,7 +1,7 @@
 package auctionTalk.auction.config.security.jwt;
 
-import auctionTalk.api.global.common.BaseResponse;
-import auctionTalk.api.global.exception.ErrorCode;
+import auctionTalk.auction.global.common.BaseResponse;
+import auctionTalk.auction.global.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

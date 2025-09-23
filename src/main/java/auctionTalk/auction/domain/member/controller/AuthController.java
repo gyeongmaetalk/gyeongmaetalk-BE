@@ -1,9 +1,9 @@
 package auctionTalk.auction.domain.member.controller;
 
-import auctionTalk.api.domain.member.dto.response.AuthTokenResponse;
-import auctionTalk.api.domain.member.entity.LoginType;
-import auctionTalk.api.domain.member.service.AuthService;
-import auctionTalk.api.global.common.BaseResponse;
+import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.entity.LoginType;
+import auctionTalk.auction.global.common.BaseResponse;
+import auctionTalk.auction.domain.member.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
