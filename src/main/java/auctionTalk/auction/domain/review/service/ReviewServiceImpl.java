@@ -17,12 +17,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReviewServiceImpl {
+public class ReviewServiceImpl implements ReviewService {
 
     private final CounselRepository counselRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
 
+    @Override
     @Transactional
     public ReviewIdResponse createReview(
             ReviewCreateRequest request, List<MultipartFile> reviewImages, Member member
