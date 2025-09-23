@@ -12,7 +12,7 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
 
     default Counsel getCounselByMember(Member member) {
         return findByMember(member)
-                .orElseThrow(() -> new CustomApiException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new CustomApiException(ErrorCode.COUNSEL_NOT_FOUND));
     }
 
     Optional<Counsel> findByMember(Member member);

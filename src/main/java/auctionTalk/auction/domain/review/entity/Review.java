@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.review.entity;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,7 +35,7 @@ public class Review extends BaseEntity {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewImage> images = new ArrayList<>();
 
-    public void updateReviewInfo(ReviewDto.ReviewUpdateRequestDto requestDto){
+    public void updateReviewInfo(ReviewUpdateRequest requestDto){
         this.score = requestDto.getScore();
         this.content = requestDto.getContent();
     }

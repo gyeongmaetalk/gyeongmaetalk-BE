@@ -4,10 +4,13 @@ import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
+import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
 import auctionTalk.auction.domain.review.entity.Review;
+import auctionTalk.auction.domain.review.entity.ReviewImage;
 import auctionTalk.auction.domain.review.mapper.ReviewMapper;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
+import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final CounselRepository counselRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
+    private final ReviewImageService reviewImageService;
 
     @Override
     @Transactional
@@ -33,12 +37,45 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review newReview = createAndSaveReview(request, member, counsel);
 
-//        if (reviewImages != null) {
-//            List<ReviewImage> newReviewImages = reviewImageCommandAdapter.createAndSaveReviewImage(newReview, reviewImages);
-//            newReview.changeImages(newReviewImages);
-//        }
+        if (reviewImages != null) {
+            List<ReviewImage> newReviewImages = reviewImageService.createAndSaveReviewImage(newReview, reviewImages);
+            newReview.changeImages(newReviewImages);
+        }
 
         return new ReviewIdResponse(newReview.getId());
+    }
+
+    @Override
+    @Transactional
+    public ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, List<MultipartFile> newImages, Long memberId) {
+
+        // 수정 권한 유효성 검사(본인이 아닌 경우 수정 불가)
+        Review review = reviewRepository.getReview(reviewId);
+        ParamValidator.validModify(review.getMember().getId(), memberId);
+
+        review.updateReviewInfo(request);
+
+        // 이미지 업데이트
+        if (newImages != null && !newImages.isEmpty()) {
+            reviewImageService.updateReviewImages(review, request.getExistingImages(), newImages);
+        }
+
+        return new  ReviewIdResponse(review.getId());
+    }
+
+    @Override
+    @Transactional
+    public ReviewIdResponse deleteReview(Long reviewId, Long memberId){
+
+        // 수정 권한 유효성 검사(본인이 아닌 경우 수정 불가)
+        Review review = reviewRepository.getReview(reviewId);
+        ParamValidator.validModify(review.getMember().getId(), memberId);
+
+        reviewImageService.deleteExistingImages(review.getImages());
+
+        reviewRepository.deleteById(reviewId);
+
+        return new ReviewIdResponse(reviewId);
     }
 
     private Review createAndSaveReview(ReviewCreateRequest request, Member member, Counsel counsel) {
