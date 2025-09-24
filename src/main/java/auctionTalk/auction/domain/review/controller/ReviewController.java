@@ -3,11 +3,16 @@ package auctionTalk.auction.domain.review.controller;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
+import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
+import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
+import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
+import auctionTalk.auction.domain.review.entity.ReviewSortType;
 import auctionTalk.auction.domain.review.service.ReviewService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,5 +59,32 @@ public class ReviewController {
             @Parameter(description = "삭제할 리뷰 id") @PathVariable Long reviewId
     ){
         return BaseResponse.onSuccess(reviewService.deleteReview(reviewId, member.getId()));
+    }
+
+    @Operation(summary = "상당 후기 목록 조회 API")
+    @GetMapping("/{counselorId}")
+    @Parameters(value = {
+            @Parameter(name = "counselorId", description = "상담사 id"),
+            @Parameter(name = "type", description = "리뷰 정렬 타입"),
+            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+    })
+    public BaseResponse<ReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
+            @AuthenticationPrincipal Member member,
+            @PathVariable("counselorId") Long counselorId,
+            @RequestParam ReviewSortType type,
+            @RequestParam(name = "page") int page,
+            @RequestParam(name = "size") int size
+    ){
+        return BaseResponse.onSuccess(reviewService.inquiryReviews(counselorId, member, type, page, size));
+    }
+
+    @Operation(summary = "상담 후기 상세 조회 API")
+    @GetMapping("/{reviewId}")
+    public BaseResponse<ReviewDetailResponse> inquiryReview(
+            @AuthenticationPrincipal Member member,
+            @PathVariable("reviewId") Long reviewId
+    ){
+        return BaseResponse.onSuccess(reviewService.inquiryReviewDetail(reviewId, member));
     }
 }

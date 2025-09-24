@@ -15,4 +15,35 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         return findById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.REVIEW_NOT_FOUND));
     }
+
+    @Query("SELECT r FROM Review r " +
+            "JOIN r.counsel c " +
+            "JOIN c.counselor co " +
+            "WHERE co.id = :counselorId " +
+            "ORDER BY r.createdAt DESC")
+    Page<Review> findLatestByCounselorId(@Param("counselorId") Long counselorId, Pageable pageable);
+
+    // 상담사 ID + 오래된순
+    @Query("SELECT r FROM Review r " +
+            "JOIN r.counsel c " +
+            "JOIN c.counselor co " +
+            "WHERE co.id = :counselorId " +
+            "ORDER BY r.createdAt ASC")
+    Page<Review> findOldestByCounselorId(@Param("counselorId") Long counselorId, Pageable pageable);
+
+    // 상담사 ID + 별점 높은순
+    @Query("SELECT r FROM Review r " +
+            "JOIN r.counsel c " +
+            "JOIN c.counselor co " +
+            "WHERE co.id = :counselorId " +
+            "ORDER BY r.score DESC")
+    Page<Review> findHighestRatingByCounselorId(@Param("counselorId") Long counselorId, Pageable pageable);
+
+    // 상담사 ID + 별점 낮은순
+    @Query("SELECT r FROM Review r " +
+            "JOIN r.counsel c " +
+            "JOIN c.counselor co " +
+            "WHERE co.id = :counselorId " +
+            "ORDER BY r.score ASC")
+    Page<Review> findLowestRatingByCounselorId(@Param("counselorId") Long counselorId, Pageable pageable);
 }
