@@ -1,0 +1,19 @@
+package auctionTalk.auction.domain.member.repository;
+
+import auctionTalk.auction.domain.member.entity.LoginType;
+import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface MemberRepository extends JpaRepository<Member, Long> {
+
+    default Member getMember(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    Optional<Member> findByClientIdAndLoginType(String clientId, LoginType loginType);
+}

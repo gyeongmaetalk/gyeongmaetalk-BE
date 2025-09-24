@@ -12,6 +12,7 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON402", "금지된 요청입니다."),
+    UNAUTHORIZED_MODIFY(HttpStatus.BAD_REQUEST, "COMMON403", "수정, 삭제 권한이 없습니다."),
 
     // JWT Token
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401", "잘못된 JWT 토큰입니다."),
@@ -29,6 +30,14 @@ public enum ErrorCode {
 
     // Member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER401", "사용자를 찾을 수 없습니다."),
+
+    // Counsel
+    COUNSEL_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSEL401", "상담을 찾을 수 없습니다."),
+
+    // Review
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW401", "리뷰를 찾을 수 없습니다."),
+    INVALID_REVIEW_SORT_TYPE(HttpStatus.BAD_REQUEST, "REVIEW402", "유효하지 않은 리뷰 정렬 타입 입니다."),
+
     ;
 
     private final HttpStatus httpStatus;
