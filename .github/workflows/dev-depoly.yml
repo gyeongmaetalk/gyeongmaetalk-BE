@@ -9,7 +9,7 @@ name: AuctionTalk Dev Deploy
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "dev" ]
 
 jobs:
   build:
