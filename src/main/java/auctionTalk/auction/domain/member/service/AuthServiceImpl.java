@@ -5,7 +5,9 @@ import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.config.security.jwt.RefreshTokenInfo;
 import auctionTalk.auction.domain.member.client.AppleMemberClient;
 import auctionTalk.auction.domain.member.client.KakaoMemberClient;
+import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
@@ -40,6 +42,14 @@ public class AuthServiceImpl implements AuthService{
         }
 
         return generateTokensForNewMember(clientId, loginType);
+    }
+
+    @Override
+    @Transactional
+    public MemberIdResponse register(Member member, SignupRequest request){
+        member.completeRegistration(request.getName(), request.getBirth(), request.getCellPhone());
+
+        return new MemberIdResponse(member.getId());
     }
 
     @Override
