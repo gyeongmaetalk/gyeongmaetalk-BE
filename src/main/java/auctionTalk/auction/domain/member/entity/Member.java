@@ -22,21 +22,22 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
     private String cellPhone;
 
-    @Column(nullable = false)
     private LocalDate birth;
 
     @Column(nullable = false)
-    private Boolean isActive;
-
-    @Column(nullable = false)
-    private Boolean isDeleted;
+    private boolean registered = false;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public void completeRegistration(String name, LocalDate birth, String cellPhone) {
+        this.name = name;
+        this.birth = birth;
+        this.cellPhone = cellPhone;
+        this.registered = true;
+    }
 }

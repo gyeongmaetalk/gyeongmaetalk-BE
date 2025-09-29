@@ -1,12 +1,16 @@
 package auctionTalk.auction.domain.member.controller;
 
+import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
+import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.domain.member.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "인증 API", description = "인증 관련 API")
@@ -24,6 +28,14 @@ public class AuthController {
             @RequestParam(name = "provider") LoginType loginType
     ) {
         return BaseResponse.onSuccess(authService.login(accessToken, loginType));
+    }
+
+    @PostMapping("/signup")
+    public BaseResponse<MemberIdResponse> signup(
+            @AuthenticationPrincipal Member member,
+            @RequestBody SignupRequest request
+    ) {
+        return BaseResponse.onSuccess(authService.register(member, request));
     }
 
     @Operation(summary = "토큰 재발급 API")
