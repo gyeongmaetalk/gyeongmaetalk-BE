@@ -49,6 +49,8 @@ public class AuthServiceImpl implements AuthService{
     public MemberIdResponse register(Member member, SignupRequest request){
         member.completeRegistration(request.getName(), request.getBirth(), request.getCellPhone());
 
+        memberRepository.save(member);
+
         return new MemberIdResponse(member.getId());
     }
 
