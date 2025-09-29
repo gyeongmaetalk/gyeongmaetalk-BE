@@ -1,10 +1,10 @@
 package auctionTalk.auction.domain.member.controller;
 
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
-import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.domain.member.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,12 +30,13 @@ public class AuthController {
         return BaseResponse.onSuccess(authService.login(accessToken, loginType));
     }
 
+    @Operation(summary = "회원가입(회원 정보 입력) API")
     @PostMapping("/signup")
     public BaseResponse<MemberIdResponse> signup(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @RequestBody SignupRequest request
     ) {
-        return BaseResponse.onSuccess(authService.register(member, request));
+        return BaseResponse.onSuccess(authService.register(member.getMember(), request));
     }
 
     @Operation(summary = "토큰 재발급 API")
