@@ -10,6 +10,9 @@ public class SecurityConstant {
 
     // 비로그인 허용 API
     public static final String[] PUBLIC_URLS = {
+            "/auth/login", "/auth/refresh",
+            "/v3/**", "/swagger-ui/**",
+            "/test/**",
     };
 
     // 로그인 필요 API
