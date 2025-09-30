@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Builder
@@ -19,8 +21,11 @@ public class ReviewSummaryResponse {
     @Schema(description = "리뷰 작성 날짜", example = "2022-12-31T12:00:00")
     private LocalDateTime createAt;
 
-    @Schema(description = "상담 일자", example = "2021-12-31T12:00:00")
-    private LocalDateTime counselDateTime;
+    @Schema(description = "상담 날짜", example = "2021-12-31")
+    private LocalDate counselDate;
+
+    @Schema(description = "상담 시간", example = "12:00:00")
+    private LocalTime counselTime;
 
     @Schema(description = "본인 게시글 여부", example = "true")
     private boolean isMine;
