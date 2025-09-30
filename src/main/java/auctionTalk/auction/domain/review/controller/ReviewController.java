@@ -63,8 +63,24 @@ public class ReviewController {
         return BaseResponse.onSuccess(reviewService.deleteReview(reviewId, member.getMember().getId()));
     }
 
-    @Operation(summary = "상당 후기 목록 조회 API")
-    @GetMapping("/{counselorId}")
+    @Operation(summary = "전체 후기 목록 조회 API")
+    @GetMapping("/list")
+    @Parameters(value = {
+            @Parameter(name = "type", description = "리뷰 정렬 타입"),
+            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+    })
+    public BaseResponse<ReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
+            @AuthenticationPrincipal PrincipalDetails member,
+            @RequestParam ReviewSortType type,
+            @RequestParam(name = "page") int page,
+            @RequestParam(name = "size") int size
+    ){
+        return BaseResponse.onSuccess(reviewService.inquiryReviews(member.getMember(), type, page, size));
+    }
+
+    @Operation(summary = "특정 상담사 후기 목록 조회 API")
+    @GetMapping("/list/{counselorId}")
     @Parameters(value = {
             @Parameter(name = "counselorId", description = "상담사 id"),
             @Parameter(name = "type", description = "리뷰 정렬 타입"),
@@ -78,7 +94,7 @@ public class ReviewController {
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ){
-        return BaseResponse.onSuccess(reviewService.inquiryReviews(counselorId, member.getMember(), type, page, size));
+        return BaseResponse.onSuccess(reviewService.inquiryReviewsByCounselor(counselorId, member.getMember(), type, page, size));
     }
 
     @Operation(summary = "상담 후기 상세 조회 API")

@@ -23,6 +23,7 @@ public interface ReviewService {
     ReviewIdResponse reportReview(Long reviewId, Member member, ReportType reasonType, String reason);
 
     //query
-    ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Long counselorId, Member member, ReviewSortType sortType, int page, int size);
+    ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size);
+    ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size);
     ReviewDetailResponse inquiryReviewDetail(Long reviewId, Member member);
 }

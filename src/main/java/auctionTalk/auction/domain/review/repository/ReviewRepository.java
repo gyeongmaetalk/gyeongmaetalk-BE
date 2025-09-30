@@ -16,6 +16,23 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                 .orElseThrow(() -> new CustomApiException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
+    // 전체 리뷰 + 최신순
+    @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")
+    Page<Review> findLatest(Pageable pageable);
+
+    // 전체 리뷰 + 오래된순
+    @Query("SELECT r FROM Review r ORDER BY r.createdAt ASC")
+    Page<Review> findOldest(Pageable pageable);
+
+    // 전체 리뷰 + 별점 높은순
+    @Query("SELECT r FROM Review r ORDER BY r.score DESC")
+    Page<Review> findHighestRating(Pageable pageable);
+
+    // 전체 리뷰 + 별점 낮은순
+    @Query("SELECT r FROM Review r ORDER BY r.score ASC")
+    Page<Review> findLowestRating(Pageable pageable);
+
+    // 상담사 ID + 최신순
     @Query("SELECT r FROM Review r " +
             "JOIN r.counsel c " +
             "JOIN c.counselor co " +

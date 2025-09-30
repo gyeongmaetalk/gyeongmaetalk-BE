@@ -102,7 +102,25 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Long counselorId, Member member, ReviewSortType sortType, int page, int size){
+    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Review> reviewPage = switch (sortType) {
+            case LATEST -> reviewRepository.findLatest(pageable);
+            case OLDEST -> reviewRepository.findOldest(pageable);
+            case HIGHEST_SCORE ->  reviewRepository.findHighestRating(pageable);
+            case LOWEST_SCORE ->  reviewRepository.findLowestRating(pageable);
+            default ->  throw new CustomApiException(ErrorCode.INVALID_REVIEW_SORT_TYPE);
+        };
+
+        return reviewMapper.toReviewPagingResponse(
+                reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size){
 
         Pageable pageable = PageRequest.of(page, size);
 
