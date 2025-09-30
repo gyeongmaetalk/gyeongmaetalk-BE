@@ -6,8 +6,10 @@ import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
 import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
+import auctionTalk.auction.domain.review.entity.ReportType;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.entity.ReviewImage;
+import auctionTalk.auction.domain.review.entity.ReviewReport;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,15 @@ public class ReviewMapper {
                 .counsel(counsel)
                 .score(request.getScore())
                 .content(request.getContent())
+                .build();
+    }
+    
+    public ReviewReport toReviewReport(ReportType reasonType, String reason, Member member, Review review){
+        return ReviewReport.builder()
+                .member(member)
+                .reportType(reasonType)
+                .content(reason)
+                .review(review)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.review.controller;
 
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
@@ -7,6 +8,7 @@ import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
+import auctionTalk.auction.domain.review.entity.ReportType;
 import auctionTalk.auction.domain.review.entity.ReviewSortType;
 import auctionTalk.auction.domain.review.service.ReviewService;
 import auctionTalk.auction.global.common.BaseResponse;
@@ -34,31 +36,31 @@ public class ReviewController {
     @Operation(summary = "상담 후기 생성 API")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<ReviewIdResponse> createReview(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "상담 후기 이미지 파일들(없을 시 사용 x)") @RequestPart(value = "reviewImages", required = false) List<MultipartFile> reviewImages,
             @Parameter(description = "상담 후기 생성 요청 json")  @Valid @RequestPart("request")ReviewCreateRequest request
             ){
-        return BaseResponse.onSuccess(reviewService.createReview(request, reviewImages, member));
+        return BaseResponse.onSuccess(reviewService.createReview(request, reviewImages, member.getMember()));
     }
 
     @Operation(summary = "상담 후기 수정 API")
     @PatchMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<ReviewIdResponse> updateReview(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "수정할 리뷰 id") @PathVariable Long reviewId,
             @Parameter(description = "상담 후기 이미지 파일들(없을 시 사용 x)") @RequestPart(value = "reviewImages", required = false) List<MultipartFile> reviewImages,
             @Parameter(description = "상담 후기 수정 요청 json")  @Valid @RequestPart("request") ReviewUpdateRequest request
     ){
-        return BaseResponse.onSuccess(reviewService.updateReview(reviewId, request, reviewImages, member.getId()));
+        return BaseResponse.onSuccess(reviewService.updateReview(reviewId, request, reviewImages, member.getMember().getId()));
     }
 
     @Operation(summary = "상담 후기 삭제 API")
     @DeleteMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<ReviewIdResponse> deleteReview(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "삭제할 리뷰 id") @PathVariable Long reviewId
     ){
-        return BaseResponse.onSuccess(reviewService.deleteReview(reviewId, member.getId()));
+        return BaseResponse.onSuccess(reviewService.deleteReview(reviewId, member.getMember().getId()));
     }
 
     @Operation(summary = "상당 후기 목록 조회 API")
@@ -70,21 +72,38 @@ public class ReviewController {
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
     public BaseResponse<ReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @PathVariable("counselorId") Long counselorId,
             @RequestParam ReviewSortType type,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ){
-        return BaseResponse.onSuccess(reviewService.inquiryReviews(counselorId, member, type, page, size));
+        return BaseResponse.onSuccess(reviewService.inquiryReviews(counselorId, member.getMember(), type, page, size));
     }
 
     @Operation(summary = "상담 후기 상세 조회 API")
     @GetMapping("/{reviewId}")
     public BaseResponse<ReviewDetailResponse> inquiryReview(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @PathVariable("reviewId") Long reviewId
     ){
-        return BaseResponse.onSuccess(reviewService.inquiryReviewDetail(reviewId, member));
+        return BaseResponse.onSuccess(reviewService.inquiryReviewDetail(reviewId, member.getMember()));
     }
+
+    @Operation(summary = "리뷰 신고 API")
+    @PostMapping("/{reviewId}/reports")
+    @Parameters(value = {
+            @Parameter(name = "reviewId", description = "신고할 리뷰 아이디"),
+            @Parameter(name = "reasonType", description = "신고 이유 타입"),
+            @Parameter(name = "reasonDetail", description = "신고 상세 이유"),
+    })
+    public BaseResponse<ReviewIdResponse> reportReview(
+            @AuthenticationPrincipal PrincipalDetails member,
+            @PathVariable("reviewId") Long reviewId,
+            @RequestParam(name = "reasonType") ReportType reasonType,
+            @RequestParam(name = "reasonDetail") String reasonDetail
+            ){
+        return BaseResponse.onSuccess(reviewService.reportReview(reviewId, member.getMember(), reasonType, reasonDetail));
+    }
+
 }

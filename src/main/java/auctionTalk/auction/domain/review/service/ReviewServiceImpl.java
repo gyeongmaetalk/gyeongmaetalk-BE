@@ -9,10 +9,9 @@ import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
-import auctionTalk.auction.domain.review.entity.Review;
-import auctionTalk.auction.domain.review.entity.ReviewImage;
-import auctionTalk.auction.domain.review.entity.ReviewSortType;
+import auctionTalk.auction.domain.review.entity.*;
 import auctionTalk.auction.domain.review.mapper.ReviewMapper;
+import auctionTalk.auction.domain.review.repository.ReviewReportRepository;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -34,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final CounselRepository counselRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
+    private final ReviewReportRepository reviewReportRepository;
     private final ReviewImageService reviewImageService;
 
     @Override
@@ -85,6 +85,19 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.deleteById(reviewId);
 
         return new ReviewIdResponse(reviewId);
+    }
+
+    @Override
+    @Transactional
+    public ReviewIdResponse reportReview(Long reviewId, Member member, ReportType reasonType, String reason){
+
+        Review review = reviewRepository.getReview(reviewId);
+
+        ReviewReport reviewReport = reviewMapper.toReviewReport(reasonType,reason, member, review);
+
+        reviewReportRepository.save(reviewReport);
+
+        return new ReviewIdResponse(review.getId());
     }
 
     @Override
