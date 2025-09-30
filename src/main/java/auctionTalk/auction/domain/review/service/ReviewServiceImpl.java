@@ -9,10 +9,9 @@ import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
-import auctionTalk.auction.domain.review.entity.Review;
-import auctionTalk.auction.domain.review.entity.ReviewImage;
-import auctionTalk.auction.domain.review.entity.ReviewSortType;
+import auctionTalk.auction.domain.review.entity.*;
 import auctionTalk.auction.domain.review.mapper.ReviewMapper;
+import auctionTalk.auction.domain.review.repository.ReviewReportRepository;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -34,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final CounselRepository counselRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
+    private final ReviewReportRepository reviewReportRepository;
     private final ReviewImageService reviewImageService;
 
     @Override
@@ -88,8 +88,39 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
+    public ReviewIdResponse reportReview(Long reviewId, Member member, ReportType reasonType, String reason){
+
+        Review review = reviewRepository.getReview(reviewId);
+
+        ReviewReport reviewReport = reviewMapper.toReviewReport(reasonType,reason, member, review);
+
+        reviewReportRepository.save(reviewReport);
+
+        return new ReviewIdResponse(review.getId());
+    }
+
+    @Override
     @Transactional(readOnly = true)
-    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Long counselorId, Member member, ReviewSortType sortType, int page, int size){
+    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Review> reviewPage = switch (sortType) {
+            case LATEST -> reviewRepository.findLatest(pageable);
+            case OLDEST -> reviewRepository.findOldest(pageable);
+            case HIGHEST_SCORE ->  reviewRepository.findHighestRating(pageable);
+            case LOWEST_SCORE ->  reviewRepository.findLowestRating(pageable);
+            default ->  throw new CustomApiException(ErrorCode.INVALID_REVIEW_SORT_TYPE);
+        };
+
+        return reviewMapper.toReviewPagingResponse(
+                reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size){
 
         Pageable pageable = PageRequest.of(page, size);
 
