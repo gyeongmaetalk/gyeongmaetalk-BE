@@ -1,15 +1,14 @@
 package auctionTalk.auction.domain.counsel.entity;
 
-import auctionTalk.auction.domain.counselor.entity.Area;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
-import auctionTalk.auction.domain.counselor.entity.Field;
-import auctionTalk.auction.domain.counselor.entity.ServiceType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -29,17 +28,11 @@ public class Counsel extends BaseEntity {
     @JoinColumn
     private Counselor counselor;
 
-    private LocalDateTime bookedDate;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    private Area area;
+    private CounselForm counselForm;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
-    private Field field;
+    private LocalDate counselDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
-    private ServiceType serviceType;
+    private LocalTime counselTime;
 }

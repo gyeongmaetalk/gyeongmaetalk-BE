@@ -31,6 +31,9 @@ public enum ErrorCode {
     // Member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER401", "사용자를 찾을 수 없습니다."),
 
+    // Counselor
+    COUNSELOR_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSELOR401", "상담사를 찾을 수 없습니다."),
+
     // Counsel
     COUNSEL_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSEL401", "상담을 찾을 수 없습니다."),
 

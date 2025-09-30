@@ -1,4 +1,4 @@
-package auctionTalk.auction.domain.review.entity;
+package auctionTalk.auction.domain.counsel.entity;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReviewReport extends BaseEntity {
+public class CounselForm extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +23,15 @@ public class ReviewReport extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    private Review review;
+    private Counselor counselor;
 
-    private ReportType reportType;
+    private String purpose;
 
-    private String content;
+    private String area;
+
+    private String serviceType;
+
+    private String interest;
+
+    private String participantType;
 }
