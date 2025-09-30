@@ -24,7 +24,7 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
 
     @Query("SELECT c.counselTime FROM Counsel c " +
             "WHERE c.counselor.id = :counselorId " +
-            "AND C.counselDate = :date")
+            "AND c.counselDate = :date")
     List<LocalTime> findReservedTimes(@Param("counselorId") Long counselorId,
                                       @Param("date") LocalDate date);
 }
