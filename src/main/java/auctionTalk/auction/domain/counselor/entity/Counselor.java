@@ -33,7 +33,7 @@ public class Counselor extends BaseEntity {
 
     private int counselCount;
 
-    private List<String> license;
+    private String license;
 
     /**
      * 모든 상담사의 상담 가능 시간대 (10:00 ~ 20:30, 30분 단위 고정)

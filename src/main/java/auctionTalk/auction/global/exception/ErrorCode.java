@@ -37,6 +37,9 @@ public enum ErrorCode {
     // Counsel
     COUNSEL_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSEL401", "상담을 찾을 수 없습니다."),
 
+    // Counsel_Form
+    COUNSEL_FORM_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSEL_FORM401", "상담 신청 폼을 찾을 수 없습니다."),
+
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW401", "리뷰를 찾을 수 없습니다."),
     INVALID_REVIEW_SORT_TYPE(HttpStatus.BAD_REQUEST, "REVIEW402", "유효하지 않은 리뷰 정렬 타입 입니다."),
