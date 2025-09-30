@@ -1,7 +1,9 @@
 package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
+import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselIdResponse;
+import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
 import auctionTalk.auction.domain.counsel.mapper.CounselMapper;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -30,20 +31,24 @@ public class CounselServiceImpl implements CounselService {
 
     @Override
     @Transactional
-    public CounselIdResponse applyCounsel(Member member , Long counselorId, LocalDate counselDate, LocalTime counselTime){
+    public ApplyCounselResponse applyCounsel(Long counselFormId, Member member , Long counselorId, LocalDate counselDate, LocalTime counselTime){
         Counselor counselor = counselorRepository.getCounselor(counselorId);
 
-        Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime);
+        CounselForm counselForm = counselFormRepository.getCounselFormById(counselFormId);
 
-        return new CounselIdResponse(counsel.getId());
+        Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
+
+        return counselMapper.toApplyCounselResponse(counselForm, counselDate, counselTime);
     }
 
     @Override
     @Transactional
-    public CounselIdResponse matchCounselor(CounselFormCreateRequest request, Member member){
+    public MatchCounselorResponse matchCounselor(CounselFormCreateRequest request, Member member){
+        Counselor counselor = counselorRepository.getCounselor(1L);
+
         CounselForm counselForm = createAndSaveCounselForm(request, member);
 
-        return new CounselIdResponse(counselForm.getId());
+        return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId());
     }
 
     @Override
@@ -60,8 +65,8 @@ public class CounselServiceImpl implements CounselService {
                 .toList();
     }
 
-    private Counsel createAndSaveCounsel(Member member, Counselor counselor, LocalDate counselDate, LocalTime counselTime){
-        Counsel counsel = counselMapper.toCounsel(member, counselor, counselDate, counselTime);
+    private Counsel createAndSaveCounsel(Member member, Counselor counselor, LocalDate counselDate, LocalTime counselTime, CounselForm counselForm){
+        Counsel counsel = counselMapper.toCounsel(member, counselor, counselDate, counselTime, counselForm);
 
         return counselRepository.save(counsel);
     }

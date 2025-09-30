@@ -2,7 +2,9 @@ package auctionTalk.auction.domain.counsel.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
+import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselIdResponse;
+import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.service.CounselService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,8 +28,8 @@ public class CounselController {
     private final CounselService counselService;
 
     @Operation(summary = "상담사 매칭 API")
-    @PostMapping("matches")
-    public BaseResponse<CounselIdResponse> matchCounselor(
+    @PostMapping("/matches")
+    public BaseResponse<MatchCounselorResponse> matchCounselor(
             @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "상담사 매칭 요청 json")  @Valid @RequestBody CounselFormCreateRequest request
             ){
@@ -38,16 +40,18 @@ public class CounselController {
     @PostMapping("/{counselorId}")
     @Parameters(value = {
             @Parameter(name = "counselId", description = "상담사 id"),
+            @Parameter(name = "counselFormId", description = "상담 신청 폼 id"),
             @Parameter(name = "date", description = "희망 날짜"),
             @Parameter(name = "time", description = "희망 시간")
     })
-    public BaseResponse<CounselIdResponse> applyCounsel(
+    public BaseResponse<ApplyCounselResponse> applyCounsel(
             @AuthenticationPrincipal PrincipalDetails member,
             @PathVariable("counselorId") Long counselorId,
+            @RequestParam("counselFormId") Long counselFormId,
             @RequestParam(name = "date") LocalDate date,
             @RequestParam(name = "time") LocalTime time
     ){
-        return BaseResponse.onSuccess(counselService.applyCounsel(member.getMember(), counselorId, date, time));
+        return BaseResponse.onSuccess(counselService.applyCounsel(counselFormId, member.getMember(), counselorId, date, time));
     }
 
     @Operation(summary = "상담 가능 시간 조회 API")
