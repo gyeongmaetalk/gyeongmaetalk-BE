@@ -8,7 +8,7 @@ import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 
 public interface AuthService {
-    AuthTokenResponse login(String accessToken, LoginType provider);
+    AuthTokenResponse login(Member member);
     MemberIdResponse register(Member member, SignupRequest request);
     AuthTokenResponse refresh(String refreshToken);
 }

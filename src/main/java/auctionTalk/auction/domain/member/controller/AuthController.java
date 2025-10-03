@@ -21,15 +21,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "로그인 API")
-    @PostMapping("/login")
-    public BaseResponse<AuthTokenResponse> login(
-            @RequestParam(name = "accessToken") String accessToken,
-            @RequestParam(name = "provider") LoginType loginType
-    ) {
-        return BaseResponse.onSuccess(authService.login(accessToken, loginType));
-    }
-
     @Operation(summary = "회원가입(회원 정보 입력) API")
     @PostMapping("/signup")
     public BaseResponse<MemberIdResponse> signup(
