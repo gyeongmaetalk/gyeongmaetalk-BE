@@ -1,5 +1,7 @@
 package auctionTalk.auction.config.security;
 
+import auctionTalk.auction.config.security.auth.CustomOAuth2UserService;
+import auctionTalk.auction.config.security.auth.OAuth2LoginSuccessHandler;
 import auctionTalk.auction.config.security.jwt.CustomAccessDeniedHandler;
 import auctionTalk.auction.config.security.jwt.CustomAuthenticationEntryPoint;
 import auctionTalk.auction.config.security.jwt.JwtAuthorizationFilter;
@@ -27,6 +29,8 @@ public class SecurityConfig {
     private final MemberRepository memberRepository;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -48,7 +52,15 @@ public class SecurityConfig {
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리
                         .accessDeniedHandler(customAccessDeniedHandler)           // 인가 실패 처리
                 )
-                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService) // 사용자 정보 로드
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 JWT 발급
+                );
+
 
         return http.build();
     }

@@ -33,15 +33,8 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     @Transactional
-    public AuthTokenResponse login(String accessToken, LoginType loginType){
-        String clientId = getClientIdByLoginType(accessToken, loginType);
-        Optional<Member> member = memberRepository.findByClientIdAndLoginType(clientId, loginType);
-
-        if(member.isPresent()){
-            return generateTokensForExistingMember(member.get());
-        }
-
-        return generateTokensForNewMember(clientId, loginType);
+    public AuthTokenResponse login(Member member){
+        return generateTokensForExistingMember(member);
     }
 
     @Override

@@ -42,7 +42,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 // 데이터베이스에서 Member 조회
                 Member member = memberRepository.getMember(memberId);
 
-                PrincipalDetails principal = new PrincipalDetails(member);
+                PrincipalDetails principal = new PrincipalDetails(member, null);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
