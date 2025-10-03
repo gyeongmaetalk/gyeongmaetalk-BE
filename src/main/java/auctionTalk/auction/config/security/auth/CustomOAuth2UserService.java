@@ -5,6 +5,7 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -33,8 +34,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // DB에 존재하는지 확인
         Member member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
-                // 없으면 새로 생성
-                .orElse(memberRepository.save(authMapper.toMember(clientId, LoginType.from(registrationId))));
+                .orElseGet(() -> {
+                    Member newMember = authMapper.toMember(clientId, LoginType.from(registrationId));
+                    try {
+                        return memberRepository.save(newMember);
+                    } catch (DataIntegrityViolationException e) {
+                        return memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
+                                .orElseThrow(() -> new IllegalStateException("회원 조회 실패"));
+                    }
+                });
 
         return new PrincipalDetails(member, attributes);
     }
