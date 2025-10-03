@@ -12,7 +12,7 @@ public class SecurityConstant {
     public static final String[] PUBLIC_URLS = {
             "/auth/login", "/auth/refresh",
             "/v3/**", "/swagger-ui/**",
-            "/test/**",
+            "/test/**", "/login/**", "/oauth2/**"
     };
 
     // 로그인 필요 API
