@@ -27,7 +27,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // ✅ 기존 AuthServiceImpl 로직 그대로 재사용
         AuthTokenResponse tokenResponse = authService.login(principalDetails.getMember());
 
-        String redirectUrl = "http://localhost:5173/redirect/success?accessToken="
+        String redirectUrl = "http://localhost:5173/redirect?accessToken="
                 + tokenResponse.getAccessToken()
                 + "&refreshToken=" + tokenResponse.getRefreshToken();
 
