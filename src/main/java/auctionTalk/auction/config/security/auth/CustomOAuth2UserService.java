@@ -33,26 +33,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String clientId = attributes.get(userNameAttribute).toString();
 
-        Member member;
-        boolean isRegistered;
+        Member member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
+                .orElseGet(() -> {
+                    Member newMember = authMapper.toMember(clientId, LoginType.from(registrationId));
+                    return memberRepository.save(newMember);
+                });
 
-        Optional<Member> optionalMember =
-                memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId));
-
-        if (optionalMember.isPresent()) {
-            member = optionalMember.get();
-            isRegistered = true;
-        } else {
-            try {
-                member = memberRepository.save(authMapper.toMember(clientId, LoginType.from(registrationId)));
-                isRegistered = false;
-            } catch (DataIntegrityViolationException e) {
-                member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
-                        .orElseThrow(() -> new IllegalStateException("회원 조회 실패"));
-                isRegistered = true;
-            }
-        }
-
-        return new PrincipalDetails(member, isRegistered, attributes);
+        return new PrincipalDetails(member, attributes);
     }
 }
