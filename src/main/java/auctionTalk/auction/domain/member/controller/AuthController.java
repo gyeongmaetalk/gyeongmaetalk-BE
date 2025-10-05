@@ -4,10 +4,12 @@ import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
-import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.domain.member.service.AuthService;
+import auctionTalk.auction.utils.sms.SmsService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final SmsService smsService;
 
     @Operation(summary = "회원가입(회원 정보 입력) API")
     @PostMapping("/signup")
@@ -37,4 +40,29 @@ public class AuthController {
     ) {
         return BaseResponse.onSuccess(authService.refresh(refreshToken));
     }
+
+    @Operation(summary = "휴대폰 인증번호 문자 전송 API")
+    @PostMapping("/sms")
+    @Parameters(value = {
+            @Parameter(name = "phoneNumber", description = "인증할 전화번호")
+    })
+    public BaseResponse<String> sendSms(
+            @RequestParam(name = "phoneNumber") String phoneNumber
+    ){
+        return BaseResponse.onSuccess(smsService.SendSms(phoneNumber));
+    }
+
+    @Operation(summary = "휴대폰 인증번호 확인 API")
+    @PostMapping("/sms/verify")
+    @Parameters(value = {
+            @Parameter(name = "phoneNumber", description = "전화번호"),
+            @Parameter(name = "code", description = "사용자가 입력한 인증번호")
+    })
+    public BaseResponse<Boolean> verifySms(
+            @RequestParam String phoneNumber,
+            @RequestParam String code
+    ) {
+        return BaseResponse.onSuccess(smsService.verifyCode(phoneNumber, code));
+    }
+
 }
