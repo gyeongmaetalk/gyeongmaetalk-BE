@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,14 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     private Member member;
     private final boolean isRegistered;
     private Map<String, Object> attributes;
+
+    // ✅ JWT 로그인용 (attributes만 넘기는 버전)
+    public PrincipalDetails(Member member, Map<String, Object> attributes) {
+        this.member = member;
+        this.isRegistered = true;
+        this.attributes = attributes != null ? attributes : Collections.emptyMap();
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
