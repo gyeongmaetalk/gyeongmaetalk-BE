@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class SmsUtil {
 
-    @Value("${coolsms.apikey}") // coolsms의 API 키 주입
+    @Value("${coolsms.api.key}") // coolsms의 API 키 주입
     private String apiKey;
 
-    @Value("${coolsms.apisecret}") // coolsms의 API 비밀키 주입
+    @Value("${coolsms.api.secret}") // coolsms의 API 비밀키 주입
     private String apiSecret;
 
-    @Value("${coolsms.fromnumber}") // 발신자 번호 주입
+    @Value("${coolsms.api.number}") // 발신자 번호 주입
     private String fromNumber;
 
     DefaultMessageService messageService; // 메시지 서비스를 위한 객체
