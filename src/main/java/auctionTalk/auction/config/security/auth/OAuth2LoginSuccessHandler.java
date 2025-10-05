@@ -1,6 +1,7 @@
 package auctionTalk.auction.config.security.auth;
 
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.service.AuthService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,18 +22,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
+
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        Member member = principalDetails.getMember();
 
-        // ✅ 기존 AuthServiceImpl 로직 그대로 재사용
-        AuthTokenResponse tokenResponse = authService.login(principalDetails.getMember());
+        AuthTokenResponse tokenResponse = authService.login(member);
 
-        boolean registered = principalDetails.isRegistered();
-
-        String redirectUrl = "http://localhost:5173/redirect?accessToken="
-                + tokenResponse.getAccessToken()
+        String redirectUrl = "http://localhost:5173/redirect"
+                + "?accessToken=" + tokenResponse.getAccessToken()
                 + "&refreshToken=" + tokenResponse.getRefreshToken()
-                + "&registered=" + registered;
+                + "&registered=" + member.isRegistered();
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
