@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,18 +33,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String clientId = attributes.get(userNameAttribute).toString();
 
-        // DB에 존재하는지 확인
-        Member member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
-                .orElseGet(() -> {
-                    Member newMember = authMapper.toMember(clientId, LoginType.from(registrationId));
-                    try {
-                        return memberRepository.save(newMember);
-                    } catch (DataIntegrityViolationException e) {
-                        return memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
-                                .orElseThrow(() -> new IllegalStateException("회원 조회 실패"));
-                    }
-                });
+        Member member;
+        boolean isRegistered;
 
-        return new PrincipalDetails(member, attributes);
+        Optional<Member> optionalMember =
+                memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId));
+
+        if (optionalMember.isPresent()) {
+            member = optionalMember.get();
+            isRegistered = true;
+        } else {
+            try {
+                member = memberRepository.save(authMapper.toMember(clientId, LoginType.from(registrationId)));
+                isRegistered = false;
+            } catch (DataIntegrityViolationException e) {
+                member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
+                        .orElseThrow(() -> new IllegalStateException("회원 조회 실패"));
+                isRegistered = true;
+            }
+        }
+
+        return new PrincipalDetails(member, isRegistered, attributes);
     }
 }

@@ -16,6 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class PrincipalDetails implements UserDetails, OAuth2User {
     private Member member;
+    private final boolean isRegistered;
     private Map<String, Object> attributes;
 
     @Override
