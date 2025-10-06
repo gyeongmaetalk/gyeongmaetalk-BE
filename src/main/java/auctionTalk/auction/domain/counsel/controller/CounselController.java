@@ -3,7 +3,6 @@ package auctionTalk.auction.domain.counsel.controller;
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselIdResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.service.CounselService;
 import auctionTalk.auction.global.common.BaseResponse;
@@ -16,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -41,23 +41,21 @@ public class CounselController {
     @Parameters(value = {
             @Parameter(name = "counselId", description = "상담사 id"),
             @Parameter(name = "counselFormId", description = "상담 신청 폼 id"),
-            @Parameter(name = "date", description = "희망 날짜"),
-            @Parameter(name = "time", description = "희망 시간")
+            @Parameter(name = "date", description = "희망 시간"),
     })
     public BaseResponse<ApplyCounselResponse> applyCounsel(
             @AuthenticationPrincipal PrincipalDetails member,
             @PathVariable("counselorId") Long counselorId,
             @RequestParam("counselFormId") Long counselFormId,
-            @RequestParam(name = "date") LocalDate date,
-            @RequestParam(name = "time") LocalTime time
+            @RequestParam(name = "date") LocalDateTime dateTime
     ){
-        return BaseResponse.onSuccess(counselService.applyCounsel(counselFormId, member.getMember(), counselorId, date, time));
+        return BaseResponse.onSuccess(counselService.applyCounsel(counselFormId, member.getMember(), counselorId, dateTime.toLocalDate(), dateTime.toLocalTime()));
     }
 
     @Operation(summary = "상담 가능 시간 조회 API")
     @GetMapping("/{counselorId}/times")
     @Parameters(value = {
-            @Parameter(name = "counselId", description = "상담사 id"),
+            @Parameter(name = "counselorId", description = "상담사 id"),
             @Parameter(name = "date", description = "조회할 날짜"),
     })
     public BaseResponse<List<LocalTime>> inquiryPossibleTime(
