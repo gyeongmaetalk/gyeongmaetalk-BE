@@ -2,7 +2,6 @@ package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselIdResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
@@ -38,7 +37,7 @@ public class CounselServiceImpl implements CounselService {
 
         Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
 
-        return counselMapper.toApplyCounselResponse(counselForm, counselDate, counselTime);
+        return counselMapper.toApplyCounselResponse(counselForm, counselDate, counselTime, counselor);
     }
 
     @Override

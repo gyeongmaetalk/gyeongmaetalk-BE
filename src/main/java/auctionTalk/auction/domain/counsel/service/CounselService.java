@@ -2,7 +2,6 @@ package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselIdResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.member.entity.Member;
 

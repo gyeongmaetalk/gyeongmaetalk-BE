@@ -39,7 +39,7 @@ public class CounselController {
     @Operation(summary = "상담 신청 API")
     @PostMapping("/{counselorId}")
     @Parameters(value = {
-            @Parameter(name = "counselId", description = "상담사 id"),
+            @Parameter(name = "counselorId", description = "상담사 id"),
             @Parameter(name = "counselFormId", description = "상담 신청 폼 id"),
             @Parameter(name = "date", description = "희망 시간"),
     })
