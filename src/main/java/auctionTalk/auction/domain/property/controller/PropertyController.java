@@ -1,0 +1,46 @@
+package auctionTalk.auction.domain.property.controller;
+
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
+import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
+import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
+import auctionTalk.auction.domain.property.service.PropertyService;
+import auctionTalk.auction.global.common.BaseResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@Tag(name = "추천 매물 API", description = "추천 매물 관련 API")
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/properties")
+public class PropertyController {
+
+    private final PropertyService propertyService;
+
+    @Operation(summary = "추천 매물 목록 조회 API")
+    @GetMapping("/list")
+    @Parameters(value = {
+            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+    })
+    public BaseResponse<PropertyPagingResponse<PropertySummaryResponse>> inquiryProperties(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @RequestParam(name = "page") int page,
+            @RequestParam(name = "size") int size
+    ) {
+        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, page, size));
+    }
+
+    @Operation(summary = "추천 매물 상세 조회 API")
+    @GetMapping("/{propertyId}")
+    public BaseResponse<PropertyDetailResponse> inquiryPropertyDetail(
+            @PathVariable("propertyId") Long propertyId
+    ) {
+        return BaseResponse.onSuccess(propertyService.inquiryPropertyDetail(propertyId));
+    }
+}

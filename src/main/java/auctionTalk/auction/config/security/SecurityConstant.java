@@ -12,11 +12,13 @@ public class SecurityConstant {
     public static final String[] PUBLIC_URLS = {
             "/auth/login", "/auth/refresh",
             "/v3/**", "/swagger-ui/**",
-            "/test/**", "/login/**", "/oauth2/**"
+            "/test/**", "/login/**", "/oauth2/**",
+            "/reviews/**"
     };
 
     // 로그인 필요 API
     public static final String[] AUTHENTICATED_URLS = {
+            "/properties/**",
     };
 
     // 관리자 전용 API

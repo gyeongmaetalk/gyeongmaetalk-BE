@@ -35,7 +35,6 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewReportRepository reviewReportRepository;
     private final ReviewImageService reviewImageService;
-
     @Override
     @Transactional
     public ReviewIdResponse createReview(
@@ -47,7 +46,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review newReview = createAndSaveReview(request, member, counsel);
 
         if (reviewImages != null) {
-            List<ReviewImage> newReviewImages = reviewImageService.createAndSaveReviewImage(newReview, reviewImages);
+            List<ReviewImage> newReviewImages = reviewImageService.createAndSaveReviewImages(newReview, reviewImages);
             newReview.changeImages(newReviewImages);
         }
 

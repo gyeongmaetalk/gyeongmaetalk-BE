@@ -44,6 +44,8 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW401", "리뷰를 찾을 수 없습니다."),
     INVALID_REVIEW_SORT_TYPE(HttpStatus.BAD_REQUEST, "REVIEW402", "유효하지 않은 리뷰 정렬 타입 입니다."),
 
+    // Property
+    PROPERTY_NOT_FOUND(HttpStatus.NOT_FOUND, "PROPERTY401", "추천 매물을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
