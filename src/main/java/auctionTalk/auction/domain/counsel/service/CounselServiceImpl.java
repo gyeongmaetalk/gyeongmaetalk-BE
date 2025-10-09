@@ -2,7 +2,8 @@ package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselStatusResponse;
+import auctionTalk.auction.domain.counsel.dto.response.CounselCombinedResponse;
+import auctionTalk.auction.domain.counsel.dto.response.CounselInfoResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
@@ -75,39 +76,39 @@ public class CounselServiceImpl implements CounselService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public CounselStatusResponse getCounselStatus(Member member){
+    @Transactional
+    public CounselCombinedResponse getCounselInfo(Member member){
         Optional<Counsel> counsel = counselRepository.findByMember(member);
 
         if (counsel.isEmpty()) {
-            return new CounselStatusResponse(CounselStatus.NONE);
+            return new CounselCombinedResponse(CounselStatus.NONE, null);
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDate counselDate = counsel.get().getCounselDate();
-        LocalTime counselTime = counsel.get().getCounselTime();
+        Counsel existingCounsel = counsel.get();
+        CounselForm counselForm = counselFormRepository.getCounselFormByMember(member);
 
-        LocalDateTime dateTime = LocalDateTime.of(counselDate, counselTime);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime counselDateTime = LocalDateTime.of(
+                existingCounsel.getCounselDate(),
+                existingCounsel.getCounselTime()
+        );
 
         CounselStatus status;
 
-
-        if (dateTime.isAfter(now)) {
+        if (counselDateTime.isAfter(now)) {
             // 상담 전
             status = CounselStatus.COUNSEL_BEFORE;
         } else {
             // 상담 후
             boolean isSubscribed = subscriptionRepository.existsByMember(member);
-
-            if (isSubscribed) {
-                status = CounselStatus.SUBSCRIBE; // 상담 후 경매 대행 구독중
-            } else {
-                status = CounselStatus.COUNSEL_AFTER;
-            }
+            status = isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
         }
 
-        return new CounselStatusResponse(status);
+        CounselInfoResponse info = counselMapper.toCounselInfoResponse(existingCounsel.getCounselor(), counselForm, existingCounsel.getCounselDate(), existingCounsel.getCounselTime());
+
+        return new CounselCombinedResponse(status, info);
     }
+
 
     private Counsel createAndSaveCounsel(Member member, Counselor counselor, LocalDate counselDate, LocalTime counselTime, CounselForm counselForm){
         Counsel counsel = counselMapper.toCounsel(member, counselor, counselDate, counselTime, counselForm);

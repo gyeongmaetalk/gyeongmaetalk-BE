@@ -3,8 +3,10 @@ package auctionTalk.auction.domain.counsel.mapper;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
+import auctionTalk.auction.domain.counsel.dto.response.CounselInfoResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
@@ -53,6 +55,28 @@ public class CounselMapper {
 
     public ApplyCounselResponse toApplyCounselResponse(CounselForm counselForm, LocalDate date, LocalTime time, Counselor counselor){
         return ApplyCounselResponse.builder()
+                .counselDate(date)
+                .counselTime(time)
+                .area(counselForm.getArea())
+                .cellPhone(counselor.getCellPhone())
+                .interest(counselForm.getInterest())
+                .purpose(counselForm.getPurpose())
+                .participantType(counselForm.getParticipantType())
+                .serviceType(counselForm.getServiceType())
+                .build();
+    }
+
+    public CounselInfoResponse toCounselInfoResponse(Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time){
+        return CounselInfoResponse.builder()
+                .counselorId(counselor.getId())
+                .counselorName(counselor.getName())
+                .score(4.6)
+                .counselCount(120)
+                .description(counselor.getDescription())
+                .reviewCount(85)
+                .experience(counselor.getExperience())
+                .license(counselor.getLicense())
+                .Specialization(counselor.getSpecialization())
                 .counselDate(date)
                 .counselTime(time)
                 .area(counselForm.getArea())

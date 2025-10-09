@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CounselStatusResponse {
-
-    private CounselStatus counselStatus;
+public class CounselCombinedResponse {
+    private CounselStatus status;
+    private CounselInfoResponse info;
 }
