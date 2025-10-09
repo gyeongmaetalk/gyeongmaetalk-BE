@@ -29,6 +29,8 @@ public class Member extends BaseEntity {
 
     private LocalDate birth;
 
+    private String fcmToken;
+
     @Column(nullable = false)
     private boolean registered = false;
 
@@ -41,4 +43,7 @@ public class Member extends BaseEntity {
         this.cellPhone = cellPhone;
         this.registered = true;
     }
+
+    public void saveFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
+
 }
