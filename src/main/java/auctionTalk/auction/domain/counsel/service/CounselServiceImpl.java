@@ -2,22 +2,27 @@ package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
+import auctionTalk.auction.domain.counsel.dto.response.CounselStatusResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counsel.mapper.CounselMapper;
 import auctionTalk.auction.domain.counsel.repository.CounselFormRepository;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +32,7 @@ public class CounselServiceImpl implements CounselService {
     private final CounselRepository counselRepository;
     private final CounselorRepository counselorRepository;
     private final CounselFormRepository counselFormRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Override
     @Transactional
@@ -62,6 +68,41 @@ public class CounselServiceImpl implements CounselService {
         return possibleTimes.stream()
                 .filter(time -> !reservedTimes.contains(time))
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CounselStatusResponse getCounselStatus(Member member){
+        Optional<Counsel> counsel = counselRepository.findByMember(member);
+
+        if (counsel.isEmpty()) {
+            return new CounselStatusResponse(CounselStatus.NONE);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate counselDate = counsel.get().getCounselDate();
+        LocalTime counselTime = counsel.get().getCounselTime();
+
+        LocalDateTime dateTime = LocalDateTime.of(counselDate, counselTime);
+
+        CounselStatus status;
+
+
+        if (dateTime.isAfter(now)) {
+            // 상담 전
+            status = CounselStatus.COUNSEL_BEFORE;
+        } else {
+            // 상담 후
+            boolean isSubscribed = subscriptionRepository.existsByMember(member);
+
+            if (isSubscribed) {
+                status = CounselStatus.SUBSCRIBE; // 상담 후 경매 대행 구독중
+            } else {
+                status = CounselStatus.COUNSEL_AFTER;
+            }
+        }
+
+        return new CounselStatusResponse(status);
     }
 
     private Counsel createAndSaveCounsel(Member member, Counselor counselor, LocalDate counselDate, LocalTime counselTime, CounselForm counselForm){
