@@ -13,7 +13,7 @@ public class SecurityConstant {
             "/auth/login", "/auth/refresh",
             "/v3/**", "/swagger-ui/**",
             "/test/**", "/login/**", "/oauth2/**",
-            "/reviews/**", "/qna/**",
+            "/reviews/**", "/qna/**", "/fcm/**",
     };
 
     // 로그인 필요 API
