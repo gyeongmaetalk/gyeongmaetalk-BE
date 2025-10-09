@@ -64,7 +64,7 @@ public class Property extends BaseEntity {
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<PropertyImage> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<AuctionSchedule> auctionSchedules = new ArrayList<>();
 
     public void changeImages(List<PropertyImage> propertyImages) {
