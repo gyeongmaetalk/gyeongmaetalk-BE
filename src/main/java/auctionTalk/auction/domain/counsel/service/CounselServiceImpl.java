@@ -12,6 +12,7 @@ import auctionTalk.auction.domain.counsel.repository.CounselFormRepository;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
+import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class CounselServiceImpl implements CounselService {
     private final CounselorRepository counselorRepository;
     private final CounselFormRepository counselFormRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final FcmService fcmService;
 
     @Override
     @Transactional
@@ -42,6 +44,8 @@ public class CounselServiceImpl implements CounselService {
         CounselForm counselForm = counselFormRepository.getCounselFormById(counselFormId);
 
         Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
+
+        fcmService.sendPushNotification(member.getFcmToken(), "새로운 메시지", "상담이 예약되었습니다.");
 
         return counselMapper.toApplyCounselResponse(counselForm, counselDate, counselTime, counselor);
     }
