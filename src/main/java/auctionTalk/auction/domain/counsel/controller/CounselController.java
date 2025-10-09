@@ -46,7 +46,7 @@ public class CounselController {
     public BaseResponse<ApplyCounselResponse> applyCounsel(
             @AuthenticationPrincipal PrincipalDetails member,
             @PathVariable("counselorId") Long counselorId,
-            @RequestParam("counselFormId") Long counselFormId,
+            @RequestParam(name = "counselFormId") Long counselFormId,
             @RequestParam(name = "date") LocalDateTime dateTime
     ){
         return BaseResponse.onSuccess(counselService.applyCounsel(counselFormId, member.getMember(), counselorId, dateTime.toLocalDate(), dateTime.toLocalTime()));

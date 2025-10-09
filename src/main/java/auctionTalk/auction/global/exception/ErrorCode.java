@@ -49,6 +49,9 @@ public enum ErrorCode {
 
     // Subscription
     SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SUBSCRIPTION401", "추천 매물 구독 정보를 찾을 수 없습니다."),
+
+    // Qna
+    QNA_NOT_FOUND(HttpStatus.NOT_FOUND, "QNA401", "질문을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
