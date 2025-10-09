@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.review.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -39,4 +40,10 @@ public class ReviewDetailResponse {
 
     @Schema(description = "이미지 URL 목록", example = "[\"url1\", \"url2\"]")
     private List<String> images;
+
+    @Schema(description = "상담사 이름", example = "이정훈")
+    private String counselorName;
+
+    @Schema(description = "경력", example = "10")
+    private Integer experience;
 }

@@ -3,6 +3,7 @@ package auctionTalk.auction.domain.counsel.controller;
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
+import auctionTalk.auction.domain.counsel.dto.response.CounselStatusResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.service.CounselService;
 import auctionTalk.auction.global.common.BaseResponse;
@@ -64,4 +65,13 @@ public class CounselController {
     ){
         return BaseResponse.onSuccess(counselService.inquiryPossibleTime(counselorId, date));
     }
+
+    @Operation(summary = "상담 상태 조회 API")
+    @GetMapping("/status")
+    public BaseResponse<CounselStatusResponse> getCounselStatus(
+            @AuthenticationPrincipal PrincipalDetails principal
+    ){
+        return BaseResponse.onSuccess(counselService.getCounselStatus(principal.getMember()));
+    }
+
 }

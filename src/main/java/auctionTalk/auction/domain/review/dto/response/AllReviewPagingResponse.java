@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.review.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,19 +7,13 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ReviewPagingResponse<T> {
+public class AllReviewPagingResponse <T> {
+
     private List<T> reviews;
-    private CounselorInfo counselorInfo;
+    private ReviewPagingResponse.CounselorInfo counselorInfo;
     private int page;
     private int totalPages;
     private int totalElements;
     private Boolean isFirst;
     private Boolean isLast;
-
-    @Getter
-    @AllArgsConstructor
-    public static class CounselorInfo {
-        private String name;
-        private Integer experience;
-    }
 }

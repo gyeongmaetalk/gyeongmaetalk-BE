@@ -2,13 +2,12 @@ package auctionTalk.auction.domain.review.service;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
+import auctionTalk.auction.domain.counselor.entity.Counselor;
+import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
-import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
+import auctionTalk.auction.domain.review.dto.response.*;
 import auctionTalk.auction.domain.review.entity.*;
 import auctionTalk.auction.domain.review.mapper.ReviewMapper;
 import auctionTalk.auction.domain.review.repository.ReviewReportRepository;
@@ -31,10 +30,12 @@ import java.util.List;
 public class ReviewServiceImpl implements ReviewService {
 
     private final CounselRepository counselRepository;
+    private final CounselorRepository counselorRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewReportRepository reviewReportRepository;
     private final ReviewImageService reviewImageService;
+
     @Override
     @Transactional
     public ReviewIdResponse createReview(
@@ -101,7 +102,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size){
+    public AllReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size){
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Review> reviewPage = switch (sortType) {
@@ -112,7 +113,7 @@ public class ReviewServiceImpl implements ReviewService {
             default ->  throw new CustomApiException(ErrorCode.INVALID_REVIEW_SORT_TYPE);
         };
 
-        return reviewMapper.toReviewPagingResponse(
+        return reviewMapper.toAllReviewPagingResponse(
                 reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
         );
     }
@@ -122,6 +123,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size){
 
         Pageable pageable = PageRequest.of(page, size);
+        Counselor counselor = counselorRepository.getCounselor(counselorId);
 
         Page<Review> reviewPage = switch (sortType) {
             case LATEST -> reviewRepository.findLatestByCounselorId(counselorId, pageable);
@@ -132,7 +134,7 @@ public class ReviewServiceImpl implements ReviewService {
         };
 
         return reviewMapper.toReviewPagingResponse(
-                reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+                reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member)), counselor
         );
     }
 

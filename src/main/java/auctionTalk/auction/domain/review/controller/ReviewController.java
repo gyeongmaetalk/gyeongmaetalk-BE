@@ -3,10 +3,7 @@ package auctionTalk.auction.domain.review.controller;
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
-import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewIdResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
+import auctionTalk.auction.domain.review.dto.response.*;
 import auctionTalk.auction.domain.review.entity.ReportType;
 import auctionTalk.auction.domain.review.entity.ReviewSortType;
 import auctionTalk.auction.domain.review.service.ReviewService;
@@ -69,7 +66,7 @@ public class ReviewController {
             @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
-    public BaseResponse<ReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
+    public BaseResponse<AllReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
             @AuthenticationPrincipal PrincipalDetails member,
             @RequestParam ReviewSortType type,
             @RequestParam(name = "page") int page,

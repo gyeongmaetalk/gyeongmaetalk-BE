@@ -21,4 +21,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
         return findById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
     }
+
+    boolean existsByMember(Member member);
 }
