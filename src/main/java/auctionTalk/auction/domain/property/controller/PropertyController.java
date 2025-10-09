@@ -5,6 +5,8 @@ import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.service.PropertyService;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
+import auctionTalk.auction.domain.subscription.service.SubscriptionService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class PropertyController {
 
     private final PropertyService propertyService;
+    private final SubscriptionService subscriptionService;
 
     @Operation(summary = "추천 매물 목록 조회 API")
     @GetMapping("/list")
@@ -42,5 +45,30 @@ public class PropertyController {
             @PathVariable("propertyId") Long propertyId
     ) {
         return BaseResponse.onSuccess(propertyService.inquiryPropertyDetail(propertyId));
+    }
+
+    @Operation(summary = "추천 매물 구독 신청 API")
+    @PostMapping("/subscribe/{counselorId}")
+    public BaseResponse<SubscriptionIdResponse> createSubscription(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @PathVariable("counselorId") Long counselorId
+    ){
+        return BaseResponse.onSuccess(subscriptionService.createSubscription(principal.getMember(), counselorId));
+    }
+
+    @Operation(summary = "추천 매물 결제 완료 API")
+    @PostMapping("/subscribe/{subscriptionId}/activate")
+    public BaseResponse<SubscriptionIdResponse> activateSubscription(
+            @PathVariable("subscriptionId") Long subscriptionId
+    ){
+        return BaseResponse.onSuccess(subscriptionService.activateSubscription(subscriptionId));
+    }
+
+    @Operation(summary = "추천 매물 계약 완료 신청 API")
+    @PostMapping("/subscribe/{subscriptionId}/complete")
+    public BaseResponse<SubscriptionIdResponse> completeSubscription(
+            @PathVariable("subscriptionId") Long subscriptionId
+    ){
+        return BaseResponse.onSuccess(subscriptionService.completeSubscription(subscriptionId));
     }
 }

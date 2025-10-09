@@ -46,6 +46,9 @@ public enum ErrorCode {
 
     // Property
     PROPERTY_NOT_FOUND(HttpStatus.NOT_FOUND, "PROPERTY401", "추천 매물을 찾을 수 없습니다."),
+
+    // Subscription
+    SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SUBSCRIPTION401", "추천 매물 구독 정보를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
