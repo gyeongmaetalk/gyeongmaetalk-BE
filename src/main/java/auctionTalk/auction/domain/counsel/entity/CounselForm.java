@@ -21,10 +21,6 @@ public class CounselForm extends BaseEntity {
     @JoinColumn
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
-    private Counselor counselor;
-
     private String purpose;
 
     private String area;

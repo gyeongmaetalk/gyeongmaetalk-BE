@@ -11,8 +11,6 @@ import java.time.LocalTime;
 @Builder
 public class ApplyCounselResponse {
 
-    private MatchCounselorResponse matchCounselorResponse;
-
     @Schema(description = "상담 날짜", example = "2021-12-31")
     private LocalDate counselDate;
 

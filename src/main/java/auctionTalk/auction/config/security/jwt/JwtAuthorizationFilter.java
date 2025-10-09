@@ -3,8 +3,11 @@ package auctionTalk.auction.config.security.jwt;
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
+import auctionTalk.auction.global.common.BaseResponse;
+import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.exception.JwtAuthenticationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +25,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -48,11 +53,32 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtAuthenticationException e) {
                 SecurityContextHolder.clearContext();
-                throw e;
+                sendErrorResponse(response, e.getErrorCode());
+                return;
+            } catch (CustomApiException e) {
+                SecurityContextHolder.clearContext();
+                sendErrorResponse(response, e.getErrorCode());
+                return;
             }
+
+
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(errorCode.getHttpStatus().value());
+
+        BaseResponse<Object> errorResponse = BaseResponse.onFailure(
+                errorCode.getCode(),
+                errorCode.getMessage(),
+                null
+        );
+
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 
 }

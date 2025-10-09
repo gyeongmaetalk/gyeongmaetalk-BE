@@ -26,15 +26,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
 
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED; // 기본값
-
-        if (authException instanceof JwtAuthenticationException jwtEx) {
-            errorCode = jwtEx.getErrorCode();
-        }
-
         BaseResponse<Object> errorResponse = BaseResponse.onFailure(
-                errorCode.getCode(),
-                errorCode.getMessage(),
+                ErrorCode.UNAUTHORIZED.getCode(),
+                "인증이 필요합니다.",
                 null
         );
 

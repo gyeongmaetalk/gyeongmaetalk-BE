@@ -51,12 +51,12 @@ public class CounselMapper {
                 .build();
     }
 
-    public ApplyCounselResponse toApplyCounselResponse(CounselForm counselForm, LocalDate date, LocalTime time){
+    public ApplyCounselResponse toApplyCounselResponse(CounselForm counselForm, LocalDate date, LocalTime time, Counselor counselor){
         return ApplyCounselResponse.builder()
                 .counselDate(date)
                 .counselTime(time)
                 .area(counselForm.getArea())
-                .cellPhone(counselForm.getCounselor().getCellPhone())
+                .cellPhone(counselor.getCellPhone())
                 .interest(counselForm.getInterest())
                 .purpose(counselForm.getPurpose())
                 .participantType(counselForm.getParticipantType())
