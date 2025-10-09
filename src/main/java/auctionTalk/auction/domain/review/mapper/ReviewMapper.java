@@ -1,8 +1,10 @@
 package auctionTalk.auction.domain.review.mapper;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
+import auctionTalk.auction.domain.review.dto.response.AllReviewPagingResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
 import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
@@ -61,6 +63,8 @@ public class ReviewMapper {
     }
 
     public ReviewDetailResponse toReviewDetailResponse(Review review, Member member) {
+        Counselor counselor = review.getCounsel().getCounselor();
+
         return ReviewDetailResponse.builder()
                 .reviewId(review.getId())
                 .score(review.getScore())
@@ -71,11 +75,13 @@ public class ReviewMapper {
                 .isMine(Objects.equals(review.getMember().getId(), member.getId()))
                 .images(toImageUrls(review.getImages()))
                 .content(review.getContent())
+                .counselorName(counselor.getName())
+                .experience(counselor.getExperience())
                 .build();
     }
 
-    public <T> ReviewPagingResponse<T> toReviewPagingResponse(Page<T> reviews) {
-        return ReviewPagingResponse.<T>builder()
+    public <T> AllReviewPagingResponse<T> toAllReviewPagingResponse(Page<T> reviews) {
+        return AllReviewPagingResponse.<T>builder()
                 .reviews(reviews.getContent())
                 .page(reviews.getNumber())
                 .totalPages(reviews.getTotalPages())
@@ -83,6 +89,25 @@ public class ReviewMapper {
                 .isFirst(reviews.isFirst())
                 .isLast(reviews.isLast())
                 .build();
+    }
+
+    public <T> ReviewPagingResponse<T> toReviewPagingResponse(Page<T> reviews, Counselor counselor) {
+        return ReviewPagingResponse.<T>builder()
+                .reviews(reviews.getContent())
+                .page(reviews.getNumber())
+                .totalPages(reviews.getTotalPages())
+                .totalElements((int) reviews.getTotalElements())
+                .isFirst(reviews.isFirst())
+                .isLast(reviews.isLast())
+                .counselorInfo(toCounselorInfo(counselor))
+                .build();
+    }
+
+    private ReviewPagingResponse.CounselorInfo toCounselorInfo(Counselor counselor){
+        return new ReviewPagingResponse.CounselorInfo(
+                counselor.getName(),
+                counselor.getExperience()
+        );
     }
 
     private List<String> toImageUrls(List<ReviewImage> images) {
