@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -27,11 +28,13 @@ public class S3FileComponent {
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
 
         // S3에 업로드
-        try {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, multipartFile.getInputStream(), objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            PutObjectRequest putObjectRequest =
+                    new PutObjectRequest(bucket, fileName, inputStream, objectMetadata);
+            amazonS3Client.putObject(putObjectRequest);
         } catch (IOException ignored) {
         }
 
