@@ -51,7 +51,7 @@ public class ReviewController {
     }
 
     @Operation(summary = "상담 후기 삭제 API")
-    @DeleteMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @DeleteMapping(value = "/{reviewId}")
     public BaseResponse<ReviewIdResponse> deleteReview(
             @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "삭제할 리뷰 id") @PathVariable Long reviewId
