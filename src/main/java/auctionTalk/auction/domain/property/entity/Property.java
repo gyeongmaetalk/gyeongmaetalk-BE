@@ -61,6 +61,10 @@ public class Property extends BaseEntity {
 
     private String tenant;
 
+    private String buildingType;
+
+    private boolean isPurchased = false;
+
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<PropertyImage> images = new ArrayList<>();
 

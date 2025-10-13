@@ -113,7 +113,7 @@ public class ReviewController {
             @AuthenticationPrincipal PrincipalDetails member,
             @PathVariable("reviewId") Long reviewId,
             @RequestParam(name = "reasonType") ReportType reasonType,
-            @RequestParam(name = "reasonDetail") String reasonDetail
+            @RequestParam(name = "reasonDetail", required = false) String reasonDetail
             ){
         return BaseResponse.onSuccess(reviewService.reportReview(reviewId, member.getMember(), reasonType, reasonDetail));
     }

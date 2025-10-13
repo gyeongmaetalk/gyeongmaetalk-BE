@@ -15,6 +15,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class CounselServiceImpl implements CounselService {
     private final CounselorRepository counselorRepository;
     private final CounselFormRepository counselFormRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final ReviewRepository reviewRepository;
     private final FcmService fcmService;
 
     @Override
@@ -87,24 +89,11 @@ public class CounselServiceImpl implements CounselService {
         Counsel existingCounsel = counsel.get();
         CounselForm counselForm = counselFormRepository.getCounselFormByMember(member);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime counselDateTime = LocalDateTime.of(
-                existingCounsel.getCounselDate(),
-                existingCounsel.getCounselTime()
-        );
+        CounselStatus status = determineCounselStatus(member, existingCounsel);
 
-        CounselStatus status;
 
-        if (counselDateTime.isAfter(now)) {
-            // 상담 전
-            status = CounselStatus.COUNSEL_BEFORE;
-        } else {
-            // 상담 후
-            boolean isSubscribed = subscriptionRepository.existsByMember(member);
-            status = isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
-        }
-
-        CounselInfoResponse info = counselMapper.toCounselInfoResponse(existingCounsel.getCounselor(), counselForm, existingCounsel.getCounselDate(), existingCounsel.getCounselTime());
+        boolean isReviewed = reviewRepository.existsByCounsel(existingCounsel);
+        CounselInfoResponse info = counselMapper.toCounselInfoResponse(existingCounsel.getCounselor(), counselForm, existingCounsel.getCounselDate(), existingCounsel.getCounselTime(), isReviewed);
 
         return new CounselCombinedResponse(status, info);
     }
@@ -120,6 +109,21 @@ public class CounselServiceImpl implements CounselService {
         CounselForm newCounselForm = counselMapper.toCounselForm(request, member);
 
         return counselFormRepository.save(newCounselForm);
+    }
+
+    private CounselStatus determineCounselStatus(Member member, Counsel counsel) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime counselDateTime = LocalDateTime.of(
+                counsel.getCounselDate(),
+                counsel.getCounselTime()
+        );
+
+        if (counselDateTime.isAfter(now)) {
+            return CounselStatus.COUNSEL_BEFORE;
+        }
+
+        boolean isSubscribed = subscriptionRepository.existsByMember(member);
+        return isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
     }
 
 }

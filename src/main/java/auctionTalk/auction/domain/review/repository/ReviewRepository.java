@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.review.repository;
 
+import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -15,6 +16,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         return findById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.REVIEW_NOT_FOUND));
     }
+
+    boolean existsByCounsel(Counsel counsel);
 
     // 전체 리뷰 + 최신순
     @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")
