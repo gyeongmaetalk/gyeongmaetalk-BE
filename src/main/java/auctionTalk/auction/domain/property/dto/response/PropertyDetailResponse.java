@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -60,8 +61,17 @@ public class PropertyDetailResponse {
     @Schema(description = "임차인", example = "김지은")
     private String tenant;
 
+    @Schema(description = "구매 여부", example = "false")
+    private boolean isPurchased;
+
     @Schema(description = "전문가 코멘트", example = "1회 유찰 후 80% 수준으로 진입 예정이며, 전세 시세 약 12억 전후로 예상됩니다.")
     private String expertComment;
+
+    @Schema(description = "건물 유형", example = "아파트")
+    private String buildingType;
+
+    @Schema(description = "업데이트 날짜", example = "2025-03-15")
+    private LocalDateTime updateDate;
 
     @Schema(description = "이미지 url 목록", example = "[\"url1\", \"url2\"]")
     private List<PropertyImage> images;

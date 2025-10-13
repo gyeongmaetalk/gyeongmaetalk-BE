@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -33,6 +34,12 @@ public class PropertySummaryResponse {
     @Schema(description = "이미지 url 목록", example = "[\"url1\", \"url2\"]")
     private List<PropertyImage> images;
 
-//    private String title;
-//    private String updateDate;
+    @Schema(description = "구매 여부", example = "false")
+    private boolean isPurchased;
+
+    @Schema(description = "건물 유형", example = "아파트")
+    private String buildingType;
+
+    @Schema(description = "업데이트 날짜", example = "2025-03-15")
+    private LocalDateTime updateDate;
 }

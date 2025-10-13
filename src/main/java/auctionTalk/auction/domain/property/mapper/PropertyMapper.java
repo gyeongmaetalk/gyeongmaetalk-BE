@@ -32,6 +32,9 @@ public class PropertyMapper {
                         .orElse(null))
                 .appraisedPrice(property.getAppraisedPrice())
                 .minPrice(property.getMinPrice())
+                .isPurchased(property.isPurchased())
+                .buildingType(property.getBuildingType())
+                .updateDate(property.getCreatedAt())
                 .build();
     }
 
@@ -64,6 +67,10 @@ public class PropertyMapper {
                 .owner(property.getOwner())
                 .tenant(property.getTenant())
                 .scheduleInfos(toScheduleInfo(property.getAuctionSchedules()))
+                .isPurchased(property.isPurchased())
+                .expertComment(property.getExpertComment())
+                .buildingType(property.getBuildingType())
+                .updateDate(property.getCreatedAt())
                 .build();
     }
 
