@@ -66,7 +66,7 @@ public class CounselMapper {
                 .build();
     }
 
-    public CounselInfoResponse toCounselInfoResponse(Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time){
+    public CounselInfoResponse toCounselInfoResponse(Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time, boolean isReviewed){
         return CounselInfoResponse.builder()
                 .counselorId(counselor.getId())
                 .counselorName(counselor.getName())
@@ -85,6 +85,7 @@ public class CounselMapper {
                 .purpose(counselForm.getPurpose())
                 .participantType(counselForm.getParticipantType())
                 .serviceType(counselForm.getServiceType())
+                .isReviewed(isReviewed)
                 .build();
     }
 }

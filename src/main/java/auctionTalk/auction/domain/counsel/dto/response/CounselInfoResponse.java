@@ -63,4 +63,7 @@ public class CounselInfoResponse {
     @Schema(description = "명의", example = "개인(감면 등의 목적을 이유로 개인 사업자를 고려중이에요.)")
     private String participantType;
 
+    @Schema(description = "리뷰 작성 여부", example = "false")
+    private boolean isReviewed;
+
 }
