@@ -37,7 +37,7 @@ public class QnaMapper {
                 .qnaContent(qna.getContent())
                 .qnaStatus(qna.getStatus())
                 .answerContent(answer != null ? answer.getContent() : null)
-                .answerTime(answer != null ? answer.getCreatedAt() : null))
+                .answerTime(answer != null ? answer.getCreatedAt() : null)
                 .build();
     }
 
