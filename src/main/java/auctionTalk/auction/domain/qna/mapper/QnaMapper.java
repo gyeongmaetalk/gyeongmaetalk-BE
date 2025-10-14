@@ -29,17 +29,17 @@ public class QnaMapper {
                 .build();
     }
 
-    public QnaResponse toQnaResponse(Qna qna) {
-    QnaAnswer answer = qna.getAnswer();
+    public QnaResponse ToQnaResponse(Qna qna) {
+        QnaAnswer answer = qna.getAnswer();
 
-    return QnaResponse.builder()
-            .qnaTitle(qna.getTitle())
-            .qnaContent(qna.getContent())
-            .qnaStatus(qna.getStatus())
-            .answerContent(answer != null ? answer.getContent() : null)
-            .answerTime(answer != null ? answer.getCreatedAt() : null)
-            .build();
-}
+        return QnaResponse.builder()
+                .qnaTitle(qna.getTitle())
+                .qnaContent(qna.getContent())
+                .qnaStatus(qna.getStatus())
+                .answerContent(answer != null ? answer.getContent() : null)
+                .answerTime(answer != null ? answer.getCreatedAt() : null))
+                .build();
+    }
 
     public FaqResponse toFaqResponse(Faq faq){
         return FaqResponse.builder()
