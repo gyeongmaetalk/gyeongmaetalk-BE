@@ -25,6 +25,17 @@ public class AuthController {
     private final AuthService authService;
     private final SmsService smsService;
 
+    @Operation(summary = "코드 교환 API")
+    @PostMapping("/exchange")
+    @Parameters(value = {
+            @Parameter(name = "code", description = "토큰으로 교환할 인증코드")
+    })
+    public BaseResponse<AuthTokenResponse> exchangeCode(
+            @RequestParam String code
+    ) {
+        return BaseResponse.onSuccess(authService.exchangeCode(code));
+    }
+
     @Operation(summary = "회원가입(회원 정보 입력) API")
     @PostMapping("/signup")
     public BaseResponse<MemberIdResponse> signup(

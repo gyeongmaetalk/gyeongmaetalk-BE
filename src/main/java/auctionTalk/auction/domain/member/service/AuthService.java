@@ -10,6 +10,7 @@ import auctionTalk.auction.domain.member.entity.Member;
 
 public interface AuthService {
     AuthTokenResponse login(Member member);
+    AuthTokenResponse exchangeCode(String code);
     MemberIdResponse register(Member member, SignupRequest request);
     AuthTokenResponse refresh(String refreshToken);
     MemberInfoResponse getMemberInfo(Member member);
