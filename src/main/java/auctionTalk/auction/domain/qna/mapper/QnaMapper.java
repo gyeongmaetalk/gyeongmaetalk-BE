@@ -33,6 +33,7 @@ public class QnaMapper {
         QnaAnswer answer = qna.getAnswer();
 
         return QnaResponse.builder()
+                .id(qna.getId())
                 .qnaTitle(qna.getTitle())
                 .qnaContent(qna.getContent())
                 .qnaStatus(qna.getStatus())
