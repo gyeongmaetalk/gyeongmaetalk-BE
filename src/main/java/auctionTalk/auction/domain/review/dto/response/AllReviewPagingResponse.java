@@ -10,7 +10,6 @@ import java.util.List;
 public class AllReviewPagingResponse <T> {
 
     private List<T> reviews;
-    private ReviewPagingResponse.CounselorInfo counselorInfo;
     private int page;
     private int totalPages;
     private int totalElements;

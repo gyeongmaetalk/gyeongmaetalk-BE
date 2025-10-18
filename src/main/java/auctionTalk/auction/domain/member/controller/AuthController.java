@@ -4,6 +4,7 @@ import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
+import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
 import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.domain.member.service.AuthService;
 import auctionTalk.auction.utils.sms.SmsService;
@@ -39,6 +40,14 @@ public class AuthController {
             @RequestHeader("RefreshToken") String refreshToken
     ) {
         return BaseResponse.onSuccess(authService.refresh(refreshToken));
+    }
+
+    @Operation(summary = "내 정보 조회 API")
+    @GetMapping("/info")
+    public BaseResponse<MemberInfoResponse> getMemberInfo(
+            @AuthenticationPrincipal PrincipalDetails principal
+    ){
+        return BaseResponse.onSuccess(authService.getMemberInfo(principal.getMember()));
     }
 
     @Operation(summary = "휴대폰 인증번호 문자 전송 API")

@@ -8,17 +8,17 @@ import auctionTalk.auction.domain.member.client.KakaoMemberClient;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
+import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
+import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +28,7 @@ public class AuthServiceImpl implements AuthService{
     private final AppleMemberClient appleMemberClient;
 
     private final MemberRepository memberRepository;
+    private final SubscriptionRepository subscriptionRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthMapper authMapper;
 
@@ -54,6 +55,15 @@ public class AuthServiceImpl implements AuthService{
 
         Member member = memberRepository.getMember(refreshTokenInfo.getMemberId());
         return generateTokensForMember(member);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MemberInfoResponse getMemberInfo(Member member){
+
+        boolean auctionStatus = subscriptionRepository.existsByMember(member);
+
+        return authMapper.toMemberInfoResponse(member, auctionStatus);
     }
 
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {

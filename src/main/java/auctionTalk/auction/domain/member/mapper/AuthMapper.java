@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.member.mapper;
 
 import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
+import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.entity.Role;
@@ -24,6 +25,17 @@ public class AuthMapper {
                 .memberId(memberId)
                 .accessToken(jwtToken.getAccessToken())
                 .refreshToken(jwtToken.getRefreshToken())
+                .build();
+    }
+
+    public MemberInfoResponse toMemberInfoResponse(Member member, boolean auctionStatus){
+
+        return MemberInfoResponse.builder()
+                .name(member.getName())
+                .loginType(member.getLoginType())
+                .cellPhone(member.getCellPhone())
+                .birth(member.getBirth())
+                .auctionStatus(auctionStatus)
                 .build();
     }
 }

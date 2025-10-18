@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.review.repository;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -18,6 +19,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     }
 
     boolean existsByCounsel(Counsel counsel);
+
+    Page<Review> findReviewsByMember(Member member, Pageable pageable);
 
     // 전체 리뷰 + 최신순
     @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")

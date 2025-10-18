@@ -75,6 +75,20 @@ public class ReviewController {
         return BaseResponse.onSuccess(reviewService.inquiryReviews(member.getMember(), type, page, size));
     }
 
+    @Operation(summary = "내가 쓴 후기 목록 조회 API")
+    @GetMapping("/my")
+    @Parameters(value = {
+            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+    })
+    public BaseResponse<AllReviewPagingResponse<ReviewSummaryResponse>> inquiryReviewsByMember(
+            @AuthenticationPrincipal PrincipalDetails member,
+            @RequestParam(name = "page") int page,
+            @RequestParam(name = "size") int size
+    ){
+        return BaseResponse.onSuccess(reviewService.inquiryReviewsByMember(member.getMember(), page, size));
+    }
+
     @Operation(summary = "특정 상담사 후기 목록 조회 API")
     @GetMapping("/list/{counselorId}")
     @Parameters(value = {
