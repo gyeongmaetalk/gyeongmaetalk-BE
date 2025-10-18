@@ -27,6 +27,7 @@ public enum ErrorCode {
     INVALID_APPLE_TOKEN(HttpStatus.BAD_REQUEST, "AUTH403", "잘못된 애플 토큰입니다."),
     EXPIRED_APPLE_TOKEN(HttpStatus.BAD_REQUEST, "AUTH404", "만료된 애플 토큰입니다."),
     INVALID_APPLE_TOKEN_AUDIENCE(HttpStatus.BAD_REQUEST, "AUTH405", "잘못된 애플 토큰 audience입니다."),
+    INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "AUTH405", "유효하지 않거나 만료된 인증 코드입니다."),
 
     // Member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER401", "사용자를 찾을 수 없습니다."),

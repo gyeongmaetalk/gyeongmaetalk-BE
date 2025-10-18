@@ -12,6 +12,7 @@ import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
+import auctionTalk.auction.domain.member.repository.CodeRepository;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
@@ -28,6 +29,7 @@ public class AuthServiceImpl implements AuthService{
     private final AppleMemberClient appleMemberClient;
 
     private final MemberRepository memberRepository;
+    private final CodeRepository codeRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthMapper authMapper;
@@ -36,6 +38,15 @@ public class AuthServiceImpl implements AuthService{
     @Transactional
     public AuthTokenResponse login(Member member){
         return generateTokensForExistingMember(member);
+    }
+
+    @Override
+    @Transactional
+    public AuthTokenResponse exchangeCode(String code){
+        Long memberId = codeRepository.getMemberId(code);
+        Member member = memberRepository.getMember(memberId);
+
+        return login(member);
     }
 
     @Override

@@ -2,8 +2,8 @@ package auctionTalk.auction.config.security.auth;
 
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.repository.CodeRepository;
 import auctionTalk.auction.domain.member.service.AuthService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +13,13 @@ import org.springframework.stereotype.Component;
 
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final AuthService authService;
+    private final CodeRepository codeRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -27,11 +28,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         Member member = principalDetails.getMember();
 
-        AuthTokenResponse tokenResponse = authService.login(member);
+        String code = UUID.randomUUID().toString();
+        codeRepository.save(code, member.getId());
 
         String redirectUrl = "http://localhost:5173/redirect"
-                + "?accessToken=" + tokenResponse.getAccessToken()
-                + "&refreshToken=" + tokenResponse.getRefreshToken()
+                + "?code=" + code
                 + "&registered=" + member.isRegistered();
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
