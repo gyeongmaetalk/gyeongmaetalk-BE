@@ -9,5 +9,4 @@ public class AuthTokenResponse {
     private Long memberId;
     private String accessToken;
     private String refreshToken;
-    private boolean registered;
 }

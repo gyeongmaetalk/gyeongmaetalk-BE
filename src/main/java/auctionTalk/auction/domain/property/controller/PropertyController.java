@@ -53,7 +53,7 @@ public class PropertyController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId
     ){
-        return BaseResponse.onSuccess(subscriptionService.createSubscription(principal.getMember(), counselorId));
+        return BaseResponse.onSuccess(subscriptionService.prepareSubscriptionPayment(principal.getMember(), counselorId));
     }
 
     @Operation(summary = "추천 매물 결제 완료 API")

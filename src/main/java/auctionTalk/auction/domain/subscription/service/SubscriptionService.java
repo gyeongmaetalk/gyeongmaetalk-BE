@@ -5,7 +5,7 @@ import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdRespon
 
 public interface SubscriptionService {
 
-    SubscriptionIdResponse createSubscription(Member member, Long counselorId);
+    SubscriptionIdResponse prepareSubscriptionPayment(Member member, Long counselorId);
     SubscriptionIdResponse activateSubscription(Long subscriptionId);
     SubscriptionIdResponse completeSubscription(Long subscriptionId);
 }
