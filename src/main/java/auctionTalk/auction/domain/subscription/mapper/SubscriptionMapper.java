@@ -23,6 +23,7 @@ public class SubscriptionMapper {
 
     public SubscriptionPreparePaymentResponse toSubscriptionPreparePaymentResponse(Subscription subscription){
         return SubscriptionPreparePaymentResponse.builder()
+                .subscriptionId(subscription.getId())
                 .orderId(subscription.getOrderId())
                 .amount(subscription.getAmount())
                 .orderName(subscription.getOrderName())
