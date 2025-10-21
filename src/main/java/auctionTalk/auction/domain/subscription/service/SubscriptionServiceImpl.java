@@ -3,7 +3,11 @@ package auctionTalk.auction.domain.subscription.service;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
+import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.service.PaymentService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.mapper.SubscriptionMapper;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
@@ -21,6 +25,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CounselorRepository counselorRepository;
     private final SubscriptionMapper subscriptionMapper;
+    private final PaymentService paymentService;
 
     @Value("${subscribe.fixed-amount}")
     private Long fixedAmount;
@@ -30,7 +35,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public SubscriptionIdResponse prepareSubscriptionPayment(Member member, Long counselorId){
+    public SubscriptionPreparePaymentResponse prepareSubscriptionPayment(Member member, Long counselorId){
 
         Long amount = this.fixedAmount;
         String orderName = this.fixedName;
@@ -41,7 +46,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         Subscription subscription = subscriptionMapper.toSubscription(member, counselor, orderId, amount, orderName);
         subscriptionRepository.save(subscription);
-        return new SubscriptionIdResponse(subscription.getId());
+        return subscriptionMapper.toSubscriptionPreparePaymentResponse(subscription);
     }
 
     private String generateUniqueOrderId(Long memberId) {
@@ -50,14 +55,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public SubscriptionIdResponse activateSubscription(Long subscriptionId) {
+    public PaymentResultResponse confirmSubscriptionPayment(Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest) {
+
+        PaymentResultResponse response = paymentService.callTossPaymentApi(paymentConfirmRequest);
+
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
 
-        subscription.activate();
+        subscription.activate(response.getPaymentKey());
 
         subscriptionRepository.save(subscription);
 
-        return new SubscriptionIdResponse(subscription.getId());
+        return response;
     }
 
     @Override

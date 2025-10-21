@@ -43,9 +43,10 @@ public class Subscription extends BaseEntity {
 
     private String paymentKey;
 
-    public void activate() {
+    public void activate(String paymentKey) {
         this.status = SubscriptionStatus.IN_PROGRESS;
         this.startDate = LocalDateTime.now();
+        this.paymentKey = paymentKey;
     }
 
     public void complete() {

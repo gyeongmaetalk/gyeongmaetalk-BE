@@ -8,6 +8,9 @@ import lombok.Getter;
 @Builder
 public class SubscriptionPreparePaymentResponse {
 
+    @Schema(description = "추천 매물 구독 아이디", example = "1")
+    private Long subscriptionId;
+
     @Schema(description = "주문 아이디", example = "SUB-1-*SE&")
     private String orderId;
 
