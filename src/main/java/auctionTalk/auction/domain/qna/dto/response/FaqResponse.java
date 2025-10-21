@@ -8,6 +8,9 @@ import lombok.Getter;
 @Builder
 public class FaqResponse {
 
+    @Schema(description = "질문 아이디", example = "1")
+    private Long id;
+
     @Schema(description = "질문", example = "상담은 얼마나 진행하나요?")
     private String question;
 

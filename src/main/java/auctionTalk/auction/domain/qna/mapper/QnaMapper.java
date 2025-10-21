@@ -44,6 +44,7 @@ public class QnaMapper {
 
     public FaqResponse toFaqResponse(Faq faq){
         return FaqResponse.builder()
+                .id(faq.getId())
                 .question(faq.getQuestion())
                 .answer(faq.getAnswer())
                 .build();
