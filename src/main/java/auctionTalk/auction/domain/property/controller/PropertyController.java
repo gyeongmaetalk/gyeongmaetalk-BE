@@ -1,11 +1,14 @@
 package auctionTalk.auction.domain.property.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
+import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.service.PropertyService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
 import auctionTalk.auction.domain.subscription.service.SubscriptionService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,21 +50,22 @@ public class PropertyController {
         return BaseResponse.onSuccess(propertyService.inquiryPropertyDetail(propertyId));
     }
 
-    @Operation(summary = "추천 매물 구독 신청 API")
+    @Operation(summary = "추천 매물 구독 신청(결제 준비) API")
     @PostMapping("/subscribe/{counselorId}")
-    public BaseResponse<SubscriptionIdResponse> createSubscription(
+    public BaseResponse<SubscriptionPreparePaymentResponse> prepareSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId
     ){
-        return BaseResponse.onSuccess(subscriptionService.createSubscription(principal.getMember(), counselorId));
+        return BaseResponse.onSuccess(subscriptionService.prepareSubscriptionPayment(principal.getMember(), counselorId));
     }
 
-    @Operation(summary = "추천 매물 결제 완료 API")
+    @Operation(summary = "추천 매물 결제 완료(결제 승인) API")
     @PostMapping("/subscribe/{subscriptionId}/activate")
-    public BaseResponse<SubscriptionIdResponse> activateSubscription(
-            @PathVariable("subscriptionId") Long subscriptionId
+    public BaseResponse<PaymentResultResponse> confirmSubscriptionPayment(
+            @PathVariable("subscriptionId") Long subscriptionId,
+            @RequestBody PaymentConfirmRequest request
     ){
-        return BaseResponse.onSuccess(subscriptionService.activateSubscription(subscriptionId));
+        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(subscriptionId, request));
     }
 
     @Operation(summary = "추천 매물 계약 완료 신청 API")

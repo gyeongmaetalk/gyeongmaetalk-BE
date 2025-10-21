@@ -9,7 +9,8 @@ public enum SubscriptionStatus {
     PENDING("결제 대기"),
     IN_PROGRESS("구독중"),
     COMPLETED("완료됨"),
-    CANCELED("취소됨");
+    CANCELED("취소됨"),
+    PAYMENT_FAILED("결제 실패");
 
     private final String description;
 }

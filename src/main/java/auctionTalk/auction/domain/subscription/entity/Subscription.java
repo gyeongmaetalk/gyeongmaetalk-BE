@@ -35,9 +35,18 @@ public class Subscription extends BaseEntity {
 
     private LocalDateTime endDate;
 
-    public void activate() {
+    private String orderId;
+
+    private String orderName;
+
+    private Long amount;
+
+    private String paymentKey;
+
+    public void activate(String paymentKey) {
         this.status = SubscriptionStatus.IN_PROGRESS;
         this.startDate = LocalDateTime.now();
+        this.paymentKey = paymentKey;
     }
 
     public void complete() {
