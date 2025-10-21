@@ -26,7 +26,7 @@ public class PaymentService {
 
     @Value("${toss.secret-key}")
     private String secretKey;
-    @Value("${api.toss-payments-confirm-url}")
+    @Value("${toss.payments-confirm-url}")
     private String tossConfirmUrl;
 
     @Transactional
