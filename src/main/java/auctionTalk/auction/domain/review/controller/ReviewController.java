@@ -81,7 +81,7 @@ public class ReviewController {
             @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
-    public BaseResponse<AllReviewPagingResponse<ReviewSummaryResponse>> inquiryReviewsByMember(
+    public BaseResponse<AllReviewPagingResponse<MyReviewSummaryResponse>> inquiryReviewsByMember(
             @AuthenticationPrincipal PrincipalDetails member,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size

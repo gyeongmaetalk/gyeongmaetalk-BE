@@ -14,6 +14,7 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.CodeRepository;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -72,7 +73,7 @@ public class AuthServiceImpl implements AuthService{
     @Transactional(readOnly = true)
     public MemberInfoResponse getMemberInfo(Member member){
 
-        boolean auctionStatus = subscriptionRepository.existsByMember(member);
+        boolean auctionStatus = subscriptionRepository.existsByMemberAndSubscriptionStatus(member, SubscriptionStatus.IN_PROGRESS);
 
         return authMapper.toMemberInfoResponse(member, auctionStatus);
     }

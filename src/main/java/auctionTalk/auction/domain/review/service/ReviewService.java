@@ -21,7 +21,7 @@ public interface ReviewService {
 
     //query
     AllReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size);
-    AllReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByMember(Member member, int page, int size);
+    AllReviewPagingResponse<MyReviewSummaryResponse> inquiryReviewsByMember(Member member, int page, int size);
     ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size);
     ReviewDetailResponse inquiryReviewDetail(Long reviewId, Member member);
 }
