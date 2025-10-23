@@ -12,15 +12,15 @@ import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    boolean existsByMemberAndCounselorAndStatusIn(Member member, Counselor counselor, List<SubscriptionStatus> statuses);
+    boolean existsByMemberAndCounselorAndSubscriptionStatusIn(Member member, Counselor counselor, List<SubscriptionStatus> statuses);
 
-    List<Subscription> findByMemberAndStatus(Member member, SubscriptionStatus status);
+    List<Subscription> findByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
 
     default Subscription getSubscription(Long id) {
         return findById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
     }
 
-    boolean existsByMemberAndSubscriptionStatusS(Member member, SubscriptionStatus status);
+    boolean existsByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
     boolean existsByMember(Member member);
 }
