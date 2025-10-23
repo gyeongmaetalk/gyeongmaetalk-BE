@@ -29,7 +29,7 @@ public class AppleOAuth2ClientConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/apple")
                 .scope("name", "email")
-                .authorizationUri("https://appleid.apple.com/auth/authorize")
+                .authorizationUri("https://appleid.apple.com/auth/authorize?response_mode=form_post")
                 .tokenUri("https://appleid.apple.com/auth/token")
                 .userNameAttributeName("sub")
                 .clientName("Apple")
