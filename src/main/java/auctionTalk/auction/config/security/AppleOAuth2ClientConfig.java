@@ -2,6 +2,7 @@ package auctionTalk.auction.config.security;
 
 import auctionTalk.auction.config.security.auth.AppleClientSecretProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -16,12 +17,15 @@ public class AppleOAuth2ClientConfig {
 
     private final AppleClientSecretProvider appleClientSecretProvider;
 
+    @Value("${apple.client-id}")
+    private String clientId;
+
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         ClientRegistration apple = ClientRegistration.withRegistrationId("apple")
-                .clientId(System.getenv("APPLE_CLIENT_ID"))
+                .clientId(clientId)
                 .clientSecret(appleClientSecretProvider.generateClientSecret())
-                .clientAuthenticationMethod(new ClientAuthenticationMethod("post"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/apple")
                 .scope("name", "email")
