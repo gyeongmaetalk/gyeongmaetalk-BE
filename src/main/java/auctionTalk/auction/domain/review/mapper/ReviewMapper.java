@@ -4,10 +4,7 @@ import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
-import auctionTalk.auction.domain.review.dto.response.AllReviewPagingResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewDetailResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewPagingResponse;
-import auctionTalk.auction.domain.review.dto.response.ReviewSummaryResponse;
+import auctionTalk.auction.domain.review.dto.response.*;
 import auctionTalk.auction.domain.review.entity.ReportType;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.entity.ReviewImage;
@@ -59,6 +56,25 @@ public class ReviewMapper {
                 .imageCount(review.getImages().size())
                 .thumbnail(review.getThumbnail())
                 .content(review.getContent())
+                .build();
+    }
+
+    public MyReviewSummaryResponse toMyReviewSummaryResponse(Review review, Member member) {
+        Counselor counselor = review.getCounsel().getCounselor();
+
+        return MyReviewSummaryResponse.builder()
+                .reviewId(review.getId())
+                .score(review.getScore())
+                .name(review.getMember().getName())
+                .createAt(review.getCreatedAt())
+                .counselDate(review.getCounsel().getCounselDate())
+                .counselTime(review.getCounsel().getCounselTime())
+                .isMine(Objects.equals(review.getMember().getId(), member.getId()))
+                .imageCount(review.getImages().size())
+                .thumbnail(review.getThumbnail())
+                .content(review.getContent())
+                .counselorName(counselor.getName())
+                .experience(counselor.getExperience())
                 .build();
     }
 

@@ -17,7 +17,7 @@ public class SubscriptionMapper {
                     .orderId(orderId)
                     .amount(amount)
                     .orderName(orderName)
-                    .status(SubscriptionStatus.PENDING)
+                    .subscriptionStatus(SubscriptionStatus.PENDING)
                     .build();
     }
 

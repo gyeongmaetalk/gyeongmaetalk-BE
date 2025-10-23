@@ -29,7 +29,7 @@ public class Subscription extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SubscriptionStatus status;
+    private SubscriptionStatus subscriptionStatus;
 
     private LocalDateTime startDate;
 
@@ -44,18 +44,18 @@ public class Subscription extends BaseEntity {
     private String paymentKey;
 
     public void activate(String paymentKey) {
-        this.status = SubscriptionStatus.IN_PROGRESS;
+        this.subscriptionStatus = SubscriptionStatus.IN_PROGRESS;
         this.startDate = LocalDateTime.now();
         this.paymentKey = paymentKey;
     }
 
     public void complete() {
-        this.status = SubscriptionStatus.COMPLETED;
+        this.subscriptionStatus = SubscriptionStatus.COMPLETED;
         this.endDate = LocalDateTime.now();
     }
 
     public void cancel() {
-        this.status = SubscriptionStatus.CANCELED;
+        this.subscriptionStatus = SubscriptionStatus.CANCELED;
         this.endDate = LocalDateTime.now();
     }
 }

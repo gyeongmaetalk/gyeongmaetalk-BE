@@ -140,11 +140,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public AllReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByMember(Member member, int page, int size){
+    public AllReviewPagingResponse<MyReviewSummaryResponse> inquiryReviewsByMember(Member member, int page, int size){
         Page<Review> reviewPage= reviewRepository.findReviewsByMember(member, PageRequest.of(page, size));
 
         return reviewMapper.toAllReviewPagingResponse(
-                reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+                reviewPage.map(review -> reviewMapper.toMyReviewSummaryResponse(review, member))
         );
     }
 
