@@ -51,7 +51,7 @@ jobs:
         run: |
           pushd ./src/main/resources
           touch AuthKey_6323MZ849U.p8
-          echo "${{ secrets.APPLE_PRIVATE_KEY }}" > AuthKey_6323MZ849U.p8
+          echo "${{ secrets.APPLE_PRIVATE_KEY }}" | base64 -d > AuthKey_6323MZ849U.p8
           popd
 
       # 빌드 (test 제외)
