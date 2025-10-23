@@ -46,6 +46,14 @@ jobs:
           echo "${{ secrets.FCM_JSON }}" | base64 -d > AuctionTalk_fcm.json
           popd
 
+      # apple key.p8 생성
+      - name : Create Create Apple Private Key File
+        run: |
+          pushd ./src/main/resources
+          touch AuthKey_6323MZ849U.p8
+          echo "${{ secrets.APPLE_PRIVATE_KEY }}" > src/main/resources/AuthKey_6323MZ849U.p8
+          popd
+
       # 빌드 (test 제외)
       - name: Build with Gradle
         run: |
