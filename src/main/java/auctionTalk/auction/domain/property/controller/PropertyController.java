@@ -60,7 +60,7 @@ public class PropertyController {
     }
 
     @Operation(summary = "추천 매물 결제 완료(결제 승인) API")
-    @PostMapping("/subscribe/{subscriptionId}/activate")
+    @PostMapping("/subscribe/{subscriptionId}/confirm")
     public BaseResponse<PaymentResultResponse> confirmSubscriptionPayment(
             @PathVariable("subscriptionId") Long subscriptionId,
             @RequestBody PaymentConfirmRequest request
