@@ -34,18 +34,24 @@ public class AppleClientSecretProvider {
     @PostConstruct
     public void init() {
         try {
-            String resourcePath = privateKeyPath.replace("src/main/resources/", "");
-            ClassPathResource resource = new ClassPathResource(resourcePath);
+            // ✅ classpath에서 파일 로드
+            ClassPathResource resource = new ClassPathResource(privateKeyPath);
 
+            // ✅ PEM 형식의 원문 파일 읽기
+            String keyContent;
             try (InputStream inputStream = resource.getInputStream()) {
-                String keyBase64 = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8).trim();
-
-                // ✅ base64 decode → PKCS8 키로 변환
-                byte[] decoded = Base64.getDecoder().decode(keyBase64);
-                PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
-                KeyFactory kf = KeyFactory.getInstance("EC");
-                privateKey = kf.generatePrivate(spec);
+                keyContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8)
+                        .replace("-----BEGIN PRIVATE KEY-----", "")
+                        .replace("-----END PRIVATE KEY-----", "")
+                        .replaceAll("\\s+", ""); // 줄바꿈/공백 제거
             }
+
+            // ✅ Base64 디코드 후 PrivateKey 객체 생성
+            byte[] decoded = Base64.getDecoder().decode(keyContent);
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
+            KeyFactory kf = KeyFactory.getInstance("EC");
+            privateKey = kf.generatePrivate(spec);
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to load Apple private key", e);
         }
