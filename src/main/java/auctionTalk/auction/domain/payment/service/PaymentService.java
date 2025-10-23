@@ -5,6 +5,7 @@ import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentService {
 
     private final WebClient webClient;
@@ -46,7 +48,10 @@ public class PaymentService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, clientResponse ->
                         clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(new CustomApiException(ErrorCode.FAIL_CONFIRM_PAYMENT)))
+                                .flatMap(errorBody -> {
+                                    log.error("Toss payment confirm failed: {}", errorBody);
+                                    return Mono.error(new CustomApiException(ErrorCode.FAIL_CONFIRM_PAYMENT));
+                                })
                 )
                 .bodyToMono(PaymentResultResponse.class)
                 .block();
