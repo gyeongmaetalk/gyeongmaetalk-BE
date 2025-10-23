@@ -4,10 +4,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -33,13 +34,18 @@ public class AppleClientSecretProvider {
     @PostConstruct
     public void init() {
         try {
-            String key = Files.readString(Path.of(privateKeyPath))
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s+", "");
-            byte[] decoded = Base64.getDecoder().decode(key);
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
-            privateKey = KeyFactory.getInstance("EC").generatePrivate(spec);
+            String resourcePath = privateKeyPath.replace("src/main/resources/", "");
+            ClassPathResource resource = new ClassPathResource(resourcePath);
+
+            try (InputStream inputStream = resource.getInputStream()) {
+                String keyBase64 = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8).trim();
+
+                // ✅ base64 decode → PKCS8 키로 변환
+                byte[] decoded = Base64.getDecoder().decode(keyBase64);
+                PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
+                KeyFactory kf = KeyFactory.getInstance("EC");
+                privateKey = kf.generatePrivate(spec);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Failed to load Apple private key", e);
         }
