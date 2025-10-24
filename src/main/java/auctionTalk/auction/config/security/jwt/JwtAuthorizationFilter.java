@@ -34,7 +34,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        if (uri.startsWith("/login/oauth2/code") || uri.startsWith("/oauth2/authorization")) {
+        if (uri.startsWith("/login/oauth2/")
+                || uri.startsWith("/oauth2/")
+                || uri.startsWith("/login")
+                || uri.startsWith("/signin")
+                || uri.contains("apple")
+                || uri.contains("oauth2")) {
             filterChain.doFilter(request, response);
             return;
         }
