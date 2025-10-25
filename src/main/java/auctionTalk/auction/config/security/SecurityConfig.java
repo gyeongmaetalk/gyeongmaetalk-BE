@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리
                         .accessDeniedHandler(customAccessDeniedHandler)           // 인가 실패 처리
                 )
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(ae -> ae
                                 .authorizationRequestResolver(authorizationRequestResolver)
@@ -73,9 +74,7 @@ public class SecurityConfig {
                                 .oidcUserService(appleOidcUserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 JWT 발급
-                )
-                .addFilterAfter(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-
+                );
 
         return http.build();
     }
