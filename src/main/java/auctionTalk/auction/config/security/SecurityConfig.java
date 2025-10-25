@@ -9,6 +9,7 @@ import auctionTalk.auction.config.security.jwt.JwtAuthorizationFilter;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -73,6 +74,11 @@ public class SecurityConfig {
                                 .oidcUserService(appleOidcUserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 JWT 발급
+                        .failureHandler((request, response, exception) -> {
+                            System.err.println("❌ OAuth2 로그인 실패: " + exception.getMessage());
+                            exception.printStackTrace();
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "OAuth2 로그인 실패: " + exception.getMessage());
+                        })
                 );
 
         return http.build();
