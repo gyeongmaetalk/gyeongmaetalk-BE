@@ -5,40 +5,36 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AppleOidcUserService extends OidcUserService {
+
     private final MemberRepository memberRepository;
-    private final AuthMapper authMapper;
+    private final AuthMapper authMapper; // ✅ Member 생성 로직 통일
 
     @Override
-    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        OidcUser oidcUser = super.loadUser(userRequest); // id_token 검증 포함
-        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // "apple"
-        String clientId = oidcUser.getSubject(); // = "sub"
+    public OidcUser loadUser(OidcUserRequest userRequest) {
+        // Apple에서 id_token 파싱하여 OIDC 사용자 정보 획득
+        OidcUser oidcUser = super.loadUser(userRequest);
 
-        Member member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
-                .orElseGet(() -> memberRepository.save(authMapper.toMember(clientId, LoginType.from(registrationId))));
+        String appleSub = oidcUser.getSubject();
+        log.info("🍎 Apple 로그인 시도: sub = {}", appleSub);
 
-        return new DefaultOidcUser(
-                oidcUser.getAuthorities(),     // 권한 그대로
-                oidcUser.getIdToken(),         // id_token
-                oidcUser.getUserInfo(),        // user_info
-                "sub"                          // username attribute key
-        );
+        // 기존 회원 조회 or 신규 생성
+        Member member = memberRepository.findByClientIdAndLoginType(appleSub, LoginType.APPLE)
+                .orElseGet(() -> {
+                    Member newMember = authMapper.toMember(appleSub, LoginType.APPLE);
+                    return memberRepository.save(newMember);
+                });
+
+        // ✅ PrincipalDetails로 통일하여 반환
+        return new PrincipalDetails(member, oidcUser.getAttributes());
     }
 }
