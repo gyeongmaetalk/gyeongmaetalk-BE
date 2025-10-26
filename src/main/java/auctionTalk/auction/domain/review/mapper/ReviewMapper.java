@@ -52,7 +52,8 @@ public class ReviewMapper {
                 .createAt(review.getCreatedAt())
                 .counselDate(review.getCounsel().getCounselDate())
                 .counselTime(review.getCounsel().getCounselTime())
-                .isMine(Objects.equals(review.getMember().getId(), member.getId()))
+                .isMine(member != null &&
+                        Objects.equals(review.getMember().getId(), member.getId()))
                 .imageCount(review.getImages().size())
                 .thumbnail(review.getThumbnail())
                 .content(review.getContent())
@@ -69,7 +70,8 @@ public class ReviewMapper {
                 .createAt(review.getCreatedAt())
                 .counselDate(review.getCounsel().getCounselDate())
                 .counselTime(review.getCounsel().getCounselTime())
-                .isMine(Objects.equals(review.getMember().getId(), member.getId()))
+                .isMine(member != null &&
+                        Objects.equals(review.getMember().getId(), member.getId()))
                 .imageCount(review.getImages().size())
                 .thumbnail(review.getThumbnail())
                 .content(review.getContent())
@@ -88,7 +90,8 @@ public class ReviewMapper {
                 .createAt(review.getCreatedAt())
                 .counselDate(review.getCounsel().getCounselDate())
                 .counselTime(review.getCounsel().getCounselTime())
-                .isMine(Objects.equals(review.getMember().getId(), member.getId()))
+                .isMine(member != null &&
+                        Objects.equals(review.getMember().getId(), member.getId()))
                 .images(toImageUrls(review.getImages()))
                 .content(review.getContent())
                 .counselorName(counselor.getName())
