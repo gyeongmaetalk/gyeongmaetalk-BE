@@ -75,4 +75,11 @@ public class Property extends BaseEntity {
         // 새로운 이미지로 변경
         this.images = propertyImages;
     }
+
+    public String getThumbnail() {
+        return this.images.stream()
+                .findFirst()
+                .map(PropertyImage::getUrl)
+                .orElse(null);
+    }
 }

@@ -32,7 +32,7 @@ public class PropertySummaryResponse {
     private Long minPrice;
 
     @Schema(description = "이미지 url 목록", example = "[\"url1\", \"url2\"]")
-    private List<PropertyImage> images;
+    private List<String> images;
 
     @Schema(description = "구매 여부", example = "false")
     private boolean isPurchased;

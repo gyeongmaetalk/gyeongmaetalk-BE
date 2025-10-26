@@ -35,6 +35,7 @@ public class PropertyMapper {
                 .isPurchased(property.isPurchased())
                 .buildingType(property.getBuildingType())
                 .updateDate(property.getCreatedAt())
+                .images(toImageUrls(property.getImages()))
                 .build();
     }
 
@@ -71,6 +72,7 @@ public class PropertyMapper {
                 .expertComment(property.getExpertComment())
                 .buildingType(property.getBuildingType())
                 .updateDate(property.getCreatedAt())
+                .images(toImageUrls(property.getImages()))
                 .build();
     }
 
