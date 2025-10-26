@@ -92,7 +92,10 @@ public class FcmService {
 
     @Transactional(readOnly = true)
     public List<NotificationResponse> getNotifications(Member member) {
-        List<Notification> notifications = notificationRepository.findAllByMemberOrderByCreatedAtDesc(member);
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+        List<Notification> notifications =
+                notificationRepository.findAllByMemberAndCreatedAtAfterOrderByCreatedAtDesc(member, thirtyDaysAgo);
 
         return notifications.stream()
                 .map(notification -> {
