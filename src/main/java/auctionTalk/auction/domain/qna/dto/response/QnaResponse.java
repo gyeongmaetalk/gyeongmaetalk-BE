@@ -20,6 +20,9 @@ public class QnaResponse {
     @Schema(description = "질문 내용", example = "얼마나 걸리나요?")
     private String qnaContent;
 
+    @Schema(description = "질문 생성 시간", example = "2021-05-05T12:00:00")
+    private LocalDateTime createdAt;
+
     @Schema(description = "질문 상태", example = "PENDING")
     private QnaStatus qnaStatus;
 
