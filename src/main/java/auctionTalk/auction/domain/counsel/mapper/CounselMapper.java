@@ -6,7 +6,6 @@ import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselInfoResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
-import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
@@ -38,15 +37,15 @@ public class CounselMapper {
                 .build();
     }
 
-    public MatchCounselorResponse toMatchCounselorResponse(Counselor counselor, Long counselFormId){
+    public MatchCounselorResponse toMatchCounselorResponse(Counselor counselor, Long counselFormId, double averageScore, int reviewCount){
         return MatchCounselorResponse.builder()
                 .counselorId(counselor.getId())
                 .counselFormId(counselFormId)
                 .counselorName(counselor.getName())
-                .score(4.6)
-                .counselCount(120)
+                .score(averageScore)
+                .counselCount(counselor.getCounselCount())
                 .description(counselor.getDescription())
-                .reviewCount(85)
+                .reviewCount(reviewCount)
                 .experience(counselor.getExperience())
                 .license(counselor.getLicense())
                 .Specialization(counselor.getSpecialization())
@@ -66,14 +65,14 @@ public class CounselMapper {
                 .build();
     }
 
-    public CounselInfoResponse toCounselInfoResponse(Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time, boolean isReviewed){
+    public CounselInfoResponse toCounselInfoResponse(Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time, boolean isReviewed, double averageScore, int reviewCount){
         return CounselInfoResponse.builder()
                 .counselorId(counselor.getId())
                 .counselorName(counselor.getName())
-                .score(4.6)
-                .counselCount(120)
+                .score(averageScore)
+                .counselCount(counselor.getCounselCount())
                 .description(counselor.getDescription())
-                .reviewCount(85)
+                .reviewCount(reviewCount)
                 .experience(counselor.getExperience())
                 .license(counselor.getLicense())
                 .Specialization(counselor.getSpecialization())

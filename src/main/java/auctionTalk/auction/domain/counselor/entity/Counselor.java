@@ -53,6 +53,10 @@ public class Counselor extends BaseEntity {
         return slots;
     }
 
+    public void addCounselCount(){
+        this.counselCount++;
+    }
+
     public void changeImages(List<CounselorImage> images) {
         // 새로운 이미지로 변경
         this.profileImages = images;

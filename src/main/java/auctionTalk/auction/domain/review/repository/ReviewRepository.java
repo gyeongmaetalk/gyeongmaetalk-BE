@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.review.repository;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.global.exception.CustomApiException;
@@ -11,12 +12,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     default Review getReview(Long id) {
         return findById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.REVIEW_NOT_FOUND));
     }
+
+    List<Review> findAllByCounsel_Counselor(Counselor counselor);
 
     boolean existsByCounsel(Counsel counsel);
 
