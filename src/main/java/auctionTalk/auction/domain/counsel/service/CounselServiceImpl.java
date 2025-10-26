@@ -15,6 +15,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,9 @@ public class CounselServiceImpl implements CounselService {
 
         CounselForm counselForm = counselFormRepository.getCounselFormById(counselFormId);
 
-        Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
+        createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
+
+        counselor.addCounselCount();
 
         fcmService.sendPushNotification(member.getFcmToken(), "새로운 메시지", "상담이 예약되었습니다.");
 
@@ -56,11 +59,17 @@ public class CounselServiceImpl implements CounselService {
     @Override
     @Transactional
     public MatchCounselorResponse matchCounselor(CounselFormCreateRequest request, Member member){
-        Counselor counselor = counselorRepository.getCounselor(1L);
+        Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
+
+        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
+        int reviewCount = reviews.size();
+        double averageScore = reviewCount > 0
+                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
+                : 0.0;
 
         CounselForm counselForm = createAndSaveCounselForm(request, member);
 
-        return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId());
+        return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId(), averageScore, reviewCount);
     }
 
     @Override
@@ -88,13 +97,26 @@ public class CounselServiceImpl implements CounselService {
 
         Counsel existingCounsel = counsel.get();
         CounselForm counselForm = counselFormRepository.getCounselFormByMember(member);
+        Counselor counselor = existingCounsel.getCounselor();
 
         CounselStatus status = determineCounselStatus(member, existingCounsel);
 
+        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
+        int reviewCount = reviews.size();
+        double averageScore = reviewCount > 0
+                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
+                : 0.0;
 
         boolean isReviewed = reviewRepository.existsByCounsel(existingCounsel);
-        CounselInfoResponse info = counselMapper.toCounselInfoResponse(existingCounsel.getCounselor(), counselForm, existingCounsel.getCounselDate(), existingCounsel.getCounselTime(), isReviewed);
-
+        CounselInfoResponse info = counselMapper.toCounselInfoResponse(
+                counselor,
+                counselForm,
+                existingCounsel.getCounselDate(),
+                existingCounsel.getCounselTime(),
+                isReviewed,
+                averageScore,
+                reviewCount
+        );
         return new CounselCombinedResponse(status, info);
     }
 
