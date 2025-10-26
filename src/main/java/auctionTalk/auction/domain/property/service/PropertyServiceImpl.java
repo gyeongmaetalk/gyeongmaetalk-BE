@@ -1,12 +1,15 @@
 package auctionTalk.auction.domain.property.service;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
+import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
+import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +21,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class PropertyServiceImpl implements PropertyService{
 
     private final PropertyRepository propertyRepository;
-    private final PropertyImageService propertyImageService;
     private final PropertyMapper propertyMapper;
+
+    @Override
+    @Transactional
+    public PropertyIdResponse purchaseProperty(Member member, Long propertyId){
+        ParamValidator.validModify(member.getId(), propertyId); // 권한 유효성 검사
+        Property property = propertyRepository.getProperty(propertyId);
+
+        property.purchase();
+
+        propertyRepository.save(property);
+        return new PropertyIdResponse(propertyId);
+    }
+
 
     @Override
     @Transactional(readOnly = true)

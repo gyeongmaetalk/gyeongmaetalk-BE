@@ -4,6 +4,7 @@ import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
+import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.service.PropertyService;
@@ -28,6 +29,15 @@ public class PropertyController {
     private final PropertyService propertyService;
     private final SubscriptionService subscriptionService;
 
+    @Operation(summary = "추천 매물 구매 신청 API")
+    @PostMapping("/{propertyId}/purchases")
+    public BaseResponse<PropertyIdResponse> purchaseProperty(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @PathVariable("propertyId") Long propertyId
+    ){
+        return BaseResponse.onSuccess(propertyService.purchaseProperty(principal.getMember(),  propertyId));
+    }
+    
     @Operation(summary = "추천 매물 목록 조회 API")
     @GetMapping("/list")
     @Parameters(value = {
@@ -68,11 +78,11 @@ public class PropertyController {
         return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(subscriptionId, request));
     }
 
-    @Operation(summary = "추천 매물 계약 완료 신청 API")
-    @PostMapping("/subscribe/{subscriptionId}/complete")
-    public BaseResponse<SubscriptionIdResponse> completeSubscription(
-            @PathVariable("subscriptionId") Long subscriptionId
-    ){
-        return BaseResponse.onSuccess(subscriptionService.completeSubscription(subscriptionId));
-    }
+//    @Operation(summary = "추천 매물 계약 완료 신청 API")
+//    @PostMapping("/subscribe/{subscriptionId}/complete")
+//    public BaseResponse<SubscriptionIdResponse> completeSubscription(
+//            @PathVariable("subscriptionId") Long subscriptionId
+//    ){
+//        return BaseResponse.onSuccess(subscriptionService.completeSubscription(subscriptionId));
+//    }
 }

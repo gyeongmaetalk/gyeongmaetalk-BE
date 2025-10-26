@@ -82,4 +82,8 @@ public class Property extends BaseEntity {
                 .map(PropertyImage::getUrl)
                 .orElse(null);
     }
+
+    public void purchase(){
+        this.isPurchased = true;
+    }
 }
