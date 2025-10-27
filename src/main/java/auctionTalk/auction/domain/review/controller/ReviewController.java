@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.review.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.domain.review.dto.response.*;
@@ -67,12 +68,13 @@ public class ReviewController {
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
     public BaseResponse<AllReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
-            @AuthenticationPrincipal PrincipalDetails member,
+            @AuthenticationPrincipal PrincipalDetails principal,
             @RequestParam ReviewSortType type,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ){
-        return BaseResponse.onSuccess(reviewService.inquiryReviews(member.getMember(), type, page, size));
+        Member member = principal != null ? principal.getMember() : null;
+        return BaseResponse.onSuccess(reviewService.inquiryReviews(member, type, page, size));
     }
 
     @Operation(summary = "내가 쓴 후기 목록 조회 API")
@@ -98,13 +100,14 @@ public class ReviewController {
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
     public BaseResponse<ReviewPagingResponse<ReviewSummaryResponse>> inquiryReviews(
-            @AuthenticationPrincipal PrincipalDetails member,
+            @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId,
             @RequestParam ReviewSortType type,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ){
-        return BaseResponse.onSuccess(reviewService.inquiryReviewsByCounselor(counselorId, member.getMember(), type, page, size));
+        Member member = principal != null ? principal.getMember() : null;
+        return BaseResponse.onSuccess(reviewService.inquiryReviewsByCounselor(counselorId, member, type, page, size));
     }
 
     @Operation(summary = "상담 후기 상세 조회 API")
