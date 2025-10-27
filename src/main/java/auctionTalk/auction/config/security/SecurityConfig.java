@@ -2,6 +2,7 @@ package auctionTalk.auction.config.security;
 
 import auctionTalk.auction.config.security.auth.AppleOidcUserService;
 import auctionTalk.auction.config.security.auth.CustomOAuth2UserService;
+import auctionTalk.auction.config.security.auth.HttpCookieOAuth2AuthorizationRequestRepository;
 import auctionTalk.auction.config.security.auth.OAuth2LoginSuccessHandler;
 import auctionTalk.auction.config.security.jwt.CustomAccessDeniedHandler;
 import auctionTalk.auction.config.security.jwt.CustomAuthenticationEntryPoint;
@@ -41,6 +42,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AppleOidcUserService appleOidcUserService;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -65,6 +67,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(ae -> ae
+                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
                                 .authorizationRequestResolver(authorizationRequestResolver)
                         )
                         .userInfoEndpoint(userInfo -> userInfo
