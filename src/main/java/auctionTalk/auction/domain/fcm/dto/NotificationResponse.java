@@ -20,6 +20,9 @@ public class NotificationResponse {
     @Schema(description = "내용", example = "무료 상담은 어떠셨나요? 후기를 남겨주세요")
     private String body;
 
+    @Schema(description = "(리뷰 or 추천매물ID)", example = "1")
+    private Long contentId;
+
     @Schema(description = "상담사 이름", example = "이정훈")
     private String counselorName;
 

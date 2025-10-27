@@ -1,7 +1,10 @@
 package auctionTalk.auction.domain.fcm.service;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counselor.entity.Counselor;
+import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.fcm.dto.FcmTokenResponse;
+import auctionTalk.auction.domain.fcm.dto.NotificationIdResponse;
 import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
 import auctionTalk.auction.domain.fcm.entity.Notification;
 import auctionTalk.auction.domain.fcm.entity.NotificationType;
@@ -13,6 +16,7 @@ import auctionTalk.auction.domain.member.repository.MemberRepository;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
+import auctionTalk.auction.global.validation.ParamValidator;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -37,17 +41,19 @@ public class FcmService {
     public void sendPushPropertyNotification(String targetToken, String title, String body, Member member, Property property) {
 
         try {
-            Message message = fcmMapper.ToMessage(targetToken, title, body);//fcm 메세지 객체 빌드
+            Message message = fcmMapper.ToMessage(targetToken, title, body);
             FirebaseMessaging.getInstance().send(message);
 
             Notification notification = Notification.builder()
                     .member(member)
                     .title(title)
                     .body(body)
+                    .contentId(property.getId())
                     .thumbnail(property.getThumbnail())
                     .counselorName(property.getCounselor().getName())
                     .propertyName(property.getName())
                     .isRead(false)
+                    .type(NotificationType.RECOMMENDED_PROPERTY)
                     .build();
             notificationRepository.save(notification);
         } catch (FirebaseMessagingException e) {
@@ -67,13 +73,17 @@ public class FcmService {
                     counsel.getCounselTime()
             );
 
-            Notification notification = Notification.builder() // db에 저장할 엔티티 생성
+            Counselor counselor = counsel.getCounselor();
+
+            Notification notification = Notification.builder()
                     .member(member)
                     .title(title)
                     .body(body)
+                    .contentId(counselor.getId())
                     .isRead(false)
-                    .counselorName(counsel.getCounselor().getName())
+                    .counselorName(counselor.getName())
                     .counselTime(counselDateTime)
+                    .type(NotificationType.COUNSEL_FINISHED)
                     .build();
             notificationRepository.save(notification);
         } catch (FirebaseMessagingException e) {
@@ -108,5 +118,18 @@ public class FcmService {
                     return null;
                 })
                 .toList();
+    }
+
+    @Transactional
+    public NotificationIdResponse readNotification(Member member, Long notificationId) {
+        Notification notification = notificationRepository.getNotification(notificationId);
+
+        ParamValidator.validModify(member.getId(), notification.getMember().getId());
+
+        notification.markAsRead();
+
+        notificationRepository.save(notification);
+
+        return new NotificationIdResponse(notificationId);
     }
 }

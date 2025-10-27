@@ -22,6 +22,7 @@ public class Notification extends BaseEntity {
     @JoinColumn(nullable = false)
     private Member member;
 
+    private Long contentId;
     private String title;
     private String body;
     private String counselorName;

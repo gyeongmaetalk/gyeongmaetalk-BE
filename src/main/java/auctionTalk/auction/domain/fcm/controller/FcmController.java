@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.fcm.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.fcm.dto.FcmTokenResponse;
+import auctionTalk.auction.domain.fcm.dto.NotificationIdResponse;
 import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.global.common.BaseResponse;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "FCM API", description = "FCM 관련 API")
+@Tag(name = "FCM API", description = "알림 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/fcm")
@@ -41,5 +42,14 @@ public class FcmController {
             @AuthenticationPrincipal PrincipalDetails principal
     ){
         return BaseResponse.onSuccess(fcmService.getNotifications(principal.getMember()));
+    }
+
+    @Operation(summary = " 알림 읽음 처리 API")
+    @PatchMapping("/{notificationId}/read")
+    public BaseResponse<NotificationIdResponse> readNotification(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @PathVariable("notificationId") Long notificationId
+    ){
+        return BaseResponse.onSuccess(fcmService.readNotification(principal.getMember(), notificationId));
     }
 }
