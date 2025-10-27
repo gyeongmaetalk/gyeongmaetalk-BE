@@ -16,6 +16,9 @@ public class PropertySummaryResponse {
     @Schema(description = "추천매물 ID", example = "1")
     private Long id;
 
+    @Schema(description = "이름", example = "서울 역세권 30평 아파트")
+    private String name;
+
     @Schema(description = "주소", example = "서울 도봉구")
     private String address;
 

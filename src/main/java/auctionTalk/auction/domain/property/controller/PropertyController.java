@@ -26,6 +26,7 @@ public class PropertyController {
     private final PropertyService propertyService;
     private final SubscriptionService subscriptionService;
 
+
     @Operation(summary = "추천 매물 구매 신청 API")
     @PostMapping("/{propertyId}/purchases")
     public BaseResponse<PropertyIdResponse> purchaseProperty(

@@ -10,4 +10,11 @@ public class ParamValidator {
         if (!memberId1.equals(memberId2))
             throw new CustomApiException(ErrorCode.UNAUTHORIZED_MODIFY);
     }
+
+    // FCM 토큰 유효성 검증
+    public static void validateFcmToken(String token) {
+        if (token == null || token.isBlank()) {
+            throw new CustomApiException(ErrorCode.INVALID_FCM_TOKEN);
+        }
+    }
 }
