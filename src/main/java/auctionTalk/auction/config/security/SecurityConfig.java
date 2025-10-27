@@ -19,6 +19,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -43,6 +45,7 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AppleOidcUserService appleOidcUserService;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -69,6 +72,9 @@ public class SecurityConfig {
                         .authorizationEndpoint(ae -> ae
                                 .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
                                 .authorizationRequestResolver(authorizationRequestResolver)
+                        )
+                        .tokenEndpoint(token -> token
+                                .accessTokenResponseClient(accessTokenResponseClient) // 우리가 만든 Bean 주입
                         )
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService) // 사용자 정보 로드
