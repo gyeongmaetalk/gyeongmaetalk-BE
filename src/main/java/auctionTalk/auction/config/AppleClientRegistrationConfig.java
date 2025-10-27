@@ -48,7 +48,6 @@ public class AppleClientRegistrationConfig {
                     .scope(reg.getScope())
                     .authorizationUri(provider.getAuthorizationUri())
                     .tokenUri(provider.getTokenUri())
-                    .userInfoUri(provider.getUserInfoUri())
                     .jwkSetUri(provider.getJwkSetUri())
                     .userNameAttributeName(provider.getUserNameAttribute());
 
