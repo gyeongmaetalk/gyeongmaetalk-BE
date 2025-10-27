@@ -27,7 +27,7 @@ public class PropertyMapper {
                 .build();
     }
 
-    public PropertySummaryResponse toPropertySummaryResponse(Property property) {
+    public PropertySummaryResponse toPropertySummaryResponse(Property property, boolean payment) {
         return PropertySummaryResponse.builder()
                 .id(property.getId())
                 .address(property.getAddress())
@@ -39,6 +39,7 @@ public class PropertyMapper {
                 .appraisedPrice(property.getAppraisedPrice())
                 .minPrice(property.getMinPrice())
                 .isPurchased(property.isPurchased())
+                .isPayment(payment)
                 .buildingType(property.getBuildingType())
                 .updateDate(property.getCreatedAt())
                 .images(toImageUrls(property.getImages()))

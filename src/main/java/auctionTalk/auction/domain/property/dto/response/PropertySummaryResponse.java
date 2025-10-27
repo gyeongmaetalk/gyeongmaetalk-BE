@@ -34,8 +34,11 @@ public class PropertySummaryResponse {
     @Schema(description = "이미지 url 목록", example = "[\"url1\", \"url2\"]")
     private List<String> images;
 
-    @Schema(description = "구매 여부", example = "false")
+    @Schema(description = "구매 완료 여부", example = "false")
     private boolean isPurchased;
+
+    @Schema(description = "결제 완료 여부", example = "false")
+    private boolean isPayment;
 
     @Schema(description = "건물 유형", example = "아파트")
     private String buildingType;

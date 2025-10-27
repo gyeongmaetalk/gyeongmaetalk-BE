@@ -112,6 +112,17 @@ public class PropertyServiceImpl implements PropertyService{
 
         Page<Property> properties = propertyRepository.findAllByMemberId(principal.getMember().getId(), PageRequest.of(page, size));
 
-        return propertyMapper.toPropertyPagingResponse(properties.map(propertyMapper::toPropertySummaryResponse));
+        Member member = principal.getMember();
+
+        Page<PropertySummaryResponse> responsePage = properties.map(property -> {
+            boolean hasPaid = propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
+                    member,
+                    property.getId(),
+                    PaymentStatus.SUCCESS
+            );
+            return propertyMapper.toPropertySummaryResponse(property, hasPaid);
+        });
+
+        return propertyMapper.toPropertyPagingResponse(responsePage);
     }
 }
