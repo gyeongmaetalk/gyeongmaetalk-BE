@@ -59,7 +59,7 @@ public class PropertyController {
     }
 
     @Operation(summary = "추천 매물 구독 신청(결제 준비) API")
-    @PostMapping("/subscribe/{counselorId}")
+    @PostMapping("/{counselorId}/subscribe")
     public BaseResponse<SubscriptionPreparePaymentResponse> prepareSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId
@@ -77,7 +77,7 @@ public class PropertyController {
     }
 
     @Operation(summary = "추천 매물 구매 결제 준비 API")
-    @PostMapping("/prepare/{propertyId}")
+    @PostMapping("/{propertyId}/prepare")
     public BaseResponse<PropertyPreparePaymentResponse> confirmSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("propertyId") Long propertyId
