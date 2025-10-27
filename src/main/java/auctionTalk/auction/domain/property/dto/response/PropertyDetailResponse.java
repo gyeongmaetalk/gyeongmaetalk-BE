@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.property.dto.response;
 
-import auctionTalk.auction.domain.property.entity.PropertyImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

@@ -57,6 +57,7 @@ public enum ErrorCode {
     // Firebase
     FIREBASE_INIT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FIREBASE500", "Firebase 초기화에 실패했습니다."),
     FIREBASE_PUSH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FIREBASE501", "Firebase 알림 푸쉬에 실패했습니다."),
+    INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "FIREBASE401", "FCM 토큰이 비어 있습니다."),
 
     // Payment
     FAIL_CONFIRM_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT401", "결제 승인에 실패했습니다."),

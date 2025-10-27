@@ -1,7 +1,9 @@
 package auctionTalk.auction.domain.property.mapper;
 
+import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
+import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPreparePaymentResponse;
@@ -20,6 +22,30 @@ import java.util.List;
 @Component
 public class PropertyMapper {
 
+    public Property toProperty(Member member, Counselor counselor, PropertyCreateRequest request) {
+        return Property.builder()
+                .member(member)
+                .counselor(counselor)
+                .name(request.getName())
+                .area(request.getArea())
+                .appraisedPrice(request.getAppraisedPrice())
+                .minPrice(request.getMinPrice())
+                .address(request.getAddress())
+                .caseNumber(request.getCaseNumber())
+                .caseTitle(request.getCaseTitle())
+                .courtName(request.getCourtName())
+                .registrationDate(request.getRegistrationDate())
+                .status(request.getStatus())
+                .commencementDate(request.getCommencementDate())
+                .expertComment(request.getExpertComment())
+                .debtor(request.getDebtor())
+                .creditor(request.getCreditor())
+                .owner(request.getOwner())
+                .tenant(request.getTenant())
+                .buildingType(request.getBuildingType())
+                .build();
+    }
+
     public PropertyImage toPropertyImage(Property property, String url) {
         return PropertyImage.builder()
                 .property(property)
@@ -30,6 +56,7 @@ public class PropertyMapper {
     public PropertySummaryResponse toPropertySummaryResponse(Property property, boolean payment) {
         return PropertySummaryResponse.builder()
                 .id(property.getId())
+                .name(property.getName())
                 .address(property.getAddress())
                 .area(property.getArea())
                 .biddingDate(property.getAuctionSchedules().stream()

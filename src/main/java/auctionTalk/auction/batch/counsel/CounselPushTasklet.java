@@ -4,6 +4,7 @@ import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -34,7 +35,7 @@ public class CounselPushTasklet implements Tasklet {
             Member member = counsel.getMember();
             String token = member.getFcmToken();
 
-            if (token == null || token.isBlank()) continue;
+            ParamValidator.validateFcmToken(token);
 
             notificationService.sendPushReviewNotification(
                     token,

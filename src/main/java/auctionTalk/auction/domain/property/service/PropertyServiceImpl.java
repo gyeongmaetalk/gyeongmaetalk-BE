@@ -1,11 +1,14 @@
 package auctionTalk.auction.domain.property.service;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.counselor.entity.Counselor;
+import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.payment.service.PaymentService;
+import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
@@ -32,12 +35,33 @@ public class PropertyServiceImpl implements PropertyService{
     private final PropertyPaymentRepository propertyPaymentRepository;
     private final PropertyMapper propertyMapper;
     private final PaymentService paymentService;
+    private final FcmService fcmService;
 
     @Value("${property.fixed-amount}")
     private Long fixedAmount;
 
     @Value("${property.fixed-name}")
     private String fixedName;
+
+    @Override
+    @Transactional
+    public PropertyIdResponse createProperty(Member member, Counselor counselor, PropertyCreateRequest request){
+
+        Property newProperty = propertyMapper.toProperty(member, counselor, request);
+
+        propertyRepository.save(newProperty);
+
+        String fcmToken = member.getFcmToken();
+
+        ParamValidator.validateFcmToken(fcmToken);
+
+        String title = "추천 매물";
+        String body = "추천 매물을 올려주셨어요.";
+
+        fcmService.sendPushPropertyNotification(fcmToken, title, body, member, newProperty);
+
+        return new PropertyIdResponse(newProperty.getId());
+    }
 
     @Override
     @Transactional
