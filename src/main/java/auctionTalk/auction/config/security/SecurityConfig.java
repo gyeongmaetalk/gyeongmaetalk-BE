@@ -73,9 +73,6 @@ public class SecurityConfig {
                                 .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
                                 .authorizationRequestResolver(authorizationRequestResolver)
                         )
-                        .tokenEndpoint(token -> token
-                                .accessTokenResponseClient(accessTokenResponseClient) // 우리가 만든 Bean 주입
-                        )
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService) // 사용자 정보 로드
                                 .oidcUserService(appleOidcUserService)
