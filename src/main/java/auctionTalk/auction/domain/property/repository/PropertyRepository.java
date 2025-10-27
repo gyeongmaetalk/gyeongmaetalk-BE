@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.property.repository;
 
-import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;

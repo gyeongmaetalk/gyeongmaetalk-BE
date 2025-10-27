@@ -2,6 +2,8 @@ package auctionTalk.auction.domain.fcm.repository;
 
 import auctionTalk.auction.domain.fcm.entity.Notification;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -12,4 +14,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             Member member,
             LocalDateTime thirtyDaysAgo
     );
+
+    default Notification getNotification(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.NOTIFICATION_NOT_FOUND));
+    }
 }
