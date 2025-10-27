@@ -1,17 +1,15 @@
 package auctionTalk.auction.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 
 public class CookieUtils {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         if (request.getCookies() == null) return Optional.empty();
@@ -40,18 +38,21 @@ public class CookieUtils {
         }
     }
 
+    // ✅ Java 기본 직렬화로 변경
     public static String serialize(Object obj) {
-        try {
-            return Base64.getUrlEncoder().encodeToString(objectMapper.writeValueAsBytes(obj));
-        } catch (Exception e) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(obj);
+            return Base64.getUrlEncoder().encodeToString(bos.toByteArray());
+        } catch (IOException e) {
             throw new RuntimeException("쿠키 직렬화 실패", e);
         }
     }
 
     public static <T> T deserialize(Cookie cookie, Class<T> cls) {
-        try {
-            byte[] decoded = Base64.getUrlDecoder().decode(cookie.getValue());
-            return objectMapper.readValue(decoded, cls);
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(Base64.getUrlDecoder().decode(cookie.getValue()));
+             ObjectInputStream ois = new ObjectInputStream(bis)) {
+            return cls.cast(ois.readObject());
         } catch (Exception e) {
             throw new RuntimeException("쿠키 역직렬화 실패", e);
         }
