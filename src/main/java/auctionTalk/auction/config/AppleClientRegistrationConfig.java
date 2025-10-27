@@ -33,7 +33,7 @@ public class AppleClientRegistrationConfig {
                     .clientId(reg.getClientId())
                     .clientSecret(
                             "apple".equals(id)
-                                    ? appleClientSecretProvider.generateClientSecret() // ✅ 여기서 동적으로 주입
+                                    ? appleClientSecretProvider.generateClientSecret()
                                     : reg.getClientSecret()
                     )
                     .clientAuthenticationMethod(
