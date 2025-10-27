@@ -51,8 +51,6 @@ public class CounselServiceImpl implements CounselService {
 
         counselor.addCounselCount();
 
-        fcmService.sendPushNotification(member.getFcmToken(), "새로운 메시지", "상담이 예약되었습니다.");
-
         return counselMapper.toApplyCounselResponse(counselForm, counselDate, counselTime, counselor);
     }
 

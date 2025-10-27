@@ -74,7 +74,7 @@ public class PropertyDetailResponse {
     private LocalDateTime updateDate;
 
     @Schema(description = "이미지 url 목록", example = "[\"url1\", \"url2\"]")
-    private List<PropertyImage> images;
+    private List<String> images;
 
     @Getter
     @Builder

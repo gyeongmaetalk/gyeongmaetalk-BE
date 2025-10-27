@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.fcm.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.fcm.dto.FcmTokenResponse;
+import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,9 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "FCM API", description = "FCM 관련 API")
 @RestController
@@ -33,5 +33,13 @@ public class FcmController {
             @RequestParam(name = "fcmToken") String fcmToken
     ){
         return BaseResponse.onSuccess(fcmService.saveFcmToken(principal.getMember().getId(), fcmToken));
+    }
+
+    @Operation(summary = "알림 목록 조회 API")
+    @GetMapping("/notifications")
+    public BaseResponse<List<NotificationResponse>> getNotifications(
+            @AuthenticationPrincipal PrincipalDetails principal
+    ){
+        return BaseResponse.onSuccess(fcmService.getNotifications(principal.getMember()));
     }
 }
