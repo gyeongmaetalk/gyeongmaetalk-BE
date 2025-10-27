@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +28,9 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
             "AND c.counselDate = :date")
     List<LocalTime> findReservedTimes(@Param("counselorId") Long counselorId,
                                       @Param("date") LocalDate date);
+
+    @Query("SELECT c FROM Counsel c " +
+            "WHERE c.pushSent = false " +
+            "AND FUNCTION('TIMESTAMP', c.counselDate, c.counselTime) <= :threshold")
+    List<Counsel> findAllForPush(@Param("threshold") LocalDateTime threshold);
 }

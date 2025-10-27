@@ -35,4 +35,10 @@ public class Counsel extends BaseEntity {
     private LocalDate counselDate;
 
     private LocalTime counselTime;
+
+    private boolean pushSent = false;
+
+    public void updatePushSent() {
+        this.pushSent = true;
+    }
 }
