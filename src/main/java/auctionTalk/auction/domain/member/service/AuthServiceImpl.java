@@ -3,7 +3,6 @@ package auctionTalk.auction.domain.member.service;
 import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.config.security.jwt.RefreshTokenInfo;
-import auctionTalk.auction.domain.member.client.AppleMemberClient;
 import auctionTalk.auction.domain.member.client.KakaoMemberClient;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService{
 
     private final KakaoMemberClient kakaoMemberClient;
-    private final AppleMemberClient appleMemberClient;
 
     private final MemberRepository memberRepository;
     private final CodeRepository codeRepository;
@@ -81,7 +79,6 @@ public class AuthServiceImpl implements AuthService{
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {
         return switch (loginType) {
             case KAKAO -> kakaoMemberClient.getKakaoUserId(accessToken);
-            case APPLE -> appleMemberClient.getAppleUserId(accessToken);
             default -> throw new CustomApiException(ErrorCode.INVALID_LOGIN_TYPE);
         };
     }
