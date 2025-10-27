@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
 import java.util.Arrays;
@@ -42,19 +43,13 @@ public class CookieUtils {
     }
 
     public static String serialize(Object obj) {
-        try {
-            return Base64.getUrlEncoder().encodeToString(objectMapper.writeValueAsBytes(obj));
-        } catch (Exception e) {
-            throw new RuntimeException("쿠키 직렬화 실패", e);
-        }
+        return Base64.getUrlEncoder()
+                .encodeToString(SerializationUtils.serialize(obj));
     }
 
     public static <T> T deserialize(Cookie cookie, Class<T> cls) {
-        try {
-            byte[] decoded = Base64.getUrlDecoder().decode(cookie.getValue());
-            return objectMapper.readValue(decoded, cls);
-        } catch (Exception e) {
-            throw new RuntimeException("쿠키 역직렬화 실패", e);
-        }
+        return cls.cast(
+                SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie.getValue()))
+        );
     }
 }
