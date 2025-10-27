@@ -59,7 +59,8 @@ public enum ErrorCode {
     FIREBASE_PUSH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FIREBASE501", "Firebase 알림 푸쉬에 실패했습니다."),
 
     // Payment
-    FAIL_CONFIRM_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT401", "결제 승인에 실패했습니다.")
+    FAIL_CONFIRM_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT401", "결제 승인에 실패했습니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT402", "결제 정보를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

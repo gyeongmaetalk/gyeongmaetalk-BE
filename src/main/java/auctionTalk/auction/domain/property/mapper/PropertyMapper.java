@@ -1,11 +1,17 @@
 package auctionTalk.auction.domain.property.mapper;
 
+import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
+import auctionTalk.auction.domain.property.dto.response.PropertyPreparePaymentResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.entity.AuctionSchedule;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
+import auctionTalk.auction.domain.property.entity.PropertyPayment;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
+import auctionTalk.auction.domain.subscription.entity.Subscription;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -73,6 +79,26 @@ public class PropertyMapper {
                 .buildingType(property.getBuildingType())
                 .updateDate(property.getCreatedAt())
                 .images(toImageUrls(property.getImages()))
+                .build();
+    }
+
+    public PropertyPayment toPropertyPayment(Member member, Property property, String orderId, Long amount, String orderName){
+        return PropertyPayment.builder()
+                .member(member)
+                .property(property)
+                .orderId(orderId)
+                .orderName(orderName)
+                .amount(amount)
+                .status(PaymentStatus.READY)
+                .build();
+    }
+
+    public PropertyPreparePaymentResponse toPropertyPreparePaymentResponse(PropertyPayment payment){
+        return PropertyPreparePaymentResponse.builder()
+                .propertyId(payment.getProperty().getId())
+                .orderId(payment.getOrderId())
+                .amount(payment.getAmount())
+                .orderName(payment.getOrderName())
                 .build();
     }
 
