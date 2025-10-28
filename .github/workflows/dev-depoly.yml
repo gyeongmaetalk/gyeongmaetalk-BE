@@ -50,8 +50,8 @@ jobs:
       - name : Create Create Apple Private Key File
         run: |
           pushd ./src/main/resources
-          touch AuthKey_6323MZ849U.p8
-          echo "${{ secrets.APPLE_PRIVATE_KEY }}" > AuthKey_6323MZ849U.p8
+          touch AuthKey_2MAXCF33Z9.p8
+          echo "${{ secrets.APPLE_PRIVATE_KEY }}" > AuthKey_2MAXCF33Z9.p8
           popd
 
       # 빌드 (test 제외)
