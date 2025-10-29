@@ -132,11 +132,10 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional(readOnly = true)
-    public PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, int page, int size){
-
-        Page<Property> properties = propertyRepository.findAllByMemberId(principal.getMember().getId(), PageRequest.of(page, size));
+    public PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size){
 
         Member member = principal.getMember();
+        Page<Property> properties = propertyRepository.findAllByMemberIdAndIsPurchased(member.getId(), isPurchased, PageRequest.of(page, size));
 
         Page<PropertySummaryResponse> responsePage = properties.map(property -> {
             boolean hasPaid = propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(

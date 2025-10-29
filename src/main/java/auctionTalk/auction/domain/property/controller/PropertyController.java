@@ -39,15 +39,17 @@ public class PropertyController {
     @Operation(summary = "추천 매물 목록 조회 API")
     @GetMapping("/list")
     @Parameters(value = {
+            @Parameter(name = "isPurchased", description = "구매 여부에 따른 조회(null은 전체 조회)"),
             @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
     public BaseResponse<PropertyPagingResponse<PropertySummaryResponse>> inquiryProperties(
             @AuthenticationPrincipal PrincipalDetails principal,
+            @RequestParam(name = "isPurchased",required = false) Boolean isPurchased,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ) {
-        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, page, size));
+        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, isPurchased, page, size));
     }
 
     @Operation(summary = "추천 매물 상세 조회 API(결제 시 조회 가능)")
