@@ -1,10 +1,12 @@
 package auctionTalk.auction.domain.member.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.member.dto.request.NotificationSettingRequest;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
+import auctionTalk.auction.domain.member.dto.response.NotificationSettingResponse;
 import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.domain.member.service.AuthService;
 import auctionTalk.auction.utils.sms.SmsService;
@@ -81,8 +83,17 @@ public class AuthController {
     public BaseResponse<Boolean> verifySms(
             @RequestParam String phoneNumber,
             @RequestParam String code
-    ) {
+    ){
         return BaseResponse.onSuccess(smsService.verifyCode(phoneNumber, code));
+    }
+
+    @Operation(summary = "알림 설정 변경 API")
+    @PatchMapping("/notification/setting")
+    public BaseResponse<NotificationSettingResponse> updateNotificationSetting(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @RequestBody NotificationSettingRequest request
+    ){
+        return BaseResponse.onSuccess(authService.updateNotificationSetting(principal.getMember(), request));
     }
 
 }

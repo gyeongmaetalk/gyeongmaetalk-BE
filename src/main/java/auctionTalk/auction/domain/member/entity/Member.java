@@ -37,6 +37,10 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Embedded
+    @Builder.Default
+    private NotificationSetting notificationSetting = new NotificationSetting();
+
     public void completeRegistration(String name, LocalDate birth, String cellPhone) {
         this.name = name;
         this.birth = birth;
@@ -46,4 +50,10 @@ public class Member extends BaseEntity {
 
     public void saveFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
 
+    public void updateNotificationSetting(NotificationSetting newSetting) {
+        this.notificationSetting.update(
+                newSetting.isReviewNotificationEnabled(),
+                newSetting.isPropertyNotificationEnabled()
+        );
+    }
 }

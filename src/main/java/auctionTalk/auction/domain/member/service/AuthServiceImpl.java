@@ -4,10 +4,12 @@ import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.config.security.jwt.RefreshTokenInfo;
 import auctionTalk.auction.domain.member.client.KakaoMemberClient;
+import auctionTalk.auction.domain.member.dto.request.NotificationSettingRequest;
 import auctionTalk.auction.domain.member.dto.request.SignupRequest;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberIdResponse;
 import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
+import auctionTalk.auction.domain.member.dto.response.NotificationSettingResponse;
 import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
@@ -74,6 +76,17 @@ public class AuthServiceImpl implements AuthService{
         boolean auctionStatus = subscriptionRepository.existsByMemberAndSubscriptionStatus(member, SubscriptionStatus.IN_PROGRESS);
 
         return authMapper.toMemberInfoResponse(member, auctionStatus);
+    }
+
+    @Override
+    @Transactional
+    public NotificationSettingResponse updateNotificationSetting(Member member, NotificationSettingRequest request){
+        member.getNotificationSetting().update(
+                request.isReviewNotificationEnabled(),
+                request.isPropertyNotificationEnabled()
+        );
+
+        return authMapper.toNotificationSettingResponse(request);
     }
 
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {
