@@ -4,6 +4,7 @@ import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.entity.NotificationSetting;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
@@ -48,8 +49,13 @@ public class PropertyServiceImpl implements PropertyService{
     public PropertyIdResponse createProperty(Member member, Counselor counselor, PropertyCreateRequest request){
 
         Property newProperty = propertyMapper.toProperty(member, counselor, request);
-
         propertyRepository.save(newProperty);
+
+        // 추천 매물 알림 설정 확인
+        NotificationSetting setting = member.getNotificationSetting();
+        if (!setting.isPropertyNotificationEnabled()) {
+            return new PropertyIdResponse(newProperty.getId());
+        }
 
         String fcmToken = member.getFcmToken();
 
