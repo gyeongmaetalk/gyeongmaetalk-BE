@@ -58,7 +58,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
-          ./gradlew clean build -x test
+          ./gradlew clean 3build -x test
 
       ## 도커 이미지 빌드 후 push하기
       - name: web docker build and push
