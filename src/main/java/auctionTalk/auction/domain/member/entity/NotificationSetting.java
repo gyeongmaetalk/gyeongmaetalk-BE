@@ -13,13 +13,20 @@ import lombok.NoArgsConstructor;
 public class NotificationSetting {
 
     @Column(nullable = false)
-    private boolean reviewNotificationEnabled = true; // 상담 후 리뷰 요청 알림
+    private boolean reviewNotificationEnabled; // 상담 후 리뷰 요청 알림
 
     @Column(nullable = false)
-    private boolean propertyNotificationEnabled = true; // 추천 매물 알림
+    private boolean propertyNotificationEnabled ; // 추천 매물 알림
 
     public void update(boolean reviewEnabled, boolean propertyEnabled) {
         this.reviewNotificationEnabled = reviewEnabled;
         this.propertyNotificationEnabled = propertyEnabled;
+    }
+
+    public static NotificationSetting defaultSetting() {
+        NotificationSetting setting = new NotificationSetting();
+        setting.reviewNotificationEnabled = true;
+        setting.propertyNotificationEnabled = true;
+        return setting;
     }
 }
