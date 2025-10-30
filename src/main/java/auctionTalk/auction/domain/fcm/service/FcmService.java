@@ -11,6 +11,7 @@ import auctionTalk.auction.domain.fcm.entity.NotificationType;
 import auctionTalk.auction.domain.fcm.mapper.FcmMapper;
 import auctionTalk.auction.domain.fcm.mapper.NotificationMapper;
 import auctionTalk.auction.domain.fcm.repository.NotificationRepository;
+import auctionTalk.auction.domain.member.dto.response.NotificationSettingResponse;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import auctionTalk.auction.domain.property.entity.Property;
@@ -131,5 +132,10 @@ public class FcmService {
         notificationRepository.save(notification);
 
         return new NotificationIdResponse(notificationId);
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationSettingResponse getNotificationSetting(Member member) {
+        return notificationMapper.toNotificationSettingResponse(member.getNotificationSetting());
     }
 }
