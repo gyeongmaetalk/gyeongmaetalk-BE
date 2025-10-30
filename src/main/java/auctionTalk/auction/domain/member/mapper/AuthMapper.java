@@ -42,7 +42,7 @@ public class AuthMapper {
                 .build();
     }
 
-    public NotificationSettingResponse toNotificationSettingResponse(NotificationSettingRequest setting) {
+    public NotificationSettingResponse toNotificationSettingResponse(NotificationSetting setting) {
         return NotificationSettingResponse.builder()
                 .reviewNotificationEnabled(setting.isReviewNotificationEnabled())
                 .propertyNotificationEnabled(setting.isPropertyNotificationEnabled())

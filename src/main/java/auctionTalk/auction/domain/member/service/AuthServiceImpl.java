@@ -81,12 +81,15 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public NotificationSettingResponse updateNotificationSetting(Member member, NotificationSettingRequest request){
-        member.getNotificationSetting().update(
+
+        Member currentMember = memberRepository.getMember(member.getId());
+
+        currentMember.getNotificationSetting().update(
                 request.isReviewNotificationEnabled(),
                 request.isPropertyNotificationEnabled()
         );
 
-        return authMapper.toNotificationSettingResponse(request);
+        return authMapper.toNotificationSettingResponse(currentMember.getNotificationSetting());
     }
 
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {
