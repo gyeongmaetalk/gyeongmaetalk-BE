@@ -2,6 +2,8 @@ package auctionTalk.auction.domain.fcm.mapper;
 
 import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
 import auctionTalk.auction.domain.fcm.entity.Notification;
+import auctionTalk.auction.domain.member.dto.response.NotificationSettingResponse;
+import auctionTalk.auction.domain.member.entity.NotificationSetting;
 import auctionTalk.auction.domain.property.entity.Property;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +37,13 @@ public class NotificationMapper {
                 .type(notification.getType())
                 .thumbnail(notification.getThumbnail())
                 .createdAt(notification.getCreatedAt())
+                .build();
+    }
+
+    public NotificationSettingResponse toNotificationSettingResponse(NotificationSetting setting) {
+        return NotificationSettingResponse.builder()
+                .reviewNotificationEnabled(setting.isReviewNotificationEnabled())
+                .propertyNotificationEnabled(setting.isPropertyNotificationEnabled())
                 .build();
     }
 }

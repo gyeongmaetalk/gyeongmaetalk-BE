@@ -4,6 +4,7 @@ import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.fcm.dto.FcmTokenResponse;
 import auctionTalk.auction.domain.fcm.dto.NotificationIdResponse;
 import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
+import auctionTalk.auction.domain.fcm.dto.NotificationSettingResponse;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +43,14 @@ public class FcmController {
             @AuthenticationPrincipal PrincipalDetails principal
     ){
         return BaseResponse.onSuccess(fcmService.getNotifications(principal.getMember()));
+    }
+
+    @Operation(summary = " 알림 설정 조회 API")
+    @GetMapping("/notifications/setting")
+    public BaseResponse<NotificationSettingResponse> getNotificationSetting(
+            @AuthenticationPrincipal PrincipalDetails principal
+    ){
+        return BaseResponse.onSuccess(fcmService.getNotificationSetting(principal.getMember()));
     }
 
     @Operation(summary = " 알림 읽음 처리 API")
