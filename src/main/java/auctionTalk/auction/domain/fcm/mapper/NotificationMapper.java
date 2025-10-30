@@ -4,7 +4,6 @@ import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
 import auctionTalk.auction.domain.fcm.entity.Notification;
 import auctionTalk.auction.domain.member.dto.response.NotificationSettingResponse;
 import auctionTalk.auction.domain.member.entity.NotificationSetting;
-import auctionTalk.auction.domain.property.entity.Property;
 import org.springframework.stereotype.Component;
 
 @Component
