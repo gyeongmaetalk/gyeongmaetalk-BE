@@ -76,7 +76,7 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             cd ~/prod
-            sudo docker-compose down
+            sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}
             docker-compose up -d
             docker image prune -f
