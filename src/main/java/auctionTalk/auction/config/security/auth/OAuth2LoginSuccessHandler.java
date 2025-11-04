@@ -35,7 +35,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String code = UUID.randomUUID().toString();
         codeRepository.save(code, member.getId());
 
-        String redirectUrl = "http://localhost:5173/redirect"
+        String redirectUrl = baseRedirectUrl
                 + "?code=" + code
                 + "&registered=" + member.isRegistered();
 
