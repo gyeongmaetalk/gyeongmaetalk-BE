@@ -5,11 +5,11 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
-name: AuctionTalk Dev Deploy
+name: AuctionTalk Main Deploy
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
           mkdir -p resources
           cd resources
           touch application.yml
-          echo "${{ secrets.DEV_YML }}" >> application.yml
+          echo "${{ secrets.YML }}" >> application.yml
           popd
 
       # fcm.json 생성
@@ -64,8 +64,8 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}:dev .
-          docker push ${{ secrets.DOCKER_REPO }}:dev
+          docker build -t ${{ secrets.DOCKER_REPO }} .
+          docker push ${{ secrets.DOCKER_REPO }}
 
       # EC2 배포
       - name: Deploy to EC2
@@ -75,7 +75,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            cd ~/dev
+            cd ~/prod
             sudo docker-compose down --remove-orphans
             sudo docker pull ${{ secrets.DOCKER_REPO }}
+            sudo docker-compose up -d --force-recreate
             docker image prune -f
