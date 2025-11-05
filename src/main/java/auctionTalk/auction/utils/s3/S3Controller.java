@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "상담 API", description = "상담 관련 API")
+@Tag(name = "S3 API", description = "S3 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/s3")

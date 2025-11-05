@@ -7,7 +7,6 @@ import auctionTalk.auction.domain.counselor.dto.request.CounselorUpdateRequest;
 import auctionTalk.auction.domain.counselor.dto.response.CounselorIdResponse;
 import auctionTalk.auction.domain.counselor.dto.response.CounselorResponse;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
-import auctionTalk.auction.domain.counselor.entity.CounselorImage;
 import auctionTalk.auction.domain.counselor.mapper.CounselorMapper;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
@@ -26,7 +25,7 @@ public class CounselorServiceImpl implements CounselorService {
     private final CounselorMapper counselorMapper;
     private final CounselorRepository counselorRepository;
     private final CounselRepository counselRepository;
-    private final CounselorImageService counselorImageService;
+//    private final CounselorImageService counselorImageService;
 
     @Override
     @Transactional
@@ -35,10 +34,10 @@ public class CounselorServiceImpl implements CounselorService {
         Counselor newCounselor = counselorMapper.toCounselor(counselorCreateRequest);
         counselorRepository.save(newCounselor);
 
-        if (counselorImages != null) {
-            List<CounselorImage> newCounselorImages = counselorImageService.createAndSaveCounselorImages(newCounselor, counselorImages);
-            newCounselor.changeImages(newCounselorImages);
-        }
+//        if (counselorImages != null) {
+//            List<CounselorImage> newCounselorImages = counselorImageService.createAndSaveCounselorImages(newCounselor, counselorImages);
+//            newCounselor.changeImages(newCounselorImages);
+//        }
 
         return new CounselorIdResponse(newCounselor.getId());
     }
@@ -50,9 +49,9 @@ public class CounselorServiceImpl implements CounselorService {
         Counselor counselor =  counselorRepository.getCounselor(counselorId);
         counselor.updateCounselorInfo(request);
 
-        if (newImages != null && !newImages.isEmpty()) {
-            counselorImageService.updateCounselorImages(counselor, request.getExistingImages(), newImages);
-        }
+//        if (newImages != null && !newImages.isEmpty()) {
+//            counselorImageService.updateCounselorImages(counselor, request.getExistingImages(), newImages);
+//        }
 
         return new CounselorIdResponse(counselorId);
     }
