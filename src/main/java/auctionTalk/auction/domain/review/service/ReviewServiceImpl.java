@@ -10,6 +10,7 @@ import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.domain.review.dto.response.*;
 import auctionTalk.auction.domain.review.entity.*;
 import auctionTalk.auction.domain.review.mapper.ReviewMapper;
+import auctionTalk.auction.domain.review.repository.ReviewImageRepository;
 import auctionTalk.auction.domain.review.repository.ReviewReportRepository;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
@@ -21,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,22 +33,25 @@ public class ReviewServiceImpl implements ReviewService {
     private final CounselorRepository counselorRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
+    private final ReviewImageRepository reviewImageRepository;
     private final ReviewReportRepository reviewReportRepository;
-    private final ReviewImageService reviewImageService;
 
     @Override
     @Transactional
     public ReviewIdResponse createReview(
-            ReviewCreateRequest request, List<MultipartFile> reviewImages, Member member
+            ReviewCreateRequest request, Member member
     ) {
 
         Counsel counsel = counselRepository.getCounselByMember(member);
 
         Review newReview = createAndSaveReview(request, member, counsel);
 
-        if (reviewImages != null) {
-            List<ReviewImage> newReviewImages = reviewImageService.createAndSaveReviewImages(newReview, reviewImages);
-            newReview.changeImages(newReviewImages);
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            List<ReviewImage> images = request.getImageUrls().stream()
+                    .map(url -> reviewMapper.toReviewImage(newReview, url))
+                    .toList();
+
+            reviewImageRepository.saveAll(images);
         }
 
         return new ReviewIdResponse(newReview.getId());
@@ -56,7 +59,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, List<MultipartFile> newImages, Long memberId) {
+    public ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, Long memberId) {
 
         // 수정 권한 유효성 검사(본인이 아닌 경우 수정 불가)
         Review review = reviewRepository.getReview(reviewId);
@@ -64,9 +67,12 @@ public class ReviewServiceImpl implements ReviewService {
 
         review.updateReviewInfo(request);
 
-        // 이미지 업데이트
-        if (newImages != null && !newImages.isEmpty()) {
-            reviewImageService.updateReviewImages(review, request.getExistingImages(), newImages);
+        if (request.getImageUrls() != null) {
+            List<ReviewImage> images = request.getImageUrls().stream()
+                    .map(url -> reviewMapper.toReviewImage(review, url))
+                    .toList();
+
+            review.updateImages(images);
         }
 
         return new  ReviewIdResponse(review.getId());
@@ -79,8 +85,6 @@ public class ReviewServiceImpl implements ReviewService {
         // 수정 권한 유효성 검사(본인이 아닌 경우 수정 불가)
         Review review = reviewRepository.getReview(reviewId);
         ParamValidator.validModify(review.getMember().getId(), memberId);
-
-        reviewImageService.deleteExistingImages(review.getImages());
 
         reviewRepository.deleteById(reviewId);
 
