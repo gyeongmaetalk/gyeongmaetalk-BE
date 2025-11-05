@@ -1,4 +1,4 @@
-package auctionTalk.auction.utils.sms;
+package auctionTalk.auction.global.utils.sms;
 
 import jakarta.annotation.PostConstruct;
 import net.nurigo.sdk.NurigoApp;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SmsUtil {
+public class SmsUtils {
 
     @Value("${coolsms.api.key}") // coolsms의 API 키 주입
     private String apiKey;

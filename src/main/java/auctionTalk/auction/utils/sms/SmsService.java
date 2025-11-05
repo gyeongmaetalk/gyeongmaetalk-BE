@@ -1,4 +1,4 @@
-package auctionTalk.auction.utils.sms;
+package auctionTalk.auction.global.utils.sms;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class SmsService {
 
-    private final SmsUtil smsUtil;
+    private final SmsUtils smsUtils;
     private final StringRedisTemplate redisTemplate;
 
     private static final String PREFIX = "sms:code:";
@@ -21,7 +21,7 @@ public class SmsService {
 
         redisTemplate.opsForValue().set(PREFIX + phoneNumber, certificationCode, LIMIT_TIME, TimeUnit.SECONDS);
 
-        smsUtil.sendSMS(phoneNumber, certificationCode); // SMS 인증 유틸리티를 사용하여 SMS 발송
+        smsUtils.sendSMS(phoneNumber, certificationCode); // SMS 인증 유틸리티를 사용하여 SMS 발송
 
         return "문자를 성공적으로 발송했습니다.";
     }
