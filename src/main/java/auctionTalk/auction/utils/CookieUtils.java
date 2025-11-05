@@ -1,4 +1,4 @@
-package auctionTalk.auction.global.utils;
+package auctionTalk.auction.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;

@@ -1,4 +1,4 @@
-package auctionTalk.auction.global.utils.sms;
+package auctionTalk.auction.utils.sms;
 
 import jakarta.annotation.PostConstruct;
 import net.nurigo.sdk.NurigoApp;

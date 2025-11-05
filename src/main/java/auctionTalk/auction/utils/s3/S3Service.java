@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class S3FileComponent {
+public class S3Service {
 
     private final S3Presigner s3Presigner;
 

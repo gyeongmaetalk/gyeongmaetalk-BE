@@ -1,4 +1,4 @@
-package auctionTalk.auction.global.utils.sms;
+package auctionTalk.auction.utils.sms;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
