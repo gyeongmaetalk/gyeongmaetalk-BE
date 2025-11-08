@@ -24,9 +24,6 @@ public class NotificationSetting {
     }
 
     public static NotificationSetting defaultSetting() {
-        NotificationSetting setting = new NotificationSetting();
-        setting.reviewNotificationEnabled = true;
-        setting.propertyNotificationEnabled = true;
-        return setting;
+        return new NotificationSetting(true, true);
     }
 }
