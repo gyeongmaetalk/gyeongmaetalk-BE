@@ -40,6 +40,16 @@ public class Review extends BaseEntity {
         this.content = requestDto.getContent();
     }
 
+    public void updateImages(List<ReviewImage> newImages) {
+        this.images.clear();
+        if (newImages != null && !newImages.isEmpty()) {
+            newImages.forEach(img -> {
+                img.updateReview(this);
+                this.images.add(img);
+            });
+        }
+    }
+
     public void changeImages(List<ReviewImage> reviewImages) {
         // 새로운 이미지로 변경
         this.images = reviewImages;

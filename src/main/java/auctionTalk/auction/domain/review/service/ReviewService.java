@@ -13,8 +13,8 @@ import java.util.List;
 public interface ReviewService {
 
     //command
-    ReviewIdResponse createReview(ReviewCreateRequest request, List<MultipartFile> images, Member member);
-    ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, List<MultipartFile> newImages, Long memberId);
+    ReviewIdResponse createReview(ReviewCreateRequest request, Member member);
+    ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, Long memberId);
     ReviewIdResponse deleteReview(Long reviewId, Long memberId);
 
     ReviewIdResponse reportReview(Long reviewId, Member member, ReportType reasonType, String reason);
