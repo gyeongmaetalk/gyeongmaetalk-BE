@@ -38,6 +38,7 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Embedded
+    @Builder.Default
     private NotificationSetting notificationSetting = NotificationSetting.defaultSetting();
 
     public void completeRegistration(String name, LocalDate birth, String cellPhone) {
