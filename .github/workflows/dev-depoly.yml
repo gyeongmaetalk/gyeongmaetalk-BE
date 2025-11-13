@@ -71,11 +71,11 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ubuntu
-          key: ${{ secrets.KEY }}
+          host: ${{ secrets.DEV_HOST }}
+          username: root
+          key: ${{ secrets.DEV_KEY }}
           script: |
-            cd ~/dev
-            sudo docker-compose down --remove-orphans
+            sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}
+            docker-compose up -d
             docker image prune -f
