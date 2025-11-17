@@ -75,6 +75,7 @@ jobs:
           username: root
           key: ${{ secrets.DEV_KEY }}
           script: |
+            cd ~/dev
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}
             docker-compose up -d
