@@ -32,20 +32,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String uri = request.getRequestURI();
-        if (
-                uri.startsWith("/login/oauth2") ||
-                        uri.startsWith("/oauth2") ||
-                        uri.startsWith("/apple") ||
-                        uri.startsWith("/error") ||
-                        uri.contains("code") ||
-                        uri.contains("token") ||
-                        uri.contains("/redirect")
-        ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String token = jwtTokenProvider.resolveToken(request);
 
         if (token != null) {

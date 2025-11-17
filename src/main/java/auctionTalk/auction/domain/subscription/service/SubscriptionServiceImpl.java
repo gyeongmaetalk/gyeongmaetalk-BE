@@ -11,6 +11,8 @@ import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPrepareP
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.mapper.SubscriptionMapper;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,24 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
 
-        subscription.activate(response.getPaymentKey());
+        switch (response.getStatus()) {
+            case "DONE":
+                subscription.activate(response.getPaymentKey());
+                break;
+            case "CANCELED": // 토스 취소
+                subscription.failed();
+                break;
+
+            case "ABORTED": // 결제 실패
+                subscription.failed();
+                break;
+            case "EXPIRED": // 결제 만료
+                subscription.failed();
+                break;
+
+            default:
+                throw new CustomApiException(ErrorCode.FAIL_CONFIRM_PAYMENT);
+        }
 
         subscriptionRepository.save(subscription);
 
