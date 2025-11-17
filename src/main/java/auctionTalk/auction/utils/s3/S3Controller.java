@@ -16,11 +16,18 @@ public class S3Controller {
 
     private final S3Service s3Service;
 
-    @GetMapping("/presigned")
+    @GetMapping("/presigned/put")
     public BaseResponse<String> getPresignedUrl(
             @RequestParam String category,
             @RequestParam String fileName
     ) {
-        return BaseResponse.onSuccess(s3Service.generatePresignedUrl(category, fileName));
+        return BaseResponse.onSuccess(s3Service.generatePresignedPutUrl(category, fileName));
+    }
+
+    @GetMapping("/presigned/get")
+    public BaseResponse<String> getPresignedUrl(
+            @RequestParam String fileUrl
+    ) {
+        return BaseResponse.onSuccess(s3Service.generatePresignedGetUrl(fileUrl));
     }
 }
