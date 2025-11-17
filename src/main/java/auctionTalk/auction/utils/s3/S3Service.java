@@ -3,8 +3,10 @@ package auctionTalk.auction.utils.s3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 import java.time.Duration;
@@ -21,7 +23,7 @@ public class S3Service {
     private String bucket;
 
     // Presigned Url 생성
-    public String generatePresignedUrl(String category, String originalFileName) {
+    public String generatePresignedPutUrl(String category, String originalFileName) {
         // 파일명 생성 (네가 준 메서드 그대로 사용)
         String fileName = createFileName(category, Objects.requireNonNull(originalFileName));
 
@@ -35,6 +37,21 @@ public class S3Service {
                 builder -> builder
                         .signatureDuration(Duration.ofMinutes(3))
                         .putObjectRequest(putObjectRequest)
+        );
+
+        return presignedRequest.url().toString();
+    }
+
+    public String generatePresignedGetUrl(String fileKey) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileKey) // DB에 저장한 파일 경로 그대로 넣으면 됨
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(
+                builder -> builder
+                        .signatureDuration(Duration.ofMinutes(10)) // 조회는 10분 정도 보통 충분함
+                        .getObjectRequest(getObjectRequest)
         );
 
         return presignedRequest.url().toString();
