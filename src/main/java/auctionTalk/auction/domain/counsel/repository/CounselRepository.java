@@ -16,6 +16,11 @@ import java.util.Optional;
 
 public interface CounselRepository extends JpaRepository<Counsel, Long> {
 
+    default Counsel getCounselById(Long counselId) {
+        return findById(counselId)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.COUNSEL_NOT_FOUND));
+    }
+
     default Counsel getCounselByMember(Member member) {
         return findByMember(member)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.COUNSEL_NOT_FOUND));

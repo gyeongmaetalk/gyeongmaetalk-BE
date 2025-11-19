@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.counsel.entity;
 
+import auctionTalk.auction.domain.counsel.dto.request.CounselFormUpdateRequest;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.common.BaseEntity;
@@ -30,4 +31,13 @@ public class CounselForm extends BaseEntity {
     private String interest;
 
     private String participantType;
+
+    public void updateCounselForm(CounselFormUpdateRequest request, Member member){
+        this.member = member;
+        this.purpose = request.getPurpose();
+        this.area = request.getArea();
+        this.serviceType = request.getServiceType();
+        this.interest = request.getInterest();
+        this.participantType = request.getParticipantType();
+    }
 }

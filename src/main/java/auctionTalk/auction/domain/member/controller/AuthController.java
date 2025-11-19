@@ -96,4 +96,12 @@ public class AuthController {
         return BaseResponse.onSuccess(authService.updateNotificationSetting(principal.getMember(), request));
     }
 
+    @Operation(summary = "회원탈퇴 API")
+    @PostMapping("/delete")
+    public BaseResponse<MemberIdResponse> softDeleteMember(
+            @AuthenticationPrincipal PrincipalDetails principal
+    ){
+        return BaseResponse.onSuccess(authService.softDeleteMember(principal.getMember()));
+    }
+
 }
