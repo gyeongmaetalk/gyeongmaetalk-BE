@@ -12,6 +12,9 @@ import java.time.LocalTime;
 @Builder
 public class CounselInfoResponse {
 
+    @Schema(description = "상담 ID", example = "1")
+    private Long counselId;
+
     @Schema(description = "상담사 ID", example = "1")
     private Long counselorId;
 

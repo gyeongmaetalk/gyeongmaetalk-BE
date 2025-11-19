@@ -52,8 +52,10 @@ public class CounselMapper {
                 .build();
     }
 
-    public ApplyCounselResponse toApplyCounselResponse(CounselForm counselForm, LocalDate date, LocalTime time, Counselor counselor){
+    public ApplyCounselResponse toApplyCounselResponse(Long counselId, CounselForm counselForm, LocalDate date, LocalTime time, Counselor counselor){
         return ApplyCounselResponse.builder()
+                .counselId(counselId)
+                .counselFormId(counselForm.getId())
                 .counselDate(date)
                 .counselTime(time)
                 .area(counselForm.getArea())
@@ -65,8 +67,9 @@ public class CounselMapper {
                 .build();
     }
 
-    public CounselInfoResponse toCounselInfoResponse(Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time, boolean isReviewed, double averageScore, int reviewCount){
+    public CounselInfoResponse toCounselInfoResponse(Long counselId, Counselor counselor, CounselForm counselForm, LocalDate date, LocalTime time, boolean isReviewed, double averageScore, int reviewCount){
         return CounselInfoResponse.builder()
+                .counselId(counselId)
                 .counselorId(counselor.getId())
                 .counselorName(counselor.getName())
                 .score(averageScore)
