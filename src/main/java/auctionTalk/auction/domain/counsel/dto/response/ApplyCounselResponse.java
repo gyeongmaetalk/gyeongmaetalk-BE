@@ -11,6 +11,12 @@ import java.time.LocalTime;
 @Builder
 public class ApplyCounselResponse {
 
+    @Schema(description = "상담 id", example = "1")
+    private Long counselId;
+
+    @Schema(description = "상담 신청폼 id", example = "1")
+    private Long counselFormId;
+
     @Schema(description = "상담 날짜", example = "2021-12-31")
     private LocalDate counselDate;
 

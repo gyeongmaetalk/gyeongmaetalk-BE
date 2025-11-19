@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
+import auctionTalk.auction.domain.counsel.dto.request.CounselFormUpdateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselCombinedResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselInfoResponse;
@@ -13,7 +14,6 @@ import auctionTalk.auction.domain.counsel.repository.CounselFormRepository;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
-import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
@@ -38,21 +38,36 @@ public class CounselServiceImpl implements CounselService {
     private final CounselFormRepository counselFormRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final ReviewRepository reviewRepository;
-    private final FcmService fcmService;
 
     @Override
     @Transactional
-    public ApplyCounselResponse applyCounsel(Long counselFormId, Member member , Long counselorId, LocalDate counselDate, LocalTime counselTime){
+    public ApplyCounselResponse applyCounsel(Long counselFormId, Member member, Long counselorId, LocalDate counselDate, LocalTime counselTime){
         Counselor counselor = counselorRepository.getCounselor(counselorId);
 
         CounselForm counselForm = counselFormRepository.getCounselFormById(counselFormId);
 
-        createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
+        Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
 
         counselor.addCounselCount();
 
-        return counselMapper.toApplyCounselResponse(counselForm, counselDate, counselTime, counselor);
+        return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDate, counselTime, counselor);
     }
+
+    @Override
+    @Transactional
+    public ApplyCounselResponse updateApplyCounsel(Long counselId, Long counselFormId, Member member, Long counselorId, LocalDate counselDate, LocalTime counselTime){
+        Counselor counselor = counselorRepository.getCounselor(counselorId);
+        CounselForm counselForm = counselFormRepository.getCounselFormById(counselFormId);
+
+        Counsel counsel = counselRepository.getCounselById(counselId);
+
+        counsel.updateCounsel(member, counselor, counselForm, counselDate, counselTime);
+
+        counselRepository.save(counsel);
+
+        return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDate, counselTime, counsel.getCounselor());
+    }
+
 
     @Override
     @Transactional
@@ -69,6 +84,26 @@ public class CounselServiceImpl implements CounselService {
 
         return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId(), averageScore, reviewCount);
     }
+
+    @Override
+    @Transactional
+    public  MatchCounselorResponse updateCounselForm(Long counselFormId, CounselFormUpdateRequest request, Member member){
+        Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
+
+        CounselForm counselForm =  counselFormRepository.getCounselFormById(counselFormId);
+        counselForm.updateCounselForm(request, member);
+
+        counselFormRepository.save(counselForm);
+
+        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
+        int reviewCount = reviews.size();
+        double averageScore = reviewCount > 0
+                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
+                : 0.0;
+
+        return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId(), averageScore, reviewCount);
+    }
+
 
     @Override
     @Transactional
@@ -107,6 +142,7 @@ public class CounselServiceImpl implements CounselService {
 
         boolean isReviewed = reviewRepository.existsByCounsel(existingCounsel);
         CounselInfoResponse info = counselMapper.toCounselInfoResponse(
+                existingCounsel.getId(),
                 counselor,
                 counselForm,
                 existingCounsel.getCounselDate(),

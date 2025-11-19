@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.counsel.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
+import auctionTalk.auction.domain.counsel.dto.request.CounselFormUpdateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselCombinedResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
@@ -37,6 +38,16 @@ public class CounselController {
         return BaseResponse.onSuccess(counselService.matchCounselor(request, member.getMember()));
     }
 
+    @Operation(summary = "상담 신청 폼 수정 API")
+    @PostMapping("/{counselFormId}")
+    public BaseResponse<MatchCounselorResponse> matchCounselor(
+            @AuthenticationPrincipal PrincipalDetails member,
+            @Parameter(description = "상담 신청 폼 수정 요청 json")  @Valid @RequestBody CounselFormUpdateRequest request,
+            @PathVariable("counselFormId")  Long counselFormId
+    ){
+        return BaseResponse.onSuccess(counselService.updateCounselForm(counselFormId, request, member.getMember()));
+    }
+
     @Operation(summary = "상담 신청 API")
     @PostMapping("/{counselorId}")
     @Parameters(value = {
@@ -51,6 +62,24 @@ public class CounselController {
             @RequestParam(name = "date") LocalDateTime dateTime
     ){
         return BaseResponse.onSuccess(counselService.applyCounsel(counselFormId, member.getMember(), counselorId, dateTime.toLocalDate(), dateTime.toLocalTime()));
+    }
+
+    @Operation(summary = "상담 신청 수정 API")
+    @PostMapping("/{counselId}/update")
+    @Parameters(value = {
+            @Parameter(name = "counselId", description = "상담 id"),
+            @Parameter(name = "counselorId", description = "상담사 id"),
+            @Parameter(name = "counselFormId", description = "상담 신청 폼 id"),
+            @Parameter(name = "date", description = "희망 시간"),
+    })
+    public BaseResponse<ApplyCounselResponse> updateCounsel(
+            @AuthenticationPrincipal PrincipalDetails member,
+            @PathVariable("counselId") Long counselId,
+            @RequestParam(name = "counselorId") Long counselorId,
+            @RequestParam(name = "counselFormId") Long counselFormId,
+            @RequestParam(name = "date") LocalDateTime dateTime
+    ){
+        return BaseResponse.onSuccess(counselService.updateApplyCounsel(counselId, counselFormId, member.getMember(), counselorId, dateTime.toLocalDate(), dateTime.toLocalTime()));
     }
 
     @Operation(summary = "상담 가능 시간 조회 API")

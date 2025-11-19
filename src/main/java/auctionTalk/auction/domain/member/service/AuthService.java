@@ -17,4 +17,5 @@ public interface AuthService {
     AuthTokenResponse refresh(String refreshToken);
     MemberInfoResponse getMemberInfo(Member member);
     NotificationSettingResponse updateNotificationSetting(Member member, NotificationSettingRequest request);
+    MemberIdResponse softDeleteMember(Member member);
 }

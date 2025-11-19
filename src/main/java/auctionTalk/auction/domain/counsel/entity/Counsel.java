@@ -38,6 +38,14 @@ public class Counsel extends BaseEntity {
 
     private boolean pushSent = false;
 
+    public void updateCounsel(Member member, Counselor counselor, CounselForm counselForm,  LocalDate counselDate, LocalTime counselTime){
+        this.member = member;
+        this.counselor = counselor;
+        this.counselForm = counselForm;
+        this.counselDate = counselDate;
+        this.counselTime = counselTime;
+    }
+
     public void updatePushSent() {
         this.pushSent = true;
     }

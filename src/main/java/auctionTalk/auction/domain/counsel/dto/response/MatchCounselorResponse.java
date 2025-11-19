@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MatchCounselorResponse {
+
     @Schema(description = "상담사 ID", example = "1")
     private Long counselorId;
 

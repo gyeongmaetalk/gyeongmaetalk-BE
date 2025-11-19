@@ -7,5 +7,4 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CounselIdResponse {
     private Long CounselFormId;
-
 }

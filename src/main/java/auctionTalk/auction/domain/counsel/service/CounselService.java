@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.counsel.service;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
+import auctionTalk.auction.domain.counsel.dto.request.CounselFormUpdateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselCombinedResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
@@ -13,7 +14,10 @@ import java.util.List;
 public interface CounselService {
 
     MatchCounselorResponse matchCounselor(CounselFormCreateRequest request, Member member);
-    ApplyCounselResponse applyCounsel(Long counselFormId, Member member , Long counselorId, LocalDate counselDate, LocalTime counselTime);
+    MatchCounselorResponse updateCounselForm(Long counselFormId, CounselFormUpdateRequest request, Member member);
+
+    ApplyCounselResponse applyCounsel(Long counselFormId, Member member, Long counselorId, LocalDate counselDate, LocalTime counselTime);
+    ApplyCounselResponse updateApplyCounsel(Long counselId, Long counselFormId, Member member, Long counselorId, LocalDate counselDate, LocalTime counselTime);
 
     List<LocalTime> inquiryPossibleTime(Long counselId, LocalDate date);
     CounselCombinedResponse getCounselInfo(Member member);

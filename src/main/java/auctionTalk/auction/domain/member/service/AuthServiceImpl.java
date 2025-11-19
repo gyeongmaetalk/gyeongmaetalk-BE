@@ -92,6 +92,14 @@ public class AuthServiceImpl implements AuthService{
         return authMapper.toNotificationSettingResponse(currentMember.getNotificationSetting());
     }
 
+    @Override
+    @Transactional
+    public MemberIdResponse softDeleteMember(Member member){
+        member.delete();
+
+        return new  MemberIdResponse(member.getId());
+    }
+
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {
         return switch (loginType) {
             case KAKAO -> kakaoMemberClient.getKakaoUserId(accessToken);
