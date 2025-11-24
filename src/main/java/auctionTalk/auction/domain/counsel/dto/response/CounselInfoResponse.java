@@ -18,6 +18,9 @@ public class CounselInfoResponse {
     @Schema(description = "상담사 ID", example = "1")
     private Long counselorId;
 
+    @Schema(description = "상담 신청폼 ID", example = "1")
+    private Long counselFormId;
+
     @Schema(description = "상담사 이름", example = "이정훈")
     private String counselorName;
 

@@ -39,8 +39,8 @@ public class CounselController {
     }
 
     @Operation(summary = "상담 신청 폼 수정 API")
-    @PostMapping("/{counselFormId}")
-    public BaseResponse<MatchCounselorResponse> matchCounselor(
+    @PatchMapping("/{counselFormId}")
+    public BaseResponse<MatchCounselorResponse> updateCounselFormCounselor(
             @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "상담 신청 폼 수정 요청 json")  @Valid @RequestBody CounselFormUpdateRequest request,
             @PathVariable("counselFormId")  Long counselFormId
@@ -65,7 +65,7 @@ public class CounselController {
     }
 
     @Operation(summary = "상담 신청 수정 API")
-    @PostMapping("/{counselId}/update")
+    @PatchMapping("/{counselId}/update")
     @Parameters(value = {
             @Parameter(name = "counselId", description = "상담 id"),
             @Parameter(name = "counselorId", description = "상담사 id"),

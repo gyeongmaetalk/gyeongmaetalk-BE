@@ -71,6 +71,7 @@ public class CounselMapper {
         return CounselInfoResponse.builder()
                 .counselId(counselId)
                 .counselorId(counselor.getId())
+                .counselFormId(counselForm.getId())
                 .counselorName(counselor.getName())
                 .score(averageScore)
                 .counselCount(counselor.getCounselCount())
