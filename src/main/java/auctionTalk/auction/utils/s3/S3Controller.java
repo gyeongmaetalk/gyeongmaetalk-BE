@@ -1,6 +1,7 @@
 package auctionTalk.auction.utils.s3;
 
 import auctionTalk.auction.global.common.BaseResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ public class S3Controller {
 
     private final S3Service s3Service;
 
+    @Operation(summary = "put용 PresignedUrl 발급 API")
     @GetMapping("/presigned/put")
     public BaseResponse<String> getPresignedUrl(
             @RequestParam String category,
@@ -24,6 +26,7 @@ public class S3Controller {
         return BaseResponse.onSuccess(s3Service.generatePresignedPutUrl(category, fileName));
     }
 
+    @Operation(summary = "get용 PresignedUrl 발급 API")
     @GetMapping("/presigned/get")
     public BaseResponse<String> getPresignedUrl(
             @RequestParam String fileUrl
