@@ -3,6 +3,7 @@ package auctionTalk.auction.utils.s3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -43,6 +44,11 @@ public class S3Service {
     }
 
     public String generatePresignedGetUrl(String fileKey) {
+
+        if (!StringUtils.hasText(fileKey)) {
+            return null;
+        }
+
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(fileKey) // DB에 저장한 파일 경로 그대로 넣으면 됨
