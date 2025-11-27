@@ -9,6 +9,9 @@ import auctionTalk.auction.domain.review.entity.ReportType;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.entity.ReviewImage;
 import auctionTalk.auction.domain.review.entity.ReviewReport;
+import auctionTalk.auction.utils.s3.S3Service;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +19,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class ReviewMapper {
+
+    private final S3Service s3Service;
 
     public Review toReview(ReviewCreateRequest request, Member member, Counsel counsel) {
 
@@ -45,6 +51,11 @@ public class ReviewMapper {
     }
 
     public ReviewSummaryResponse toReviewSummaryResponse(Review review, Member member) {
+        String thumbnailKey = review.getThumbnail();
+        String thumbnailUrl = thumbnailKey != null
+                ? s3Service.generatePresignedGetUrl(thumbnailKey)
+                : null;
+
         return ReviewSummaryResponse.builder()
                 .reviewId(review.getId())
                 .score(review.getScore())
@@ -55,13 +66,17 @@ public class ReviewMapper {
                 .isMine(member != null &&
                         Objects.equals(review.getMember().getId(), member.getId()))
                 .imageCount(review.getImages().size())
-                .thumbnail(review.getThumbnail())
+                .thumbnail(thumbnailUrl)
                 .content(review.getContent())
                 .build();
     }
 
     public MyReviewSummaryResponse toMyReviewSummaryResponse(Review review, Member member) {
         Counselor counselor = review.getCounsel().getCounselor();
+        String thumbnailKey = review.getThumbnail();
+        String thumbnailUrl = thumbnailKey != null
+                ? s3Service.generatePresignedGetUrl(thumbnailKey)
+                : null;
 
         return MyReviewSummaryResponse.builder()
                 .reviewId(review.getId())
@@ -73,7 +88,7 @@ public class ReviewMapper {
                 .isMine(member != null &&
                         Objects.equals(review.getMember().getId(), member.getId()))
                 .imageCount(review.getImages().size())
-                .thumbnail(review.getThumbnail())
+                .thumbnail(thumbnailUrl)
                 .content(review.getContent())
                 .counselorName(counselor.getName())
                 .experience(counselor.getExperience())
@@ -130,6 +145,8 @@ public class ReviewMapper {
     }
 
     private List<String> toImageUrls(List<ReviewImage> images) {
-        return images.stream().map(ReviewImage::getUrl).toList();
+        return images.stream()
+                .map(img -> s3Service.generatePresignedGetUrl(img.getUrl())) // S3 key → presigned URL
+                .toList();
     }
 }

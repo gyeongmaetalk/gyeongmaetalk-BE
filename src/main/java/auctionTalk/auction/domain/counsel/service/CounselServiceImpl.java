@@ -17,6 +17,7 @@ import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -178,7 +179,7 @@ public class CounselServiceImpl implements CounselService {
             return CounselStatus.COUNSEL_BEFORE;
         }
 
-        boolean isSubscribed = subscriptionRepository.existsByMember(member);
+        boolean isSubscribed = subscriptionRepository.existsByMemberAndSubscriptionStatus(member, SubscriptionStatus.IN_PROGRESS);
         return isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
     }
 
