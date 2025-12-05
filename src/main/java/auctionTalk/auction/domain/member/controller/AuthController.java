@@ -33,7 +33,7 @@ public class AuthController {
             @Parameter(name = "code", description = "토큰으로 교환할 인증코드")
     })
     public BaseResponse<AuthTokenResponse> exchangeCode(
-            @RequestParam String code
+            @CookieValue(value = "code") String code
     ) {
         return BaseResponse.onSuccess(authService.exchangeCode(code));
     }
