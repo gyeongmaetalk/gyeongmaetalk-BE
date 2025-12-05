@@ -1,8 +1,11 @@
 package auctionTalk.auction.config.security.auth;
 
+import auctionTalk.auction.config.security.jwt.JwtToken;
+import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.repository.CodeRepository;
+import auctionTalk.auction.domain.member.repository.TokenRepository;
 import auctionTalk.auction.domain.member.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +26,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final CodeRepository codeRepository;
+    private final TokenRepository tokenRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 60L * 60 * 1000;           // 1시간
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 15L * 24 * 60 * 60 * 1000; // 15일
 
     @Value("${app.redirect-url}")
     private String baseRedirectUrl;
@@ -34,19 +41,32 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         Member member = principalDetails.getMember();
+        Long memberId = member.getId();
 
-        String code = UUID.randomUUID().toString();
-        codeRepository.save(code, member.getId());
+        JwtToken jwtToken = jwtTokenProvider.generateTokens(memberId, member.getRole().name());
+        String accessToken = jwtToken.getAccessToken();
+        String refreshToken = jwtToken.getRefreshToken();
 
-        ResponseCookie serverCodeCookie = ResponseCookie.from("server_code", code)
-                .httpOnly(true)              // JS에서 접근 불가
-                .secure(true)                // HTTPS 에서만 전송
-                .path("/")                   // 전체 경로에 대해 전송
-                .maxAge(Duration.ofMinutes(3))
+        tokenRepository.saveRefreshToken(memberId, refreshToken);
+
+        ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofMinutes(ACCESS_TOKEN_EXPIRE_TIME))
                 .sameSite("None")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, serverCodeCookie.toString());
+        ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(REFRESH_TOKEN_EXPIRE_TIME))
+                .sameSite("None")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         String redirectUrl = baseRedirectUrl
                 + "?registered=" + member.isRegistered();
