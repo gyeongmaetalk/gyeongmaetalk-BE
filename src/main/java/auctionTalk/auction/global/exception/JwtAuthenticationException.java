@@ -1,7 +1,6 @@
 package auctionTalk.auction.global.exception;
 
 import lombok.Getter;
-import org.springframework.security.core.AuthenticationException;
 
 @Getter
 public class JwtAuthenticationException extends RuntimeException {

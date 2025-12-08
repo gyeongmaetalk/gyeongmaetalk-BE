@@ -2,11 +2,8 @@ package auctionTalk.auction.config.security.auth;
 
 import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
-import auctionTalk.auction.domain.member.dto.response.AuthTokenResponse;
 import auctionTalk.auction.domain.member.entity.Member;
-import auctionTalk.auction.domain.member.repository.CodeRepository;
 import auctionTalk.auction.domain.member.repository.TokenRepository;
-import auctionTalk.auction.domain.member.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-
 import java.io.IOException;
 import java.time.Duration;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -53,7 +48,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(Duration.ofMinutes(ACCESS_TOKEN_EXPIRE_TIME))
+                .maxAge(Duration.ofMillis(ACCESS_TOKEN_EXPIRE_TIME))
                 .sameSite("None")
                 .build();
 
@@ -61,7 +56,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(Duration.ofDays(REFRESH_TOKEN_EXPIRE_TIME))
+                .maxAge(Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME))
                 .sameSite("None")
                 .build();
 
