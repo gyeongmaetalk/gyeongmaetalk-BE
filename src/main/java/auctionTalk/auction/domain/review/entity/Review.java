@@ -40,14 +40,30 @@ public class Review extends BaseEntity {
         this.content = requestDto.getContent();
     }
 
-    public void updateImages(List<ReviewImage> newImages) {
-        this.images.clear();
-        if (newImages != null && !newImages.isEmpty()) {
-            newImages.forEach(img -> {
-                img.updateReview(this);
-                this.images.add(img);
-            });
+    public List<String> updateImages(List<String> remainKeys, List<String> addKeys) {
+
+        // 🔥 삭제될 key 목록 수집
+        List<String> deleteKeys = this.images.stream()
+                .map(ReviewImage::getUrl)
+                .filter(key -> !remainKeys.contains(key))
+                .toList();
+
+        // 1) DB 삭제 (orphanRemoval=true일 경우 ReviewImage remove로 자동 삭제)
+        this.images.removeIf(img -> !remainKeys.contains(img.getUrl()));
+
+        // 2) 추가
+        if (addKeys != null) {
+            for (String key : addKeys) {
+                ReviewImage newImg = ReviewImage.builder()
+                        .url(key)
+                        .review(this)
+                        .build();
+                this.images.add(newImg);
+            }
         }
+
+        // 🔥 삭제해야 하는 key들을 서비스로 전달
+        return deleteKeys;
     }
 
     public void changeImages(List<ReviewImage> reviewImages) {

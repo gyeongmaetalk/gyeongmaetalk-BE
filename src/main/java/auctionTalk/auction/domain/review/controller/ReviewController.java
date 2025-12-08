@@ -107,10 +107,11 @@ public class ReviewController {
     @Operation(summary = "상담 후기 상세 조회 API")
     @GetMapping("/{reviewId}")
     public BaseResponse<ReviewDetailResponse> inquiryReview(
-            @AuthenticationPrincipal PrincipalDetails member,
+            @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("reviewId") Long reviewId
     ){
-        return BaseResponse.onSuccess(reviewService.inquiryReviewDetail(reviewId, member.getMember()));
+        Member member = principal != null ? principal.getMember() : null;
+        return BaseResponse.onSuccess(reviewService.inquiryReviewDetail(reviewId, member));
     }
 
     @Operation(summary = "리뷰 신고 API")
