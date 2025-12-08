@@ -9,11 +9,13 @@ import auctionTalk.auction.domain.member.dto.response.MemberInfoResponse;
 import auctionTalk.auction.domain.member.dto.response.NotificationSettingResponse;
 import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.domain.member.service.AuthService;
+import auctionTalk.auction.utils.CookieUtils;
 import auctionTalk.auction.utils.sms.SmsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -47,12 +49,26 @@ public class AuthController {
         return BaseResponse.onSuccess(authService.register(member.getMember(), request));
     }
 
+    @Operation(summary = "로그아웃 API")
+    @PostMapping("/logout")
+    public BaseResponse<String> logout(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            HttpServletResponse response
+    ) {
+        authService.logout(response, principal.getMember());
+        return BaseResponse.onSuccess("LOGOUT_SUCCESS");
+    }
+
     @Operation(summary = "토큰 재발급 API")
     @PostMapping("/refresh")
     public BaseResponse<AuthTokenResponse> refresh(
-            @RequestHeader("RefreshToken") String refreshToken
+            @CookieValue(value = "REFRESH_TOKEN") String refreshToken,
+            HttpServletResponse response
     ) {
-        return BaseResponse.onSuccess(authService.refresh(refreshToken));
+        AuthTokenResponse tokenResponse = authService.refresh(refreshToken);
+
+        CookieUtils.addJwtCookies(response, tokenResponse.toJwtToken());
+        return BaseResponse.onSuccess(tokenResponse);
     }
 
     @Operation(summary = "내 정보 조회 API")
@@ -98,10 +114,12 @@ public class AuthController {
 
     @Operation(summary = "회원탈퇴 API")
     @PostMapping("/delete")
-    public BaseResponse<MemberIdResponse> softDeleteMember(
-            @AuthenticationPrincipal PrincipalDetails principal
+    public BaseResponse<String> softDeleteMember(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            HttpServletResponse response
     ){
-        return BaseResponse.onSuccess(authService.softDeleteMember(principal.getMember()));
+        authService.softDeleteMember(response, principal.getMember());
+        return BaseResponse.onSuccess( "SOFT_DELETE_SUCCESS");
     }
 
 }

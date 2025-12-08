@@ -7,10 +7,12 @@ import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.exception.JwtAuthenticationException;
+import auctionTalk.auction.utils.CookieUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = jwtTokenProvider.resolveToken(request);
+        String token = CookieUtils.getCookie(request, "ACCESS_TOKEN")
+                .map(Cookie::getValue)   // ★ 여기서 value 꺼냄
+                .orElse(null);
 
         if (token != null) {
             try {
@@ -51,6 +55,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (JwtAuthenticationException e) {
                 SecurityContextHolder.clearContext();
                 sendErrorResponse(response, e.getErrorCode());
