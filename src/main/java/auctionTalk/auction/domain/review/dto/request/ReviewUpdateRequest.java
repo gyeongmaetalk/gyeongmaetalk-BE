@@ -24,6 +24,9 @@ public class ReviewUpdateRequest {
     @Size(max=250, message = "리뷰 내용은 250자 이하여야 합니다.")
     private String content;
 
-    @Schema(description = "리뷰 이미지 URL 목록", example = "[\"https://bucket.s3.ap-northeast-2.amazonaws.com/review/abc.webp\"]")
-    private List<String> imageUrls;
+    @Schema(description = "유지할 리뷰 이미지 URL 목록", example = "[\"review/abc.webp\"]")
+    private List<String> remainImageUrls;
+
+    @Schema(description = "추가된 리뷰 이미지 URL 목록", example = "[\"review/abc.webp\"]")
+    private List<String> addImageUrls;
 }
