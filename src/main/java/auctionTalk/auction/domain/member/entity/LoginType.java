@@ -1,7 +1,7 @@
 package auctionTalk.auction.domain.member.entity;
 
 public enum LoginType {
-    KAKAO, APPLE;
+    KAKAO, APPLE, LOCAL;
 
     public static LoginType from(String registrationId) {
         return switch (registrationId.toLowerCase()) {
