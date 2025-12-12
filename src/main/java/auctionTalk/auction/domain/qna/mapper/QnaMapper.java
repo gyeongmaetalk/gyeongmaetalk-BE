@@ -2,12 +2,15 @@ package auctionTalk.auction.domain.qna.mapper;
 
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.qna.dto.request.QnaCreateRequest;
+import auctionTalk.auction.domain.qna.dto.response.AdminQnaInquiryResponse;
+import auctionTalk.auction.domain.qna.dto.response.AdminQnaPagingResponse;
 import auctionTalk.auction.domain.qna.dto.response.FaqResponse;
 import auctionTalk.auction.domain.qna.dto.response.QnaResponse;
 import auctionTalk.auction.domain.qna.entity.Faq;
 import auctionTalk.auction.domain.qna.entity.Qna;
 import auctionTalk.auction.domain.qna.entity.QnaAnswer;
 import auctionTalk.auction.domain.qna.entity.QnaStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,7 +33,7 @@ public class QnaMapper {
                 .build();
     }
 
-    public QnaResponse ToQnaResponse(Qna qna) {
+    public QnaResponse toQnaResponse(Qna qna) {
         QnaAnswer answer = qna.getAnswer();
 
         return QnaResponse.builder()
@@ -42,6 +45,35 @@ public class QnaMapper {
                 .qnaStatus(qna.getStatus())
                 .answerContent(answer != null ? answer.getContent() : null)
                 .answerTime(answer != null ? answer.getCreatedAt() : null)
+                .build();
+    }
+
+    public AdminQnaInquiryResponse toAdminQnaInquiryResponse(Qna qna) {
+        QnaAnswer answer = qna.getAnswer();
+        Member member = qna.getMember();
+
+        return AdminQnaInquiryResponse.builder()
+                .id(qna.getId())
+                .name(member.getName())
+                .cellPhone(member.getCellPhone())
+                .category(qna.getCategory())
+                .qnaTitle(qna.getTitle())
+                .qnaContent(qna.getContent())
+                .createdAt(qna.getCreatedAt())
+                .qnaStatus(qna.getStatus())
+                .answerContent(answer != null ? answer.getContent() : null)
+                .answerTime(answer != null ? answer.getCreatedAt() : null)
+                .build();
+    }
+
+    public <T>AdminQnaPagingResponse<T> toAdminQnaPagingResponse(Page<T> qnaPage){
+        return  AdminQnaPagingResponse.<T>builder()
+                .qnas(qnaPage.getContent())
+                .page(qnaPage.getNumber())
+                .totalPages(qnaPage.getTotalPages())
+                .totalElements((int) qnaPage.getTotalElements())
+                .isFirst(qnaPage.isFirst())
+                .isLast(qnaPage.isLast())
                 .build();
     }
 
