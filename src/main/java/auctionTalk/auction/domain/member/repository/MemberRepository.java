@@ -11,9 +11,17 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     default Member getMember(Long id) {
-        return findById(id)
+        Member member= findById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (member.getDeletedAt() != null) {
+            throw new CustomApiException(ErrorCode.MEMBER_SOFT_DELETE);
+        }
+
+        return member;
     }
 
+    Optional<Member> findByUsername(String username);
     Optional<Member> findByClientIdAndLoginType(String clientId, LoginType loginType);
+    Optional<Member> findByUsernameAndLoginType(String username, LoginType loginType);
 }

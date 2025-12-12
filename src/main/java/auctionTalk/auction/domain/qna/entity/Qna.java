@@ -28,6 +28,10 @@ public class Qna extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private QnaCategory category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private QnaStatus status;
 
     @OneToOne(mappedBy = "qna", cascade = CascadeType.ALL)

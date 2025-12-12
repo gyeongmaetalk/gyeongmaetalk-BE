@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.member.service;
 
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.config.security.jwt.RefreshTokenInfo;
@@ -15,11 +16,15 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.CodeRepository;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
+import auctionTalk.auction.domain.member.repository.TokenRepository;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
+import auctionTalk.auction.utils.CookieUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService{
 
     private final KakaoMemberClient kakaoMemberClient;
-
+    private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
     private final CodeRepository codeRepository;
     private final SubscriptionRepository subscriptionRepository;
@@ -39,6 +44,22 @@ public class AuthServiceImpl implements AuthService{
     @Transactional
     public AuthTokenResponse login(Member member){
         return generateTokensForExistingMember(member);
+    }
+
+    @Override
+    @Transactional
+    public void logout(HttpServletResponse response, Member member) {
+
+        Long memberId = member.getId();
+
+        // Refresh Token 삭제
+        tokenRepository.deleteRefreshToken(memberId);
+
+        // 쿠키 삭제
+        CookieUtils.clearAuthCookies(response);
+
+        // 인증 해제
+        SecurityContextHolder.clearContext();
     }
 
     @Override
@@ -94,10 +115,12 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     @Transactional
-    public MemberIdResponse softDeleteMember(Member member){
+    public void softDeleteMember(HttpServletResponse response, Member member){
         member.delete();
+        tokenRepository.deleteRefreshToken(member.getId());
+        CookieUtils.clearAuthCookies(response);
+        SecurityContextHolder.clearContext();
 
-        return new  MemberIdResponse(member.getId());
     }
 
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {

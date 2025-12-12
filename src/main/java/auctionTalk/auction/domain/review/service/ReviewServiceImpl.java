@@ -16,6 +16,7 @@ import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;
+import auctionTalk.auction.utils.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewReportRepository reviewReportRepository;
+    private final S3Service s3Service;
 
     @Override
     @Transactional
@@ -67,12 +71,16 @@ public class ReviewServiceImpl implements ReviewService {
 
         review.updateReviewInfo(request);
 
-        if (request.getImageUrls() != null) {
-            List<ReviewImage> images = request.getImageUrls().stream()
-                    .map(url -> reviewMapper.toReviewImage(review, url))
-                    .toList();
+        List<String> remainKeys = Optional.ofNullable(request.getRemainImageUrls())
+                .orElseGet(ArrayList::new);
 
-            review.updateImages(images);
+        List<String> addKeys = Optional.ofNullable(request.getAddImageUrls())
+                .orElseGet(ArrayList::new);
+
+        List<String> deleteKeys = review.updateImages(remainKeys, addKeys);
+
+        if (!deleteKeys.isEmpty()) {
+            s3Service.deleteFiles(deleteKeys);
         }
 
         return new  ReviewIdResponse(review.getId());
