@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +28,7 @@ public class AdminAuthController {
     @PostMapping("/signup")
     @Parameters(value = {
             @Parameter(name = "username", description = "아이디"),
-            @Parameter(name = "username", description = "패스워드")
+            @Parameter(name = "password", description = "패스워드")
 
     })
     public BaseResponse<MemberIdResponse> createAdminMember(
@@ -40,13 +42,36 @@ public class AdminAuthController {
     @PostMapping("/login")
     @Parameters(value = {
             @Parameter(name = "username", description = "아이디"),
-            @Parameter(name = "username", description = "패스워드")
+            @Parameter(name = "password", description = "패스워드")
 
     })
-    public BaseResponse<AuthTokenResponse> login(
+    public BaseResponse<MemberIdResponse> login(
             @RequestParam String username,
-            @RequestParam String password
+            @RequestParam String password,
+            HttpServletResponse response
     ) {
-        return BaseResponse.onSuccess(adminAuthService.adminLogin(username, password));
+
+        AuthTokenResponse tokenResponse = adminAuthService.adminLogin(username, password);
+
+
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", tokenResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(60 * 60)  // 1시간
+                .build();
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(60 * 60 * 24 * 14)  // 2주
+                .build();
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        return BaseResponse.onSuccess(new MemberIdResponse(tokenResponse.getMemberId()));
     }
 }
