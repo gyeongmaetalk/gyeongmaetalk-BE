@@ -13,7 +13,7 @@ public class SecurityConstant {
             "/auth/**", "/auth/refresh",
             "/v3/**", "/swagger-ui/**",
             "/test/**", "/login/**", "/oauth2/**",
-            "/reviews/**", "/qna/**", "/fcm/**",
+            "/reviews/**", "/qna/**", "/fcm/**", "/admin/**"
     };
 
     // 로그인 필요 API
@@ -23,7 +23,6 @@ public class SecurityConstant {
 
     // 관리자 전용 API
     public static final String[] ADMIN_URLS = {
-            "/admin/**"
     };
 
     // 모든 경로를 포함한 배열 (필요할 경우 사용)
