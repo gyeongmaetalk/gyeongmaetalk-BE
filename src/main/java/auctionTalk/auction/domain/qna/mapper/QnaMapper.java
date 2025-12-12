@@ -17,6 +17,7 @@ public class QnaMapper {
         return Qna.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                .category(request.getCategory())
                 .status(QnaStatus.PENDING)
                 .member(member)
                 .build();
@@ -34,6 +35,7 @@ public class QnaMapper {
 
         return QnaResponse.builder()
                 .id(qna.getId())
+                .category(qna.getCategory())
                 .qnaTitle(qna.getTitle())
                 .qnaContent(qna.getContent())
                 .createdAt(qna.getCreatedAt())

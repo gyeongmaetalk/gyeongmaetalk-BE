@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.qna.dto.response;
 
+import auctionTalk.auction.domain.qna.entity.QnaCategory;
 import auctionTalk.auction.domain.qna.entity.QnaStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -13,6 +14,9 @@ public class QnaResponse {
 
     @Schema(description = "질문 아이디", example = "1")
     private Long id;
+
+    @Schema(description = "질문 카테고리", example = "PAYMENT")
+    private QnaCategory category;
 
     @Schema(description = "질문 제목", example = "상담 소요 시간 문의")
     private String qnaTitle;

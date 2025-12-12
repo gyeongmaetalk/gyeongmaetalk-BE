@@ -39,6 +39,10 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    
+    // 어드민 계정 로그인용 아이디 패스워드
+    private String username;
+    private String password;
 
     @Embedded
     @Builder.Default
