@@ -2,9 +2,12 @@ package auctionTalk.auction.domain.subscription.mapper;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPagingResponse;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,6 +30,30 @@ public class SubscriptionMapper {
                 .orderId(subscription.getOrderId())
                 .amount(subscription.getAmount())
                 .orderName(subscription.getOrderName())
+                .build();
+    }
+
+    public SubscriptionResponse toSubscriptionResponse(Subscription subscription){
+        Member member = subscription.getMember();
+
+        return SubscriptionResponse.builder()
+                .subscriptionId(subscription.getId())
+                .memberId(member.getId())
+                .memberName(member.getName())
+                .memberCellPhone(member.getCellPhone())
+                .startTime(subscription.getStartDate())
+                .subscriptionStatus(subscription.getSubscriptionStatus())
+                .build();
+    }
+
+    public <T>SubscriptionPagingResponse<T> toSubscriptionPagingResponse(Page<T> subscriptions){
+        return SubscriptionPagingResponse.<T>builder()
+                .subscriptions(subscriptions.getContent())
+                .page(subscriptions.getNumber())
+                .totalPages(subscriptions.getTotalPages())
+                .totalElements((int) subscriptions.getTotalElements())
+                .isFirst(subscriptions.isFirst())
+                .isLast(subscriptions.isLast())
                 .build();
     }
 }

@@ -38,6 +38,9 @@ public class Counsel extends BaseEntity {
 
     private boolean pushSent = false;
 
+    @Enumerated(EnumType.STRING)
+    private CounselStatus counselStatus;
+
     public void updateCounsel(Member member, Counselor counselor, CounselForm counselForm,  LocalDate counselDate, LocalTime counselTime){
         this.member = member;
         this.counselor = counselor;
@@ -48,5 +51,9 @@ public class Counsel extends BaseEntity {
 
     public void updatePushSent() {
         this.pushSent = true;
+    }
+
+    public void updateStatus(CounselStatus counselStatus) {
+        this.counselStatus = counselStatus;
     }
 }

@@ -4,6 +4,8 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.qna.entity.Qna;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,5 +17,6 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
                 .orElseThrow(() -> new CustomApiException(ErrorCode.QNA_NOT_FOUND));
     }
 
+    Page<Qna> findAll(Pageable pageable);
     List<Qna> findByMember(Member member);
 }

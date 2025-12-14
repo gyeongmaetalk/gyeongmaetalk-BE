@@ -98,4 +98,5 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         return new SubscriptionIdResponse(subscription.getId());
     }
+
 }
