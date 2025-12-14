@@ -38,8 +38,10 @@ public class SubscriptionMapper {
 
         return SubscriptionResponse.builder()
                 .subscriptionId(subscription.getId())
+                .memberId(member.getId())
                 .memberName(member.getName())
                 .memberCellPhone(member.getCellPhone())
+                .startTime(subscription.getStartDate())
                 .subscriptionStatus(subscription.getSubscriptionStatus())
                 .build();
     }
