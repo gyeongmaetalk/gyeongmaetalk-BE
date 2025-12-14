@@ -1,16 +1,17 @@
 package auctionTalk.auction.domain.counsel.mapper;
 
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
-import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
-import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselInfoResponse;
+import auctionTalk.auction.domain.counsel.dto.response.*;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Component
@@ -23,6 +24,7 @@ public class CounselMapper {
                 .counselForm(counselForm)
                 .counselDate(counselDate)
                 .counselTime(counselTime)
+                .counselStatus(CounselStatus.COUNSEL_BEFORE)
                 .build();
     }
 
@@ -89,6 +91,35 @@ public class CounselMapper {
                 .participantType(counselForm.getParticipantType())
                 .serviceType(counselForm.getServiceType())
                 .isReviewed(isReviewed)
+                .build();
+    }
+
+    public AdminCounselResponse toAdminCounselResponse(Counsel counsel, Counselor counselor, LocalDateTime counselDate){
+
+        CounselForm counselForm = counsel.getCounselForm();
+
+        return AdminCounselResponse.builder()
+                .counselId(counsel.getId())
+                .counselDate(counselDate)
+                .applyDate(counsel.getCreatedAt())
+                .area(counselForm.getArea())
+                .cellPhone(counselor.getCellPhone())
+                .interest(counselForm.getInterest())
+                .purpose(counselForm.getPurpose())
+                .participantType(counselForm.getParticipantType())
+                .serviceType(counselForm.getServiceType())
+                .build();
+    }
+
+    public <T>AdminCounselPagingResponse<T> toAdminCounselPagingResponse(Page<T> counsels){
+
+        return AdminCounselPagingResponse.<T>builder()
+                .counsels(counsels.getContent())
+                .page(counsels.getNumber())
+                .totalPages(counsels.getTotalPages())
+                .totalElements((int) counsels.getTotalElements())
+                .isFirst(counsels.isFirst())
+                .isLast(counsels.isLast())
                 .build();
     }
 }

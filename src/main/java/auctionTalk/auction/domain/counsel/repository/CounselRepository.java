@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.counsel.repository;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -38,4 +39,6 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
             "WHERE c.pushSent = false " +
             "AND FUNCTION('TIMESTAMP', c.counselDate, c.counselTime) <= :threshold")
     List<Counsel> findAllForPush(@Param("threshold") LocalDateTime threshold);
+
+    List<Counsel> findAllByCounselStatusIn(List<CounselStatus> statuses);
 }

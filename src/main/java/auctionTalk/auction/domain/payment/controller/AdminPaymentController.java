@@ -37,5 +37,4 @@ public class AdminPaymentController {
     ){
         return BaseResponse.onSuccess(paymentQueryService.InquiryPayments(paymentType, size, page));
     }
-
 }
