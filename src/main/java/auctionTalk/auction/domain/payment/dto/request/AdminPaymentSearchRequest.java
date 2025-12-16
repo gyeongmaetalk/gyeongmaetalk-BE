@@ -1,22 +1,20 @@
-package auctionTalk.auction.domain.counsel.dto.request;
+package auctionTalk.auction.domain.payment.dto.request;
 
-import auctionTalk.auction.domain.counsel.entity.CounselStatus;
+import auctionTalk.auction.domain.payment.entity.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminCounselSearchRequest {
+public class AdminPaymentSearchRequest {
 
-    private List<CounselStatus> statuses;
+    private PaymentType type;
     private LocalDate startDate;
     private LocalDate endDate;
     private int page;
     private int size;
 }
-

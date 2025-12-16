@@ -11,6 +11,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Service
 @RequiredArgsConstructor
 public class AdminQnaServiceImpl implements AdminQnaService {
@@ -20,8 +24,18 @@ public class AdminQnaServiceImpl implements AdminQnaService {
 
     @Override
     @Transactional(readOnly = true)
-    public AdminQnaPagingResponse<AdminQnaInquiryResponse> inquiryAdminQna(int size, int page){
-        Page<Qna> qnaPage =  qnaRepository.findAll(PageRequest.of(page, size));
+    public AdminQnaPagingResponse<AdminQnaInquiryResponse> inquiryAdminQna(LocalDate startDate, LocalDate endDate, int size, int page){
+        LocalDateTime startAt =
+                (startDate == null) ? null : startDate.atStartOfDay();
+
+        LocalDateTime endAt =
+                (endDate == null) ? null : endDate.atTime(LocalTime.MAX);
+
+        Page<Qna> qnaPage = qnaRepository.findAllByCreatedAtBetween(
+                startAt,
+                endAt,
+                PageRequest.of(page, size)
+        );
         return qnaMapper.toAdminQnaPagingResponse(
                 qnaPage.map(qnaMapper::toAdminQnaInquiryResponse)
         );
