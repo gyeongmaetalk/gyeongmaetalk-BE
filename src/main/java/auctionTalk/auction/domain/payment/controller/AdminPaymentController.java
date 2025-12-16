@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.payment.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.payment.dto.request.AdminPaymentSearchRequest;
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentType;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Tag(name = "어드민 용 결제 관련 API", description = "어드민 용 결제 관련 API")
 @RestController
@@ -32,9 +35,11 @@ public class AdminPaymentController {
     })
     public BaseResponse<AdminPaymentPagingResponse<AdminInquiryPayment>> InquiryPayments(
             @RequestParam PaymentType paymentType,
-            @RequestParam int size,
-            @RequestParam int page
-    ){
-        return BaseResponse.onSuccess(paymentQueryService.InquiryPayments(paymentType, size, page));
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam int page,
+            @RequestParam int size
+            ){
+        return BaseResponse.onSuccess(paymentQueryService.InquiryPayments(paymentType, startDate, endDate, page, size));
     }
 }
