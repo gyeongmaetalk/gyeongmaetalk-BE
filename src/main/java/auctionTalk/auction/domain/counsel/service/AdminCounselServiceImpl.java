@@ -4,6 +4,7 @@ import auctionTalk.auction.domain.counsel.dto.request.AdminCounselSearchRequest;
 import auctionTalk.auction.domain.counsel.dto.response.AdminCounselPagingResponse;
 import auctionTalk.auction.domain.counsel.dto.response.AdminCounselResponse;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counsel.mapper.CounselMapper;
 import auctionTalk.auction.domain.counsel.repository.CounselDslRepository;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,18 +30,18 @@ public class AdminCounselServiceImpl implements AdminCounselService {
 
     @Override
     @Transactional
-    public AdminCounselPagingResponse<AdminCounselResponse> inquiryCounselsByCounselStatus(AdminCounselSearchRequest request){
+    public AdminCounselPagingResponse<AdminCounselResponse> inquiryCounselsByCounselStatus(List<CounselStatus> statuses, LocalDate startDate, LocalDate endDate, int page, int size){
         Pageable pageable = PageRequest.of(
-                request.getPage(),
-                request.getSize(),
+                page,
+                size,
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         Page<Counsel> counselPage =
                 counselDslRepository.searchByConditions(
-                        request.getStatuses(),
-                        request.getStartDate(),
-                        request.getEndDate(),
+                        statuses,
+                        startDate,
+                        endDate,
                         pageable
                 );
 
