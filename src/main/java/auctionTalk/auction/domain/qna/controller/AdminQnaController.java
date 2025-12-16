@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+
 @Tag(name = "어드민 전용 문의 API", description = "어드민 문의 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -25,13 +27,17 @@ public class AdminQnaController {
     @Operation(summary = "어드민 용 문의 조회 API")
     @GetMapping("/list")
     @Parameters(value = {
+            @Parameter(name = "startDate", description = "필터링 시작 날짜"),
+            @Parameter(name = "endDate", description = "필터링 끝 날짜"),
             @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })
     public BaseResponse<AdminQnaPagingResponse<AdminQnaInquiryResponse>> inquiryAdminQna(
-            @RequestParam int size,
-            @RequestParam int page
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam int page,
+            @RequestParam int size
     ){
-        return BaseResponse.onSuccess(adminQnaService.inquiryAdminQna(size, page));
+        return BaseResponse.onSuccess(adminQnaService.inquiryAdminQna(startDate, endDate, size, page));
     }
 }

@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.counsel.service;
 
-import auctionTalk.auction.domain.counsel.dto.request.AdminCounselSearchRequest;
 import auctionTalk.auction.domain.counsel.dto.response.AdminCounselPagingResponse;
 import auctionTalk.auction.domain.counsel.dto.response.AdminCounselResponse;
 import auctionTalk.auction.domain.counsel.entity.CounselStatus;

@@ -30,6 +30,9 @@ public class AdminPaymentController {
     @Operation(summary = "어드민용 결제 페이징 조회")
     @GetMapping("/list")
     @Parameters(value = {
+            @Parameter(name = "paymentType", description = "필터링 결제 타입"),
+            @Parameter(name = "startDate", description = "필터링 시작 날짜"),
+            @Parameter(name = "endDate", description = "필터링 끝 날짜"),
             @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
             @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
     })

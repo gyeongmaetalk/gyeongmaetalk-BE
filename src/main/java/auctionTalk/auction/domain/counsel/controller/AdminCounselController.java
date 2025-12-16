@@ -1,12 +1,13 @@
 package auctionTalk.auction.domain.counsel.controller;
 
-import auctionTalk.auction.domain.counsel.dto.request.AdminCounselSearchRequest;
 import auctionTalk.auction.domain.counsel.dto.response.AdminCounselPagingResponse;
 import auctionTalk.auction.domain.counsel.dto.response.AdminCounselResponse;
 import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counsel.service.AdminCounselService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,13 @@ public class AdminCounselController {
 
     @Operation(summary = "상담 목록 조회 API")
     @GetMapping("/list")
+    @Parameters(value = {
+            @Parameter(name = "statuses", description = "필터링 할 상담 상태 목록"),
+            @Parameter(name = "startDate", description = "필터링 시작 날짜"),
+            @Parameter(name = "endDate", description = "필터링 끝 날짜"),
+            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+    })
     public BaseResponse<AdminCounselPagingResponse<AdminCounselResponse>> inquiryCounselsByCounselStatus(
             @RequestParam List<CounselStatus> statuses,
             @RequestParam LocalDate startDate,
