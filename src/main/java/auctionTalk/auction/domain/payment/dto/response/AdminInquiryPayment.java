@@ -12,6 +12,7 @@ public class AdminInquiryPayment {
     private LocalDateTime payDate;
     private Long amount;
     private String orderId;
+    private String paymentKey;
     private String userName;
     private String cellPhone;
 }
