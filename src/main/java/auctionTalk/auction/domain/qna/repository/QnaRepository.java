@@ -4,8 +4,13 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.qna.entity.Qna;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface QnaRepository extends JpaRepository<Qna, Long> {
@@ -15,5 +20,16 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
                 .orElseThrow(() -> new CustomApiException(ErrorCode.QNA_NOT_FOUND));
     }
 
+    @Query("""
+        select q
+        from Qna q
+        where (:startAt is null or q.createdAt >= :startAt)
+          and (:endAt is null or q.createdAt <= :endAt)
+    """)
+    Page<Qna> findAllByCreatedAtBetween(
+            @Param("startAt") LocalDateTime startAt,
+            @Param("endAt") LocalDateTime endAt,
+            Pageable pageable
+    );
     List<Qna> findByMember(Member member);
 }

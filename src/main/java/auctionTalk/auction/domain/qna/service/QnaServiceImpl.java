@@ -53,7 +53,7 @@ public class QnaServiceImpl implements QnaService {
     public List<QnaResponse> inquiryQnaByMember(Member member){
         List<Qna> myQna = qnaRepository.findByMember(member);
 
-        return myQna.stream().map(qnaMapper::ToQnaResponse).toList();
+        return myQna.stream().map(qnaMapper::toQnaResponse).toList();
     }
 
     @Override

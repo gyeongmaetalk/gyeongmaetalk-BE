@@ -25,4 +25,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             @Param("memberId") Long memberId,
             @Param("isPurchased") Boolean isPurchased,
             Pageable pageable);
+
+    Page<Property> findAllByMemberId(
+            @Param("memberId") Long memberId,
+            Pageable pageable);
 }

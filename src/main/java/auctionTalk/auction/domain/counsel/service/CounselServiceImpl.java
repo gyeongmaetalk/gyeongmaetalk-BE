@@ -130,10 +130,10 @@ public class CounselServiceImpl implements CounselService {
         }
 
         Counsel existingCounsel = counsel.get();
+        updateCounselStatus(member, existingCounsel);
+
         CounselForm counselForm = counselFormRepository.getCounselFormByMember(member);
         Counselor counselor = existingCounsel.getCounselor();
-
-        CounselStatus status = determineCounselStatus(member, existingCounsel);
 
         List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
         int reviewCount = reviews.size();
@@ -152,7 +152,7 @@ public class CounselServiceImpl implements CounselService {
                 averageScore,
                 reviewCount
         );
-        return new CounselCombinedResponse(status, info);
+        return new CounselCombinedResponse(existingCounsel.getCounselStatus(), info);
     }
 
 
@@ -168,19 +168,27 @@ public class CounselServiceImpl implements CounselService {
         return counselFormRepository.save(newCounselForm);
     }
 
-    private CounselStatus determineCounselStatus(Member member, Counsel counsel) {
+    private void updateCounselStatus(Member member, Counsel counsel) {
+
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime counselDateTime = LocalDateTime.of(
                 counsel.getCounselDate(),
                 counsel.getCounselTime()
         );
 
+        CounselStatus newStatus;
+
         if (counselDateTime.isAfter(now)) {
-            return CounselStatus.COUNSEL_BEFORE;
+            newStatus = CounselStatus.COUNSEL_BEFORE;
+        } else {
+            boolean isSubscribed = subscriptionRepository.existsByMemberAndSubscriptionStatus(
+                    member, SubscriptionStatus.IN_PROGRESS
+            );
+            newStatus = isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
         }
 
-        boolean isSubscribed = subscriptionRepository.existsByMemberAndSubscriptionStatus(member, SubscriptionStatus.IN_PROGRESS);
-        return isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
+        if (counsel.getCounselStatus() != newStatus) {
+            counsel.updateStatus(newStatus);
+        }
     }
-
 }

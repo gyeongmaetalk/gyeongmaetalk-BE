@@ -6,8 +6,11 @@ import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
@@ -23,4 +26,16 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     boolean existsByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
     boolean existsByMember(Member member);
+
+    Page<Subscription> findAllByCreatedAtBetweenOrderByCreatedAtDesc(
+            LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    Page<Subscription> findAllByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+            LocalDateTime start, Pageable pageable);
+
+    Page<Subscription> findAllByCreatedAtLessThanEqualOrderByCreatedAtDesc(
+            LocalDateTime end, Pageable pageable);
+
+    Page<Subscription> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
 }
