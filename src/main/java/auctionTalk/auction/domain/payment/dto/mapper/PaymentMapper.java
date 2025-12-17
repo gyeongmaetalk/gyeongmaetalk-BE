@@ -15,6 +15,7 @@ public class PaymentMapper {
                 .payDate(subscription.getCreatedAt())
                 .amount(subscription.getAmount())
                 .orderId(subscription.getOrderId())
+                .paymentKey(subscription.getPaymentKey())
                 .userName(subscription.getMember().getUsername())
                 .cellPhone(subscription.getMember().getCellPhone())
                 .build();
@@ -25,6 +26,7 @@ public class PaymentMapper {
                 .payDate(payment.getCreatedAt())
                 .amount(payment.getAmount())
                 .orderId(payment.getOrderId())
+                .paymentKey(payment.getPaymentKey())
                 .userName(payment.getMember().getUsername())
                 .cellPhone(payment.getMember().getCellPhone())
                 .build();

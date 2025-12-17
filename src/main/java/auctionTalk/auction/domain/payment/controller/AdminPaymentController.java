@@ -1,20 +1,18 @@
 package auctionTalk.auction.domain.payment.controller;
 
-import auctionTalk.auction.config.security.auth.PrincipalDetails;
-import auctionTalk.auction.domain.payment.dto.request.AdminPaymentSearchRequest;
+import auctionTalk.auction.domain.payment.dto.request.PaymentRefundRequest;
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
+import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentType;
 import auctionTalk.auction.domain.payment.service.PaymentQueryService;
 import auctionTalk.auction.domain.payment.service.PaymentService;
-import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -25,7 +23,16 @@ import java.time.LocalDate;
 @RequestMapping("/admin/payments")
 public class AdminPaymentController {
 
+    private final PaymentService paymentService;
     private final PaymentQueryService paymentQueryService;
+
+    @Operation(summary = "어드민용 결제 환불 API")
+    @PostMapping("/refund")
+    public BaseResponse<PaymentResultResponse> refundPayment(
+            @RequestBody PaymentRefundRequest request
+    ){
+        return BaseResponse.onSuccess(paymentService.refundPayment(request));
+    }
 
     @Operation(summary = "어드민용 결제 페이징 조회")
     @GetMapping("/list")
