@@ -67,7 +67,8 @@ public enum ErrorCode {
 
     // Payment
     FAIL_CONFIRM_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT401", "결제 승인에 실패했습니다."),
-    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT402", "결제 정보를 찾을 수 없습니다."),
+    FAIL_CANCEL_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT402", "결제 취소에 실패했습니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT403", "결제 정보를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
