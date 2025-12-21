@@ -96,18 +96,23 @@ public class CounselMapper {
 
     public AdminCounselResponse toAdminCounselResponse(Counsel counsel, Counselor counselor, LocalDateTime counselDate){
 
+        Member member = counsel.getMember();
         CounselForm counselForm = counsel.getCounselForm();
 
         return AdminCounselResponse.builder()
                 .counselId(counsel.getId())
+                .userName(member.getName())
+                .userCellPhone(member.getCellPhone())
                 .counselDate(counselDate)
                 .applyDate(counsel.getCreatedAt())
                 .area(counselForm.getArea())
+                .counselorName(counselor.getName())
                 .cellPhone(counselor.getCellPhone())
                 .interest(counselForm.getInterest())
                 .purpose(counselForm.getPurpose())
                 .participantType(counselForm.getParticipantType())
                 .serviceType(counselForm.getServiceType())
+                .counselStatus(counsel.getCounselStatus())
                 .build();
     }
 
