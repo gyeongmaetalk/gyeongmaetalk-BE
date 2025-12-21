@@ -39,10 +39,24 @@ public class CounselMapper {
                 .build();
     }
 
-    public MatchCounselorResponse toMatchCounselorResponse(Counselor counselor, Long counselFormId, double averageScore, int reviewCount){
+    public MatchCounselorResponse toMatchCounselorResponse(Counselor counselor, double averageScore, int reviewCount){
         return MatchCounselorResponse.builder()
                 .counselorId(counselor.getId())
+                .counselorName(counselor.getName())
+                .score(averageScore)
+                .counselCount(counselor.getCounselCount())
+                .description(counselor.getDescription())
+                .reviewCount(reviewCount)
+                .experience(counselor.getExperience())
+                .license(counselor.getLicense())
+                .Specialization(counselor.getSpecialization())
+                .build();
+    }
+
+    public CounselUpdateResponse toCounselUpdateResponse(Counselor counselor, Long counselFormId, double averageScore, int reviewCount){
+        return CounselUpdateResponse.builder()
                 .counselFormId(counselFormId)
+                .counselorId(counselor.getId())
                 .counselorName(counselor.getName())
                 .score(averageScore)
                 .counselCount(counselor.getCounselCount())

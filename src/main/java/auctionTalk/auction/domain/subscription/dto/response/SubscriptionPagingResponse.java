@@ -14,6 +14,6 @@ public class SubscriptionPagingResponse<T> {
     private int page;
     private int totalPages;
     private int totalElements;
-    private boolean isFirst;
-    private boolean isLast;
+    private Boolean isFirst;
+    private Boolean isLast;
 }
