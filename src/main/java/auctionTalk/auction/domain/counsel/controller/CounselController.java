@@ -1,10 +1,12 @@
 package auctionTalk.auction.domain.counsel.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.counsel.dto.request.CounselApplyRequest;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormUpdateRequest;
 import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
 import auctionTalk.auction.domain.counsel.dto.response.CounselCombinedResponse;
+import auctionTalk.auction.domain.counsel.dto.response.CounselUpdateResponse;
 import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
 import auctionTalk.auction.domain.counsel.service.CounselService;
 import auctionTalk.auction.global.common.BaseResponse;
@@ -40,7 +42,7 @@ public class CounselController {
 
     @Operation(summary = "상담 신청 폼 수정 API")
     @PatchMapping("/{counselFormId}")
-    public BaseResponse<MatchCounselorResponse> updateCounselFormCounselor(
+    public BaseResponse<CounselUpdateResponse> updateCounselFormCounselor(
             @AuthenticationPrincipal PrincipalDetails member,
             @Parameter(description = "상담 신청 폼 수정 요청 json")  @Valid @RequestBody CounselFormUpdateRequest request,
             @PathVariable("counselFormId")  Long counselFormId
@@ -53,15 +55,13 @@ public class CounselController {
     @Parameters(value = {
             @Parameter(name = "counselorId", description = "상담사 id"),
             @Parameter(name = "counselFormId", description = "상담 신청 폼 id"),
-            @Parameter(name = "date", description = "희망 시간"),
     })
     public BaseResponse<ApplyCounselResponse> applyCounsel(
-            @AuthenticationPrincipal PrincipalDetails member,
+            @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId,
-            @RequestParam(name = "counselFormId") Long counselFormId,
-            @RequestParam(name = "date") LocalDateTime dateTime
+            @Parameter(description = "상담 신청 요청 json") @RequestBody CounselApplyRequest request
     ){
-        return BaseResponse.onSuccess(counselService.applyCounsel(counselFormId, member.getMember(), counselorId, dateTime.toLocalDate(), dateTime.toLocalTime()));
+        return BaseResponse.onSuccess(counselService.applyCounsel(principal.getMember(), counselorId, request));
     }
 
     @Operation(summary = "상담 신청 수정 API")
