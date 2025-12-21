@@ -3,6 +3,7 @@ package auctionTalk.auction.domain.qna.service;
 import auctionTalk.auction.domain.qna.dto.response.AdminQnaInquiryResponse;
 import auctionTalk.auction.domain.qna.dto.response.AdminQnaPagingResponse;
 import auctionTalk.auction.domain.qna.entity.Qna;
+import auctionTalk.auction.domain.qna.entity.QnaStatus;
 import auctionTalk.auction.domain.qna.mapper.QnaMapper;
 import auctionTalk.auction.domain.qna.repository.QnaRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +25,15 @@ public class AdminQnaServiceImpl implements AdminQnaService {
 
     @Override
     @Transactional(readOnly = true)
-    public AdminQnaPagingResponse<AdminQnaInquiryResponse> inquiryAdminQna(LocalDate startDate, LocalDate endDate, int size, int page){
+    public AdminQnaPagingResponse<AdminQnaInquiryResponse> inquiryAdminQna(QnaStatus status, LocalDate startDate, LocalDate endDate, int size, int page){
         LocalDateTime startAt =
                 (startDate == null) ? null : startDate.atStartOfDay();
 
         LocalDateTime endAt =
                 (endDate == null) ? null : endDate.atTime(LocalTime.MAX);
 
-        Page<Qna> qnaPage = qnaRepository.findAllByCreatedAtBetween(
+        Page<Qna> qnaPage = qnaRepository.findAllByCondition(
+                status,
                 startAt,
                 endAt,
                 PageRequest.of(page, size)
