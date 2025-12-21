@@ -34,6 +34,8 @@ public enum ErrorCode {
     MEMBER_SOFT_DELETE(HttpStatus.BAD_REQUEST, "MEMBER402", "회원 탈퇴된 사용자 입니다."),
     MEMBER_INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER403", "패스워드가 일치하지 않습니다."),
     MEMBER_IS_PRESENT(HttpStatus.BAD_REQUEST, "MEMBER404", "이미 존재하는 계정입니다."),
+    MEMBER_IS_SUBSCRIBED(HttpStatus.BAD_REQUEST, "MEMBER405", "이미 경매대행을 진행중이라 상담 신청이 불가능 합니다."),
+
 
     // Counselor
     COUNSELOR_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSELOR401", "상담사를 찾을 수 없습니다."),

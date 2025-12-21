@@ -17,6 +17,7 @@ import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
+import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,16 @@ public class CounselServiceImpl implements CounselService {
     @Override
     @Transactional
     public MatchCounselorResponse matchCounselor(CounselFormCreateRequest request, Member member){
+
+        boolean isSubscribed = subscriptionRepository
+                .existsByMemberAndSubscriptionStatus(
+                        member,
+                        SubscriptionStatus.IN_PROGRESS
+                );
+
+        // 상담 신청 유효성 검사
+        ParamValidator.validMatchCounsel(isSubscribed);
+
         Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
 
         List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);

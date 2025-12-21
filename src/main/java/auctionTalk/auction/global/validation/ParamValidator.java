@@ -11,6 +11,13 @@ public class ParamValidator {
             throw new CustomApiException(ErrorCode.UNAUTHORIZED_MODIFY);
     }
 
+    // 이미 구독 중인 사람은 상담 신청 불가능
+    public static void validMatchCounsel(boolean isSubscribed) {
+        if (isSubscribed) {
+            throw new CustomApiException(ErrorCode.MEMBER_IS_SUBSCRIBED);
+        }
+    }
+
     // FCM 토큰 유효성 검증
     public static void validateFcmToken(String token) {
         if (token == null || token.isBlank()) {

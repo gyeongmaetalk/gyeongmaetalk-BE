@@ -54,7 +54,6 @@ public class CounselController {
     @PostMapping("/{counselorId}")
     @Parameters(value = {
             @Parameter(name = "counselorId", description = "상담사 id"),
-            @Parameter(name = "counselFormId", description = "상담 신청 폼 id"),
     })
     public BaseResponse<ApplyCounselResponse> applyCounsel(
             @AuthenticationPrincipal PrincipalDetails principal,
