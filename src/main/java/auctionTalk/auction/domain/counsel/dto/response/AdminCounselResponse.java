@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.counsel.dto.response;
 
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,4 +46,7 @@ public class AdminCounselResponse {
 
     @Schema(description = "명의", example = "개인(감면 등의 목적을 이유로 개인 사업자를 고려중이에요.)")
     private String participantType;
+
+    @Schema(description = "상담 상태", example = "COUNSEL_AFTER")
+    private CounselStatus counselStatus;
 }

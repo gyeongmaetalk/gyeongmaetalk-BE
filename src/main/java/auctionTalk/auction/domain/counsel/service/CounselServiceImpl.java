@@ -1,11 +1,9 @@
 package auctionTalk.auction.domain.counsel.service;
 
+import auctionTalk.auction.domain.counsel.dto.request.CounselApplyRequest;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormCreateRequest;
 import auctionTalk.auction.domain.counsel.dto.request.CounselFormUpdateRequest;
-import auctionTalk.auction.domain.counsel.dto.response.ApplyCounselResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselCombinedResponse;
-import auctionTalk.auction.domain.counsel.dto.response.CounselInfoResponse;
-import auctionTalk.auction.domain.counsel.dto.response.MatchCounselorResponse;
+import auctionTalk.auction.domain.counsel.dto.response.*;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselForm;
 import auctionTalk.auction.domain.counsel.entity.CounselStatus;
@@ -19,6 +17,7 @@ import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
+import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,16 +41,61 @@ public class CounselServiceImpl implements CounselService {
 
     @Override
     @Transactional
-    public ApplyCounselResponse applyCounsel(Long counselFormId, Member member, Long counselorId, LocalDate counselDate, LocalTime counselTime){
+    public MatchCounselorResponse matchCounselor(CounselFormCreateRequest request, Member member){
+
+        boolean isSubscribed = subscriptionRepository
+                .existsByMemberAndSubscriptionStatus(
+                        member,
+                        SubscriptionStatus.IN_PROGRESS
+                );
+
+        // 상담 신청 유효성 검사
+        ParamValidator.validMatchCounsel(isSubscribed);
+
+        Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
+
+        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
+        int reviewCount = reviews.size();
+        double averageScore = reviewCount > 0
+                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
+                : 0.0;
+
+        return counselMapper.toMatchCounselorResponse(counselor, averageScore, reviewCount);
+    }
+
+    @Override
+    @Transactional
+    public CounselUpdateResponse updateCounselForm(Long counselFormId, CounselFormUpdateRequest request, Member member){
+        Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
+
+        CounselForm counselForm =  counselFormRepository.getCounselFormById(counselFormId);
+        counselForm.updateCounselForm(request, member);
+
+        counselFormRepository.save(counselForm);
+
+        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
+        int reviewCount = reviews.size();
+        double averageScore = reviewCount > 0
+                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
+                : 0.0;
+
+        return counselMapper.toCounselUpdateResponse(counselor, counselForm.getId(), averageScore, reviewCount);
+    }
+
+    @Override
+    @Transactional
+    public ApplyCounselResponse applyCounsel(Member member, Long counselorId, CounselApplyRequest request){
         Counselor counselor = counselorRepository.getCounselor(counselorId);
 
-        CounselForm counselForm = counselFormRepository.getCounselFormById(counselFormId);
+        CounselForm counselForm = createAndSaveCounselForm(request.getCounselFormCreateRequest(), member);
 
-        Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
+        LocalDateTime counselDateTime = request.getCounselTime();
+
+        Counsel counsel = createAndSaveCounsel(member, counselor, counselDateTime.toLocalDate(), counselDateTime.toLocalTime(), counselForm);
 
         counselor.addCounselCount();
 
-        return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDate, counselTime, counselor);
+        return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDateTime.toLocalDate(), counselDateTime.toLocalTime(), counselor);
     }
 
     @Override
@@ -68,43 +112,6 @@ public class CounselServiceImpl implements CounselService {
 
         return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDate, counselTime, counsel.getCounselor());
     }
-
-
-    @Override
-    @Transactional
-    public MatchCounselorResponse matchCounselor(CounselFormCreateRequest request, Member member){
-        Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
-
-        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
-        int reviewCount = reviews.size();
-        double averageScore = reviewCount > 0
-                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
-                : 0.0;
-
-        CounselForm counselForm = createAndSaveCounselForm(request, member);
-
-        return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId(), averageScore, reviewCount);
-    }
-
-    @Override
-    @Transactional
-    public  MatchCounselorResponse updateCounselForm(Long counselFormId, CounselFormUpdateRequest request, Member member){
-        Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
-
-        CounselForm counselForm =  counselFormRepository.getCounselFormById(counselFormId);
-        counselForm.updateCounselForm(request, member);
-
-        counselFormRepository.save(counselForm);
-
-        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
-        int reviewCount = reviews.size();
-        double averageScore = reviewCount > 0
-                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
-                : 0.0;
-
-        return counselMapper.toMatchCounselorResponse(counselor, counselForm.getId(), averageScore, reviewCount);
-    }
-
 
     @Override
     @Transactional
@@ -130,7 +137,6 @@ public class CounselServiceImpl implements CounselService {
         }
 
         Counsel existingCounsel = counsel.get();
-        updateCounselStatus(member, existingCounsel);
 
         CounselForm counselForm = counselFormRepository.getCounselFormByMember(member);
         Counselor counselor = existingCounsel.getCounselor();
@@ -168,27 +174,4 @@ public class CounselServiceImpl implements CounselService {
         return counselFormRepository.save(newCounselForm);
     }
 
-    private void updateCounselStatus(Member member, Counsel counsel) {
-
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime counselDateTime = LocalDateTime.of(
-                counsel.getCounselDate(),
-                counsel.getCounselTime()
-        );
-
-        CounselStatus newStatus;
-
-        if (counselDateTime.isAfter(now)) {
-            newStatus = CounselStatus.COUNSEL_BEFORE;
-        } else {
-            boolean isSubscribed = subscriptionRepository.existsByMemberAndSubscriptionStatus(
-                    member, SubscriptionStatus.IN_PROGRESS
-            );
-            newStatus = isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
-        }
-
-        if (counsel.getCounselStatus() != newStatus) {
-            counsel.updateStatus(newStatus);
-        }
-    }
 }

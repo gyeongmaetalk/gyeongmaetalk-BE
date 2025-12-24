@@ -3,15 +3,14 @@ package auctionTalk.auction.domain.counsel.scheduler;
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counsel.repository.CounselRepository;
-import auctionTalk.auction.domain.member.entity.Member;
-import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
-import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -19,46 +18,20 @@ import java.util.List;
 public class CounselScheduler {
 
     private final CounselRepository counselRepository;
-    private final SubscriptionRepository subscriptionRepository;
 
-    @Scheduled(cron = "0 0 * * * *") // 매 정각
+    @Scheduled(fixedDelay = 5 * 60 * 1000) // 5분 주기
     @Transactional
-    public void reconcileCounselStatusHourly() {
+    public void reconcileCounselStatus() {
 
-        List<Counsel> targets =
-                counselRepository.findAllByCounselStatusIn(
-                        List.of(
-                                CounselStatus.COUNSEL_BEFORE,
-                                CounselStatus.SUBSCRIBE
-                        )
-                );
+        LocalDate today = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
 
-        for (Counsel counsel : targets) {
-            CounselStatus newStatus =
-                    calculateCounselStatus(counsel.getMember(), counsel);
+        // 이미 시간이 지난 상담만 조회
+        List<Counsel> expiredCounsels =
+                counselRepository.findExpiredCounsels(CounselStatus.COUNSEL_BEFORE, today, nowTime);
 
-            if (newStatus != counsel.getCounselStatus()) {
-                counsel.updateStatus(newStatus);
-            }
+        for (Counsel counsel : expiredCounsels) {
+            counsel.updateStatus(CounselStatus.COUNSEL_AFTER);
         }
-    }
-
-    private CounselStatus calculateCounselStatus(Member member, Counsel counsel) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime counselDateTime = LocalDateTime.of(
-                counsel.getCounselDate(),
-                counsel.getCounselTime()
-        );
-
-        if (counselDateTime.isAfter(now)) {
-            return CounselStatus.COUNSEL_BEFORE;
-        }
-
-        boolean isSubscribed =
-                subscriptionRepository.existsByMemberAndSubscriptionStatus(
-                        member, SubscriptionStatus.IN_PROGRESS
-                );
-
-        return isSubscribed ? CounselStatus.SUBSCRIBE : CounselStatus.COUNSEL_AFTER;
     }
 }

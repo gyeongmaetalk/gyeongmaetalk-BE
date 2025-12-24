@@ -6,7 +6,10 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MatchCounselorResponse {
+public class CounselUpdateResponse {
+
+    @Schema(description = "상담 신청 폼 ID", example = "1")
+    private Long counselFormId;
 
     @Schema(description = "상담사 ID", example = "1")
     private Long counselorId;
@@ -31,7 +34,7 @@ public class MatchCounselorResponse {
 
     @Schema(description = "누적상담", example = "120")
     private int counselCount;
-    
+
     @Schema(description = "자격증", example = "경매지도사 자격증")
     private String license;
 }

@@ -41,4 +41,17 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
     List<Counsel> findAllForPush(@Param("threshold") LocalDateTime threshold);
 
     List<Counsel> findAllByCounselStatusIn(List<CounselStatus> statuses);
+
+    @Query("""
+        select c
+        from Counsel c
+        where c.counselStatus in (:statuses)
+          and (c.counselDate < :today
+               or (c.counselDate = :today and c.counselTime <= :nowTime))
+    """)
+    List<Counsel> findExpiredCounsels(
+            @Param("status") CounselStatus status,
+            @Param("today") LocalDate today,
+            @Param("nowTime") LocalTime nowTime
+    );
 }
