@@ -45,7 +45,7 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
     @Query("""
         select c
         from Counsel c
-        where c.counselStatus in (:statuses)
+        where c.counselStatus = :status
           and (c.counselDate < :today
                or (c.counselDate = :today and c.counselTime <= :nowTime))
     """)
