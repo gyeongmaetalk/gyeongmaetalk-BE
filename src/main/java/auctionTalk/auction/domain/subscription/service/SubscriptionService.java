@@ -9,6 +9,6 @@ import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPrepareP
 public interface SubscriptionService {
 
     SubscriptionPreparePaymentResponse prepareSubscriptionPayment(Member member, Long counselorId);
-    PaymentResultResponse confirmSubscriptionPayment(Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest);
+    PaymentResultResponse confirmSubscriptionPayment(Member member, Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest);
     SubscriptionIdResponse completeSubscription(Long subscriptionId);
 }
