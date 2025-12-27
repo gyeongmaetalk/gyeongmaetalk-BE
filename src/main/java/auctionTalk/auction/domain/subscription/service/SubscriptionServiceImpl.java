@@ -1,5 +1,8 @@
 package auctionTalk.auction.domain.subscription.service;
 
+import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
+import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
@@ -25,6 +28,7 @@ import java.util.UUID;
 public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final CounselRepository counselRepository;
     private final CounselorRepository counselorRepository;
     private final SubscriptionMapper subscriptionMapper;
     private final PaymentService paymentService;
@@ -57,7 +61,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public PaymentResultResponse confirmSubscriptionPayment(Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest) {
+    public PaymentResultResponse confirmSubscriptionPayment(Member member, Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest) {
 
         PaymentResultResponse response = paymentService.callTossPaymentApi(paymentConfirmRequest);
 
@@ -65,6 +69,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         switch (response.getStatus()) {
             case "DONE":
+                Counsel counsel = counselRepository.getCounselByMember(member);
+                counsel.updateStatus(CounselStatus.SUBSCRIBE);
                 subscription.activate(response.getPaymentKey());
                 break;
             case "CANCELED": // 토스 취소

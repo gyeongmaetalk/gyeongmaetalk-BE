@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,10 +74,11 @@ public class PropertyController {
     @Operation(summary = "추천 매물 구독 결제 완료(결제 승인) API")
     @PostMapping("/subscribe/{subscriptionId}/confirm")
     public BaseResponse<PaymentResultResponse> confirmSubscriptionPayment(
+            @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("subscriptionId") Long subscriptionId,
             @RequestBody PaymentConfirmRequest request
     ){
-        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(subscriptionId, request));
+        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(principal.getMember(), subscriptionId, request));
     }
 
     @Operation(summary = "추천 매물 구매 결제 준비 API")
