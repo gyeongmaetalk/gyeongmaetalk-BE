@@ -10,7 +10,6 @@ import auctionTalk.auction.domain.property.dto.response.*;
 
 public interface PropertyService {
 
-    PropertyIdResponse createProperty(Member member, Counselor counselor, PropertyCreateRequest request);
     PropertyIdResponse purchaseProperty(Member member, Long propertyId);
     PropertyPreparePaymentResponse preparePropertyPayment(Member member, Long propertyId);
     PaymentResultResponse confirmPropertyPayment(Long propertyId, PaymentConfirmRequest paymentConfirmRequest);

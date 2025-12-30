@@ -46,31 +46,6 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional
-    public PropertyIdResponse createProperty(Member member, Counselor counselor, PropertyCreateRequest request){
-
-        Property newProperty = propertyMapper.toProperty(member, counselor, request);
-        propertyRepository.save(newProperty);
-
-        // 추천 매물 알림 설정 확인
-        NotificationSetting setting = member.getNotificationSetting();
-        if (!setting.isPropertyNotificationEnabled()) {
-            return new PropertyIdResponse(newProperty.getId());
-        }
-
-        String fcmToken = member.getFcmToken();
-
-        ParamValidator.validateFcmToken(fcmToken);
-
-        String title = "추천 매물";
-        String body = "추천 매물을 올려주셨어요.";
-
-        fcmService.sendPushPropertyNotification(fcmToken, title, body, member, newProperty);
-
-        return new PropertyIdResponse(newProperty.getId());
-    }
-
-    @Override
-    @Transactional
     public PropertyIdResponse purchaseProperty(Member member, Long propertyId){
         ParamValidator.validModify(member.getId(), propertyId); // 권한 유효성 검사
         Property property = propertyRepository.getProperty(propertyId);

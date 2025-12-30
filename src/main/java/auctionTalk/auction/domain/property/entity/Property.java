@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.property.entity;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.property.dto.request.PropertyUpdateRequest;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -70,6 +71,26 @@ public class Property extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<AuctionSchedule> auctionSchedules = new ArrayList<>();
+
+    public void updateProperty(PropertyUpdateRequest request){
+        this.name = request.getName();
+        this.area = request.getArea();
+        this.appraisedPrice = request.getAppraisedPrice();
+        this.minPrice = request.getMinPrice();
+        this.address = request.getAddress();
+        this.caseNumber = request.getCaseNumber();
+        this.caseTitle = request.getCaseTitle();
+        this.courtName = request.getCourtName();
+        this.registrationDate = request.getRegistrationDate();
+        this.status = request.getStatus();
+        this.commencementDate = request.getCommencementDate();
+        this.expertComment = request.getExpertComment();
+        this.debtor = request.getDebtor();
+        this.creditor = request.getCreditor();
+        this.owner = request.getOwner();
+        this.tenant = request.getTenant();
+        this.buildingType = request.getBuildingType();
+    }
 
     public void changeImages(List<PropertyImage> propertyImages) {
         // 새로운 이미지로 변경

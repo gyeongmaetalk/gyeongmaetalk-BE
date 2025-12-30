@@ -2,8 +2,10 @@ package auctionTalk.auction.domain.payment.dto.mapper;
 
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +18,9 @@ public class PaymentMapper {
                 .amount(subscription.getAmount())
                 .orderId(subscription.getOrderId())
                 .paymentKey(subscription.getPaymentKey())
-                .userName(subscription.getMember().getUsername())
+                .userName(subscription.getMember().getName())
                 .cellPhone(subscription.getMember().getCellPhone())
+                .paymentStatus(toPaymentStatusFromSubscription(subscription.getSubscriptionStatus()))
                 .build();
     }
 
@@ -27,8 +30,9 @@ public class PaymentMapper {
                 .amount(payment.getAmount())
                 .orderId(payment.getOrderId())
                 .paymentKey(payment.getPaymentKey())
-                .userName(payment.getMember().getUsername())
+                .userName(payment.getMember().getName())
                 .cellPhone(payment.getMember().getCellPhone())
+                .paymentStatus(payment.getStatus())
                 .build();
     }
 
@@ -41,5 +45,14 @@ public class PaymentMapper {
                 .isFirst(payments.isFirst())
                 .isLast(payments.isLast())
                 .build();
+    }
+
+    private PaymentStatus toPaymentStatusFromSubscription(SubscriptionStatus status) {
+        return switch (status) {
+            case PENDING -> PaymentStatus.READY;
+            case IN_PROGRESS -> PaymentStatus.SUCCESS;
+            case PAYMENT_FAILED, CANCELED -> PaymentStatus.FAIL;
+            case COMPLETED -> null;
+        };
     }
 }
