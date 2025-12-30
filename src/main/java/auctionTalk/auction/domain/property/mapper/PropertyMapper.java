@@ -4,10 +4,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
-import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
-import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
-import auctionTalk.auction.domain.property.dto.response.PropertyPreparePaymentResponse;
-import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
+import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.entity.AuctionSchedule;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
@@ -73,6 +70,27 @@ public class PropertyMapper {
                 .build();
     }
 
+    public AdminPropertySummaryResponse toAdminPropertySummaryResponse(Property property, boolean payment) {
+        return AdminPropertySummaryResponse.builder()
+                .id(property.getId())
+                .memberId(property.getMember().getId())
+                .name(property.getName())
+                .address(property.getAddress())
+                .area(property.getArea())
+                .biddingDate(property.getAuctionSchedules().stream()
+                        .findFirst()
+                        .map(AuctionSchedule::getDate)
+                        .orElse(null))
+                .appraisedPrice(property.getAppraisedPrice())
+                .minPrice(property.getMinPrice())
+                .isPurchased(property.isPurchased())
+                .isPayment(payment)
+                .buildingType(property.getBuildingType())
+                .updateDate(property.getCreatedAt())
+                .images(toImageUrls(property.getImages()))
+                .build();
+    }
+
     public <T> PropertyPagingResponse<T> toPropertyPagingResponse(Page<T> properties) {
         return PropertyPagingResponse.<T>builder()
                 .properties(properties.getContent())
@@ -109,6 +127,7 @@ public class PropertyMapper {
                 .images(toImageUrls(property.getImages()))
                 .build();
     }
+
 
     public PropertyPayment toPropertyPayment(Member member, Property property, String orderId, Long amount, String orderName){
         return PropertyPayment.builder()
