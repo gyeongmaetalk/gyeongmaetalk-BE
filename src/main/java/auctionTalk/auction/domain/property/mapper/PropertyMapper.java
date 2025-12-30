@@ -70,27 +70,6 @@ public class PropertyMapper {
                 .build();
     }
 
-    public AdminPropertySummaryResponse toAdminPropertySummaryResponse(Property property, boolean payment) {
-        return AdminPropertySummaryResponse.builder()
-                .id(property.getId())
-                .memberId(property.getMember().getId())
-                .name(property.getName())
-                .address(property.getAddress())
-                .area(property.getArea())
-                .biddingDate(property.getAuctionSchedules().stream()
-                        .findFirst()
-                        .map(AuctionSchedule::getDate)
-                        .orElse(null))
-                .appraisedPrice(property.getAppraisedPrice())
-                .minPrice(property.getMinPrice())
-                .isPurchased(property.isPurchased())
-                .isPayment(payment)
-                .buildingType(property.getBuildingType())
-                .updateDate(property.getCreatedAt())
-                .images(toImageUrls(property.getImages()))
-                .build();
-    }
-
     public <T> PropertyPagingResponse<T> toPropertyPagingResponse(Page<T> properties) {
         return PropertyPagingResponse.<T>builder()
                 .properties(properties.getContent())
