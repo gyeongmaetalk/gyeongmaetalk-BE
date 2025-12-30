@@ -1,5 +1,8 @@
 package auctionTalk.auction.domain.property.controller;
 
+import auctionTalk.auction.domain.property.dto.request.PropertyUpdateRequest;
+import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
+import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.service.AdminPropertyService;
@@ -9,10 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "어드민 용 추천 매물 API", description = "어드민 용 추천 매물 관련 API")
 @RestController
@@ -21,6 +21,40 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminPropertyController {
 
     private final AdminPropertyService adminPropertyService;
+    
+    @Operation(summary = "어드민 추천 매물 수정 API")
+    @PatchMapping("/{propertyId}")
+    @Parameters(value = {
+            @Parameter(name = "propertyId", description = "수정할 추천 매물 Id"),
+    })
+    public BaseResponse<PropertyIdResponse> updateProperty(
+            @PathVariable(name = "propertyId") Long propertyId,
+            @RequestBody PropertyUpdateRequest request
+    ) {
+        return BaseResponse.onSuccess(adminPropertyService.updateProperty(propertyId, request));
+    }
+
+    @Operation(summary = "어드민 추천 매물 삭제 API")
+    @DeleteMapping("/{propertyId}")
+    @Parameters(value = {
+            @Parameter(name = "propertyId", description = "삭제할 추천 매물 Id"),
+    })
+    public BaseResponse<PropertyIdResponse> deleteProperty(
+            @PathVariable(name = "propertyId") Long propertyId
+    ) {
+        return BaseResponse.onSuccess(adminPropertyService.deleteProperty(propertyId));
+    }
+
+    @Operation(summary = "어드민 추천 매물 상세조회 API")
+    @GetMapping("/{propertyId}/detail")
+    @Parameters(value = {
+            @Parameter(name = "propertyId", description = "조회할 추천 매물 Id"),
+    })
+    public BaseResponse<PropertyDetailResponse> inquiryPropertyDetail(
+            @PathVariable(name = "propertyId") Long propertyId
+    ) {
+        return BaseResponse.onSuccess(adminPropertyService.getPropertyDetail(propertyId));
+    }
 
     @Operation(summary = "어드민 추천 매물 목록 조회 API")
     @GetMapping("/list")
