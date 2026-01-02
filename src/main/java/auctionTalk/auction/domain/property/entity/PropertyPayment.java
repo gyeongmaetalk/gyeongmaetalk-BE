@@ -23,17 +23,8 @@ public class PropertyPayment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Property property;
 
-    private String orderId;
-    private String paymentKey;
-    private String orderName;
-    private Long amount;
-
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
-
-    public void updatePaymentKey(String paymentKey) {
-        this.paymentKey = paymentKey;
-    }
 
     public void updatePaymentStatus(PaymentStatus status){
         this.status = status;

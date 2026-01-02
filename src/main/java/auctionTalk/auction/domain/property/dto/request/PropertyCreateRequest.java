@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -64,4 +65,7 @@ public class PropertyCreateRequest {
 
     @Schema(description = "건물 유형", example = "아파트")
     private String buildingType;
+
+    @Schema(description = "추천 매물 이미지 URL 목록", example = "[\"https://bucket.s3.ap-northeast-2.amazonaws.com/review/abc.webp\"]")
+    private List<String> imageUrls;
 }

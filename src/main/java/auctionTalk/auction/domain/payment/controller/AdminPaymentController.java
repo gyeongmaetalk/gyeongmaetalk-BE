@@ -23,16 +23,7 @@ import java.time.LocalDate;
 @RequestMapping("/admin/payments")
 public class AdminPaymentController {
 
-    private final PaymentService paymentService;
     private final PaymentQueryService paymentQueryService;
-
-    @Operation(summary = "어드민용 결제 환불 API")
-    @PostMapping("/refund")
-    public BaseResponse<PaymentResultResponse> refundPayment(
-            @RequestBody PaymentRefundRequest request
-    ){
-        return BaseResponse.onSuccess(paymentService.refundPayment(request));
-    }
 
     @Operation(summary = "어드민용 결제 페이징 조회")
     @GetMapping("/list")

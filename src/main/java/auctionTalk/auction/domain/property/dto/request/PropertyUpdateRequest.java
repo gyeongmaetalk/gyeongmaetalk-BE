@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -64,4 +65,10 @@ public class PropertyUpdateRequest {
 
     @Schema(description = "건물 유형", example = "아파트")
     private String buildingType;
+
+    @Schema(description = "유지할 매물 이미지 URL 목록", example = "[\"review/abc.webp\"]")
+    private List<String> remainImageUrls;
+
+    @Schema(description = "추가된 매물 이미지 URL 목록", example = "[\"review/abc.webp\"]")
+    private List<String> addImageUrls;
 }

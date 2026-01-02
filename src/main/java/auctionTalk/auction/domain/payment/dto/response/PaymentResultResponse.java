@@ -1,15 +1,13 @@
 package auctionTalk.auction.domain.payment.dto.response;
 
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@AllArgsConstructor
 public class PaymentResultResponse {
 
-    private String status;
-    private String paymentKey;
-    private String orderId;
-    private Long totalAmount;
-    private String failureReason;
+    private PaymentStatus status;
 }

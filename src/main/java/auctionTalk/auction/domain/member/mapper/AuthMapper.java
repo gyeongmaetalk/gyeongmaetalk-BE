@@ -9,6 +9,7 @@ import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.entity.NotificationSetting;
 import auctionTalk.auction.domain.member.entity.Role;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,7 +32,7 @@ public class AuthMapper {
                 .build();
     }
 
-    public MemberInfoResponse toMemberInfoResponse(Member member, boolean auctionStatus){
+    public MemberInfoResponse toMemberInfoResponse(Member member, SubscriptionStatus auctionStatus){
 
         return MemberInfoResponse.builder()
                 .name(member.getName())

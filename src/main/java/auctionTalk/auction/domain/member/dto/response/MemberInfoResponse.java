@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.member.dto.response;
 
 import auctionTalk.auction.domain.member.entity.LoginType;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,5 +25,5 @@ public class MemberInfoResponse {
     private LocalDate birth;
 
     @Schema(description = "경매 진행 상태", example = "true")
-    private boolean auctionStatus;
+    private SubscriptionStatus auctionStatus;
 }

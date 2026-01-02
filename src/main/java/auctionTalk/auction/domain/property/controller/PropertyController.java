@@ -3,10 +3,10 @@ package auctionTalk.auction.domain.property.controller;
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.service.PropertyService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
-import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
 import auctionTalk.auction.domain.subscription.service.SubscriptionService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,42 +61,24 @@ public class PropertyController {
         return BaseResponse.onSuccess(propertyService.inquiryPropertyDetail(principal.getMember(), propertyId));
     }
 
-    @Operation(summary = "추천 매물 구독 신청(결제 준비) API")
+    @Operation(summary = "추천 매물 구독 신청(결제 승인 대기) API")
     @PostMapping("/{counselorId}/subscribe")
-    public BaseResponse<SubscriptionPreparePaymentResponse> prepareSubscriptionPayment(
+    public BaseResponse<SubscriptionIdResponse> prepareSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId
     ){
         return BaseResponse.onSuccess(subscriptionService.prepareSubscriptionPayment(principal.getMember(), counselorId));
     }
 
-    @Operation(summary = "추천 매물 구독 결제 완료(결제 승인) API")
-    @PostMapping("/subscribe/{subscriptionId}/confirm")
-    public BaseResponse<PaymentResultResponse> confirmSubscriptionPayment(
-            @AuthenticationPrincipal PrincipalDetails principal,
-            @PathVariable("subscriptionId") Long subscriptionId,
-            @RequestBody PaymentConfirmRequest request
-    ){
-        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(principal.getMember(), subscriptionId, request));
-    }
-
     @Operation(summary = "추천 매물 구매 결제 준비 API")
     @PostMapping("/{propertyId}/prepare")
-    public BaseResponse<PropertyPreparePaymentResponse> confirmSubscriptionPayment(
+    public BaseResponse<PropertyIdResponse> preparePropertyPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("propertyId") Long propertyId
     ){
         return BaseResponse.onSuccess(propertyService.preparePropertyPayment(principal.getMember(), propertyId));
     }
 
-    @Operation(summary = "추천 매물 구매 결제 승인 API")
-    @PostMapping("/{propertyId}/confirm")
-    public BaseResponse<PaymentResultResponse> confirmPropertyPayment(
-            @PathVariable("propertyId") Long propertyId,
-            @RequestBody PaymentConfirmRequest request
-    ) {
-        return BaseResponse.onSuccess(propertyService.confirmPropertyPayment(propertyId, request));
-    }
 
 //    @Operation(summary = "추천 매물 계약 완료 신청 API")
 //    @PostMapping("/subscribe/{subscriptionId}/complete")

@@ -8,16 +8,16 @@ import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.payment.service.PaymentService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
-import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.mapper.SubscriptionMapper;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,28 +31,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final CounselRepository counselRepository;
     private final CounselorRepository counselorRepository;
     private final SubscriptionMapper subscriptionMapper;
-    private final PaymentService paymentService;
-
-    @Value("${subscribe.fixed-amount}")
-    private Long fixedAmount;
-
-    @Value("${subscribe.fixed-name}")
-    private String fixedName;
 
     @Override
     @Transactional
-    public SubscriptionPreparePaymentResponse prepareSubscriptionPayment(Member member, Long counselorId){
-
-        Long amount = this.fixedAmount;
-        String orderName = this.fixedName;
-
-        String orderId = generateUniqueOrderId(member.getId());
+    public SubscriptionIdResponse prepareSubscriptionPayment(Member member, Long counselorId){
 
         Counselor counselor = counselorRepository.getCounselor(counselorId);
+        Subscription subscription = subscriptionRepository
+                .findByMember(member)
+                .orElseGet(() -> subscriptionMapper.toSubscription(member, counselor));
+        subscription.initStatus();
 
-        Subscription subscription = subscriptionMapper.toSubscription(member, counselor, orderId, amount, orderName);
         subscriptionRepository.save(subscription);
-        return subscriptionMapper.toSubscriptionPreparePaymentResponse(subscription);
+        return new SubscriptionIdResponse(subscription.getId());
     }
 
     private String generateUniqueOrderId(Long memberId) {
@@ -61,36 +52,18 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public PaymentResultResponse confirmSubscriptionPayment(Member member, Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest) {
-
-        PaymentResultResponse response = paymentService.callTossPaymentApi(paymentConfirmRequest);
+    public SubscriptionIdResponse updateSubscriptionStatus(Member member, Long subscriptionId, PaymentStatus status) {
 
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
+        Counsel counsel = counselRepository.getCounselByMember(member);
+        counsel.updateStatus(CounselStatus.SUBSCRIBE);
 
-        switch (response.getStatus()) {
-            case "DONE":
-                Counsel counsel = counselRepository.getCounselByMember(member);
-                counsel.updateStatus(CounselStatus.SUBSCRIBE);
-                subscription.activate(response.getPaymentKey());
-                break;
-            case "CANCELED": // 토스 취소
-                subscription.failed();
-                break;
-
-            case "ABORTED": // 결제 실패
-                subscription.failed();
-                break;
-            case "EXPIRED": // 결제 만료
-                subscription.failed();
-                break;
-
-            default:
-                throw new CustomApiException(ErrorCode.FAIL_CONFIRM_PAYMENT);
-        }
+        if(status == PaymentStatus.SUCCESS) subscription.activate();
+        if(status == PaymentStatus.FAIL) subscription.failed();
 
         subscriptionRepository.save(subscription);
 
-        return response;
+        return new SubscriptionIdResponse(subscriptionId);
     }
 
     @Override

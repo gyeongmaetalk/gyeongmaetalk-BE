@@ -1,15 +1,8 @@
 package auctionTalk.auction.domain.property.service;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
-import auctionTalk.auction.domain.counselor.entity.Counselor;
-import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
-import auctionTalk.auction.domain.member.entity.NotificationSetting;
-import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
-import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
-import auctionTalk.auction.domain.payment.service.PaymentService;
-import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
@@ -35,8 +28,6 @@ public class PropertyServiceImpl implements PropertyService{
     private final PropertyRepository propertyRepository;
     private final PropertyPaymentRepository propertyPaymentRepository;
     private final PropertyMapper propertyMapper;
-    private final PaymentService paymentService;
-    private final FcmService fcmService;
 
     @Value("${property.fixed-amount}")
     private Long fixedAmount;
@@ -58,39 +49,18 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional
-    public PropertyPreparePaymentResponse preparePropertyPayment(Member member, Long propertyId) {
-        Long amount = this.fixedAmount;
-        String orderName = this.fixedName;
-
+    public PropertyIdResponse preparePropertyPayment(Member member, Long propertyId) {
         Property property = propertyRepository.getProperty(propertyId);
 
-        String orderId = generateUniqueOrderId(member.getId());
-
-        PropertyPayment payment = propertyMapper.toPropertyPayment(member, property, orderId, amount, orderName);
+        PropertyPayment payment = propertyMapper.toPropertyPayment(member, property);
 
         propertyPaymentRepository.save(payment);
 
-        return propertyMapper.toPropertyPreparePaymentResponse(payment);
+        return new PropertyIdResponse(propertyId);
     }
 
     private String generateUniqueOrderId(Long memberId) {
         return "SUB-" + memberId + "-" + UUID.randomUUID().toString().substring(0, 8);
-    }
-
-    @Override
-    @Transactional
-    public PaymentResultResponse confirmPropertyPayment(Long propertyId, PaymentConfirmRequest request){
-
-        PropertyPayment payment = propertyPaymentRepository.findByOrderId(request.getOrderId())
-                .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
-
-
-        PaymentResultResponse response = paymentService.callTossPaymentApi(request);
-
-        payment.updatePaymentKey(request.getPaymentKey());
-        payment.updatePaymentStatus(PaymentStatus.SUCCESS);
-
-        return response;
     }
 
 
