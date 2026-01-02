@@ -2,6 +2,8 @@ package auctionTalk.auction.domain.property.service;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.request.PropertyUpdateRequest;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
@@ -16,4 +18,6 @@ public interface AdminPropertyService {
     PropertyIdResponse updateProperty(Long propertyId, PropertyUpdateRequest request);
     PropertyIdResponse deleteProperty(Long propertyId);
     PropertyPagingResponse<PropertySummaryResponse> inquiryPropertiesByMember(Long memberId, int page, int size);
+    PaymentResultResponse updatePropertyPaymentStatus(Long propertyId, PaymentStatus status);
+
 }

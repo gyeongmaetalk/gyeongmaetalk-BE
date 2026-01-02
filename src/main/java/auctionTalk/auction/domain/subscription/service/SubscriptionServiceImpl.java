@@ -8,9 +8,11 @@ import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.payment.service.PaymentService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.mapper.SubscriptionMapper;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
@@ -47,12 +49,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public SubscriptionIdResponse confirmSubscriptionPayment(Member member, Long subscriptionId) {
+    public SubscriptionIdResponse updateSubscriptionStatus(Member member, Long subscriptionId, PaymentStatus status) {
 
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
         Counsel counsel = counselRepository.getCounselByMember(member);
         counsel.updateStatus(CounselStatus.SUBSCRIBE);
-        subscription.activate();
+
+        if(status == PaymentStatus.SUCCESS) subscription.activate();
+        if(status == PaymentStatus.FAIL) subscription.failed();
 
         subscriptionRepository.save(subscription);
 

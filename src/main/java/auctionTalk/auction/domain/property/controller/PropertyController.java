@@ -3,6 +3,7 @@ package auctionTalk.auction.domain.property.controller;
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.service.PropertyService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
@@ -69,15 +70,6 @@ public class PropertyController {
         return BaseResponse.onSuccess(subscriptionService.prepareSubscriptionPayment(principal.getMember(), counselorId));
     }
 
-    @Operation(summary = "추천 매물 구독 결제 완료(결제 승인) API")
-    @PostMapping("/{subscriptionId}/confirm")
-    public BaseResponse<SubscriptionIdResponse> confirmSubscriptionPayment(
-            @AuthenticationPrincipal PrincipalDetails principal,
-            @PathVariable("subscriptionId") Long subscriptionId
-    ){
-        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(principal.getMember(), subscriptionId));
-    }
-
     @Operation(summary = "추천 매물 구매 결제 준비 API")
     @PostMapping("/{propertyId}/prepare")
     public BaseResponse<PropertyIdResponse> preparePropertyPayment(
@@ -87,14 +79,6 @@ public class PropertyController {
         return BaseResponse.onSuccess(propertyService.preparePropertyPayment(principal.getMember(), propertyId));
     }
 
-    @Operation(summary = "추천 매물 구매 결제 승인 API")
-    @PostMapping("/{propertyId}/confirm")
-    public BaseResponse<PaymentResultResponse> confirmPropertyPayment(
-            @PathVariable("propertyId") Long propertyId,
-            @RequestBody PaymentConfirmRequest request
-    ) {
-        return BaseResponse.onSuccess(propertyService.confirmPropertyPayment(propertyId, request));
-    }
 
 //    @Operation(summary = "추천 매물 계약 완료 신청 API")
 //    @PostMapping("/subscribe/{subscriptionId}/complete")

@@ -1,4 +1,4 @@
-package auctionTalk.auction.domain.payment.dto.mapper;
+package auctionTalk.auction.domain.payment.mapper;
 
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
@@ -15,9 +15,6 @@ public class PaymentMapper {
     public AdminInquiryPayment toAdminInquiryPaymentFromSubscription(Subscription subscription) {
         return AdminInquiryPayment.builder()
                 .payDate(subscription.getCreatedAt())
-                .amount(subscription.getAmount())
-                .orderId(subscription.getOrderId())
-                .paymentKey(subscription.getPaymentKey())
                 .userName(subscription.getMember().getName())
                 .cellPhone(subscription.getMember().getCellPhone())
                 .paymentStatus(toPaymentStatusFromSubscription(subscription.getSubscriptionStatus()))
@@ -27,9 +24,6 @@ public class PaymentMapper {
     public AdminInquiryPayment toAdminInquiryPaymentFromPropertyPayment(PropertyPayment payment) {
         return AdminInquiryPayment.builder()
                 .payDate(payment.getCreatedAt())
-                .amount(payment.getAmount())
-                .orderId(payment.getOrderId())
-                .paymentKey(payment.getPaymentKey())
                 .userName(payment.getMember().getName())
                 .cellPhone(payment.getMember().getCellPhone())
                 .paymentStatus(payment.getStatus())
