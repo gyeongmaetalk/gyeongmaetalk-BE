@@ -60,7 +60,7 @@ public class PropertyController {
         return BaseResponse.onSuccess(propertyService.inquiryPropertyDetail(principal.getMember(), propertyId));
     }
 
-    @Operation(summary = "추천 매물 구독 신청(결제 준비) API")
+    @Operation(summary = "추천 매물 구독 신청(결제 승인 대기) API")
     @PostMapping("/{counselorId}/subscribe")
     public BaseResponse<SubscriptionIdResponse> prepareSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
@@ -70,18 +70,17 @@ public class PropertyController {
     }
 
     @Operation(summary = "추천 매물 구독 결제 완료(결제 승인) API")
-    @PostMapping("/subscribe/{subscriptionId}/confirm")
-    public BaseResponse<PaymentResultResponse> confirmSubscriptionPayment(
+    @PostMapping("/{subscriptionId}/confirm")
+    public BaseResponse<SubscriptionIdResponse> confirmSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
-            @PathVariable("subscriptionId") Long subscriptionId,
-            @RequestBody PaymentConfirmRequest request
+            @PathVariable("subscriptionId") Long subscriptionId
     ){
-        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(principal.getMember(), subscriptionId, request));
+        return BaseResponse.onSuccess(subscriptionService.confirmSubscriptionPayment(principal.getMember(), subscriptionId));
     }
 
     @Operation(summary = "추천 매물 구매 결제 준비 API")
     @PostMapping("/{propertyId}/prepare")
-    public BaseResponse<PropertyPreparePaymentResponse> confirmSubscriptionPayment(
+    public BaseResponse<PropertyPreparePaymentResponse> preparePropertyPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("propertyId") Long propertyId
     ){

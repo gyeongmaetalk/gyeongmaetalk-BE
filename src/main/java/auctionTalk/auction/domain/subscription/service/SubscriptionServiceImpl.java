@@ -29,7 +29,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final CounselRepository counselRepository;
     private final CounselorRepository counselorRepository;
     private final SubscriptionMapper subscriptionMapper;
-    private final PaymentService paymentService;
 
     @Override
     @Transactional
@@ -48,36 +47,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public PaymentResultResponse confirmSubscriptionPayment(Member member, Long subscriptionId, PaymentConfirmRequest paymentConfirmRequest) {
-
-        PaymentResultResponse response = paymentService.callTossPaymentApi(paymentConfirmRequest);
+    public SubscriptionIdResponse confirmSubscriptionPayment(Member member, Long subscriptionId) {
 
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
-
-        switch (response.getStatus()) {
-            case "DONE":
-                Counsel counsel = counselRepository.getCounselByMember(member);
-                counsel.updateStatus(CounselStatus.SUBSCRIBE);
-                subscription.activate(response.getPaymentKey());
-                break;
-            case "CANCELED": // 토스 취소
-                subscription.failed();
-                break;
-
-            case "ABORTED": // 결제 실패
-                subscription.failed();
-                break;
-            case "EXPIRED": // 결제 만료
-                subscription.failed();
-                break;
-
-            default:
-                throw new CustomApiException(ErrorCode.FAIL_CONFIRM_PAYMENT);
-        }
+        Counsel counsel = counselRepository.getCounselByMember(member);
+        counsel.updateStatus(CounselStatus.SUBSCRIBE);
+        subscription.activate();
 
         subscriptionRepository.save(subscription);
 
-        return response;
+        return new SubscriptionIdResponse(subscriptionId);
     }
 
     @Override
