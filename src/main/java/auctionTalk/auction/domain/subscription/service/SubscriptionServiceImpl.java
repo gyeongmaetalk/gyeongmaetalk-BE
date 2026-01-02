@@ -10,14 +10,12 @@ import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.service.PaymentService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
-import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.mapper.SubscriptionMapper;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,26 +31,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionMapper subscriptionMapper;
     private final PaymentService paymentService;
 
-    @Value("${subscribe.fixed-amount}")
-    private Long fixedAmount;
-
-    @Value("${subscribe.fixed-name}")
-    private String fixedName;
-
     @Override
     @Transactional
-    public SubscriptionPreparePaymentResponse prepareSubscriptionPayment(Member member, Long counselorId){
-
-        Long amount = this.fixedAmount;
-        String orderName = this.fixedName;
-
-        String orderId = generateUniqueOrderId(member.getId());
+    public SubscriptionIdResponse prepareSubscriptionPayment(Member member, Long counselorId){
 
         Counselor counselor = counselorRepository.getCounselor(counselorId);
 
-        Subscription subscription = subscriptionMapper.toSubscription(member, counselor, orderId, amount, orderName);
+        Subscription subscription = subscriptionMapper.toSubscription(member, counselor);
         subscriptionRepository.save(subscription);
-        return subscriptionMapper.toSubscriptionPreparePaymentResponse(subscription);
+        return new SubscriptionIdResponse(subscription.getId());
     }
 
     private String generateUniqueOrderId(Long memberId) {

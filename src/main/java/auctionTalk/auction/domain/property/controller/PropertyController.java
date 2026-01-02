@@ -6,7 +6,6 @@ import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.service.PropertyService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
-import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
 import auctionTalk.auction.domain.subscription.service.SubscriptionService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,7 +62,7 @@ public class PropertyController {
 
     @Operation(summary = "추천 매물 구독 신청(결제 준비) API")
     @PostMapping("/{counselorId}/subscribe")
-    public BaseResponse<SubscriptionPreparePaymentResponse> prepareSubscriptionPayment(
+    public BaseResponse<SubscriptionIdResponse> prepareSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("counselorId") Long counselorId
     ){

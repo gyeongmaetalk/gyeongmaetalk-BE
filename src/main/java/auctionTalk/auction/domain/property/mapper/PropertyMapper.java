@@ -9,8 +9,6 @@ import auctionTalk.auction.domain.property.entity.AuctionSchedule;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
-import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
-import auctionTalk.auction.domain.subscription.entity.Subscription;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
