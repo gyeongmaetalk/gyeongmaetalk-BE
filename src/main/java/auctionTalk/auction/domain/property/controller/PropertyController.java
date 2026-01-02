@@ -80,7 +80,7 @@ public class PropertyController {
 
     @Operation(summary = "추천 매물 구매 결제 준비 API")
     @PostMapping("/{propertyId}/prepare")
-    public BaseResponse<PropertyPreparePaymentResponse> preparePropertyPayment(
+    public BaseResponse<PropertyIdResponse> preparePropertyPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("propertyId") Long propertyId
     ){

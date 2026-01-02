@@ -106,23 +106,11 @@ public class PropertyMapper {
     }
 
 
-    public PropertyPayment toPropertyPayment(Member member, Property property, String orderId, Long amount, String orderName){
+    public PropertyPayment toPropertyPayment(Member member, Property property){
         return PropertyPayment.builder()
                 .member(member)
                 .property(property)
-                .orderId(orderId)
-                .orderName(orderName)
-                .amount(amount)
-                .status(PaymentStatus.READY)
-                .build();
-    }
-
-    public PropertyPreparePaymentResponse toPropertyPreparePaymentResponse(PropertyPayment payment){
-        return PropertyPreparePaymentResponse.builder()
-                .propertyId(payment.getProperty().getId())
-                .orderId(payment.getOrderId())
-                .amount(payment.getAmount())
-                .orderName(payment.getOrderName())
+                .status(PaymentStatus.PENDING)
                 .build();
     }
 

@@ -11,7 +11,7 @@ import auctionTalk.auction.domain.property.dto.response.*;
 public interface PropertyService {
 
     PropertyIdResponse purchaseProperty(Member member, Long propertyId);
-    PropertyPreparePaymentResponse preparePropertyPayment(Member member, Long propertyId);
+    PropertyIdResponse preparePropertyPayment(Member member, Long propertyId);
     PaymentResultResponse confirmPropertyPayment(Long propertyId, PaymentConfirmRequest paymentConfirmRequest);
 
 

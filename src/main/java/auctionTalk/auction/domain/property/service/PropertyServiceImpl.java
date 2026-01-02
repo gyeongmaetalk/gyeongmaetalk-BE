@@ -36,7 +36,6 @@ public class PropertyServiceImpl implements PropertyService{
     private final PropertyPaymentRepository propertyPaymentRepository;
     private final PropertyMapper propertyMapper;
     private final PaymentService paymentService;
-    private final FcmService fcmService;
 
     @Value("${property.fixed-amount}")
     private Long fixedAmount;
@@ -58,19 +57,14 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional
-    public PropertyPreparePaymentResponse preparePropertyPayment(Member member, Long propertyId) {
-        Long amount = this.fixedAmount;
-        String orderName = this.fixedName;
-
+    public PropertyIdResponse preparePropertyPayment(Member member, Long propertyId) {
         Property property = propertyRepository.getProperty(propertyId);
 
-        String orderId = generateUniqueOrderId(member.getId());
-
-        PropertyPayment payment = propertyMapper.toPropertyPayment(member, property, orderId, amount, orderName);
+        PropertyPayment payment = propertyMapper.toPropertyPayment(member, property);
 
         propertyPaymentRepository.save(payment);
 
-        return propertyMapper.toPropertyPreparePaymentResponse(payment);
+        return new PropertyIdResponse(propertyId);
     }
 
     private String generateUniqueOrderId(Long memberId) {
@@ -87,7 +81,6 @@ public class PropertyServiceImpl implements PropertyService{
 
         PaymentResultResponse response = paymentService.callTossPaymentApi(request);
 
-        payment.updatePaymentKey(request.getPaymentKey());
         payment.updatePaymentStatus(PaymentStatus.SUCCESS);
 
         return response;
