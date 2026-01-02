@@ -31,7 +31,7 @@ public class AdminPropertyController {
     private final SubscriptionService subscriptionService;
 
     @Operation(summary = "어드민 추천 매물 생성 API")
-    @PatchMapping("/{propertyId}")
+    @PostMapping("/{propertyId}")
     @Parameters(value = {
             @Parameter(name = "propertyId", description = "수정할 추천 매물 Id"),
     })
@@ -92,7 +92,7 @@ public class AdminPropertyController {
     }
 
     @Operation(summary = "어드민 추천 매물 구독 결제 상태 변경(승인 or 취소) API")
-    @PatchMapping("/{subscriptionId}/status")
+    @PatchMapping("/subscription/{subscriptionId}/status")
     public BaseResponse<SubscriptionIdResponse> confirmSubscriptionPayment(
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable("subscriptionId") Long subscriptionId,
