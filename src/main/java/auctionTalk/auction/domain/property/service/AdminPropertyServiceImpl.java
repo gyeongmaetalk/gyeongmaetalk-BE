@@ -14,25 +14,27 @@ import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.entity.Property;
+import auctionTalk.auction.domain.property.entity.PropertyImage;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
+import auctionTalk.auction.domain.property.repository.PropertyImageRepository;
 import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
-import auctionTalk.auction.global.common.BaseResponse;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;
-import io.swagger.v3.oas.annotations.Operation;
+import auctionTalk.auction.utils.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +46,8 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     private final PropertyPaymentRepository propertyPaymentRepository;
     private final PropertyMapper propertyMapper;
     private final FcmService fcmService;
-    private final PropertyService propertyService;
+    private final PropertyImageRepository propertyImageRepository;
+    private final S3Service s3Service;
 
     @Override
     @Transactional
@@ -58,6 +61,14 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         Property newProperty = propertyMapper.toProperty(member, counselor, request);
         propertyRepository.save(newProperty);
+
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            List<PropertyImage> images = request.getImageUrls().stream()
+                    .map(url -> propertyMapper.toPropertyImage(newProperty, url))
+                    .toList();
+
+            propertyImageRepository.saveAll(images);
+        }
 
         // 추천 매물 알림 설정 확인
         NotificationSetting setting = member.getNotificationSetting();
@@ -110,6 +121,18 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         Property property = propertyRepository.getProperty(propertyId);
 
         property.updateProperty(request);
+
+        List<String> remainKeys = Optional.ofNullable(request.getRemainImageUrls())
+                .orElseGet(ArrayList::new);
+
+        List<String> addKeys = Optional.ofNullable(request.getAddImageUrls())
+                .orElseGet(ArrayList::new);
+
+        List<String> deleteKeys = property.updateImages(remainKeys, addKeys);
+
+        if (!deleteKeys.isEmpty()) {
+            s3Service.deleteFiles(deleteKeys);
+        }
 
         return new PropertyIdResponse(propertyId);
     }
