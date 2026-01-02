@@ -10,10 +10,8 @@ import java.time.LocalDateTime;
 @Builder
 public class AdminInquiryPayment {
 
+    private Long id;
     private LocalDateTime payDate;
-    private Long amount;
-    private String orderId;
-    private String paymentKey;
     private String userName;
     private String cellPhone;
     private PaymentStatus paymentStatus;

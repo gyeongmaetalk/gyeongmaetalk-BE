@@ -14,6 +14,7 @@ public class PaymentMapper {
 
     public AdminInquiryPayment toAdminInquiryPaymentFromSubscription(Subscription subscription) {
         return AdminInquiryPayment.builder()
+                .id(subscription.getId())
                 .payDate(subscription.getCreatedAt())
                 .userName(subscription.getMember().getName())
                 .cellPhone(subscription.getMember().getCellPhone())
@@ -23,6 +24,7 @@ public class PaymentMapper {
 
     public AdminInquiryPayment toAdminInquiryPaymentFromPropertyPayment(PropertyPayment payment) {
         return AdminInquiryPayment.builder()
+                .id(payment.getProperty().getId())
                 .payDate(payment.getCreatedAt())
                 .userName(payment.getMember().getName())
                 .cellPhone(payment.getMember().getCellPhone())
