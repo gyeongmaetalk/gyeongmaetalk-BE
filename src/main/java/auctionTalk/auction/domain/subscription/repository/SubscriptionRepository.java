@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
@@ -25,7 +26,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     }
 
     boolean existsByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
-    boolean existsByMember(Member member);
+    Optional<Subscription> findByMember(Member member);
 
     Page<Subscription> findAllByCreatedAtBetweenOrderByCreatedAtDesc(
             LocalDateTime start, LocalDateTime end, Pageable pageable);

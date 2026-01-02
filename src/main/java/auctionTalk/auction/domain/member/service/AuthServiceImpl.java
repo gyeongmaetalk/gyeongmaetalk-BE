@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.member.service;
 
-import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.config.security.jwt.RefreshTokenInfo;
@@ -17,6 +16,7 @@ import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.CodeRepository;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import auctionTalk.auction.domain.member.repository.TokenRepository;
+import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
@@ -93,10 +93,10 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional(readOnly = true)
     public MemberInfoResponse getMemberInfo(Member member){
+        Subscription subscription = subscriptionRepository.findByMember(member)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
 
-        boolean auctionStatus = subscriptionRepository.existsByMemberAndSubscriptionStatus(member, SubscriptionStatus.IN_PROGRESS);
-
-        return authMapper.toMemberInfoResponse(member, auctionStatus);
+        return authMapper.toMemberInfoResponse(member, subscription.getSubscriptionStatus());
     }
 
     @Override

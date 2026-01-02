@@ -37,8 +37,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionIdResponse prepareSubscriptionPayment(Member member, Long counselorId){
 
         Counselor counselor = counselorRepository.getCounselor(counselorId);
+        Subscription subscription = subscriptionRepository
+                .findByMember(member)
+                .orElseGet(() -> subscriptionMapper.toSubscription(member, counselor));
+        subscription.initStatus();
 
-        Subscription subscription = subscriptionMapper.toSubscription(member, counselor);
         subscriptionRepository.save(subscription);
         return new SubscriptionIdResponse(subscription.getId());
     }

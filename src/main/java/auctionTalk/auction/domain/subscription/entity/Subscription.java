@@ -35,6 +35,10 @@ public class Subscription extends BaseEntity {
 
     private LocalDateTime endDate;
 
+    public void initStatus(){
+        this.subscriptionStatus = SubscriptionStatus.PENDING;
+    }
+
     public void activate() {
         this.subscriptionStatus = SubscriptionStatus.IN_PROGRESS;
         this.startDate = LocalDateTime.now();
