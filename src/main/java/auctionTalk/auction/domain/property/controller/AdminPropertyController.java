@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.property.controller;
 
+import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.request.PropertyUpdateRequest;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
@@ -21,6 +22,18 @@ import org.springframework.web.bind.annotation.*;
 public class AdminPropertyController {
 
     private final AdminPropertyService adminPropertyService;
+
+    @Operation(summary = "어드민 추천 매물 생성 API")
+    @PatchMapping("/{propertyId}")
+    @Parameters(value = {
+            @Parameter(name = "propertyId", description = "수정할 추천 매물 Id"),
+    })
+    public BaseResponse<PropertyIdResponse> createProperty(
+            @PathVariable(name = "propertyId") Long propertyId,
+            @RequestBody PropertyCreateRequest request
+    ) {
+        return BaseResponse.onSuccess(adminPropertyService.createProperty(propertyId, request));
+    }
     
     @Operation(summary = "어드민 추천 매물 수정 API")
     @PatchMapping("/{propertyId}")

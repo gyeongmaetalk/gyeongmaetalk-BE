@@ -5,7 +5,6 @@ import auctionTalk.auction.domain.subscription.dto.response.SubscriptionResponse
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.mapper.SubscriptionMapper;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
-import kotlinx.serialization.Required;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

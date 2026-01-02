@@ -16,6 +16,8 @@ import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
 import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
+import auctionTalk.auction.domain.subscription.entity.Subscription;
+import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminPropertyServiceImpl implements AdminPropertyService {
 
+    private final SubscriptionRepository subscriptionRepository;
     private final MemberRepository memberRepository;
     private final PropertyRepository propertyRepository;
     private final PropertyPaymentRepository propertyPaymentRepository;
@@ -35,9 +38,13 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
     @Override
     @Transactional
-    public PropertyIdResponse createProperty(Long memberId, Counselor counselor, PropertyCreateRequest request){
+    public PropertyIdResponse createProperty(Long memberId, PropertyCreateRequest request){
 
         Member member = memberRepository.getMember(memberId);
+
+        Subscription subscription = subscriptionRepository.getSubscription(memberId);
+
+        Counselor counselor = subscription.getCounselor();
 
         Property newProperty = propertyMapper.toProperty(member, counselor, request);
         propertyRepository.save(newProperty);
