@@ -36,6 +36,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Transactional
     public SubscriptionIdResponse prepareSubscriptionPayment(Member member, Long counselorId){
 
+        if (subscriptionRepository.existsByMemberAndSubscriptionStatus(
+                member, SubscriptionStatus.PENDING)) {
+            throw new CustomApiException(ErrorCode.SUBSCRIPTION_ALREADY_PENDING);
+        }
+
         Counselor counselor = counselorRepository.getCounselor(counselorId);
         Subscription subscription = subscriptionRepository
                 .findByMember(member)
@@ -56,9 +61,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
         Counsel counsel = counselRepository.getCounselByMember(member);
-        counsel.updateStatus(CounselStatus.SUBSCRIBE);
 
-        if(status == PaymentStatus.SUCCESS) subscription.activate();
+        if(status == PaymentStatus.SUCCESS) {
+            counsel.updateStatus(CounselStatus.SUBSCRIBE);
+            subscription.activate();
+        }
         if(status == PaymentStatus.FAIL) subscription.failed();
 
         subscriptionRepository.save(subscription);
