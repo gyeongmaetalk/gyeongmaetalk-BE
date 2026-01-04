@@ -66,7 +66,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             counsel.updateStatus(CounselStatus.SUBSCRIBE);
             subscription.activate();
         }
-        if(status == PaymentStatus.FAIL) subscription.failed();
+        if(status == PaymentStatus.FAIL) {
+            counsel.updateStatus(CounselStatus.COUNSEL_AFTER);
+            subscription.failed();
+        }
 
         subscriptionRepository.save(subscription);
 

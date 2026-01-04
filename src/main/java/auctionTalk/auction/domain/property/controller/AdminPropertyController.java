@@ -31,15 +31,11 @@ public class AdminPropertyController {
     private final SubscriptionService subscriptionService;
 
     @Operation(summary = "어드민 추천 매물 생성 API")
-    @PostMapping("/{memberId}")
-    @Parameters(value = {
-            @Parameter(name = "memberId", description = "멤버 Id"),
-    })
+    @PostMapping
     public BaseResponse<PropertyIdResponse> createProperty(
-            @PathVariable(name = "memberId") Long memberId,
             @RequestBody PropertyCreateRequest request
     ) {
-        return BaseResponse.onSuccess(adminPropertyService.createProperty(memberId, request));
+        return BaseResponse.onSuccess(adminPropertyService.createProperty(request));
     }
     
     @Operation(summary = "어드민 추천 매물 수정 API")

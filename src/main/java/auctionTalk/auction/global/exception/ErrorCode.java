@@ -52,6 +52,8 @@ public enum ErrorCode {
 
     // Property
     PROPERTY_NOT_FOUND(HttpStatus.NOT_FOUND, "PROPERTY401", "추천 매물을 찾을 수 없습니다."),
+    PROPERTY_ALREADY_PURCHASED(HttpStatus.BAD_REQUEST, "PROPERTY402", "이미 구매를 신청한 추천 매물 입니다."),
+
 
     // Subscription
     SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SUBSCRIPTION401", "추천 매물 구독 정보를 찾을 수 없습니다."),

@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.property.service;
 
+import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
@@ -51,11 +52,11 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
     @Override
     @Transactional
-    public PropertyIdResponse createProperty(Long memberId, PropertyCreateRequest request){
+    public PropertyIdResponse createProperty(PropertyCreateRequest request){
 
-        Member member = memberRepository.getMember(memberId);
+        Member member = memberRepository.getMember(request.getMemberId());
 
-        Subscription subscription = subscriptionRepository.getSubscription(memberId);
+        Subscription subscription = subscriptionRepository.getSubscription(request.getMemberId());
 
         Counselor counselor = subscription.getCounselor();
 
@@ -154,8 +155,13 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         PropertyPayment payment = propertyPaymentRepository.findByProperty(property)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
 
-
-        payment.updatePaymentStatus(status);
+        if(status == PaymentStatus.SUCCESS) {
+            payment.updatePaymentStatus(status);
+            property.purchase();
+        }
+        if(status == PaymentStatus.FAIL) {
+            payment.updatePaymentStatus(status);
+        }
 
         return new PaymentResultResponse(payment.getStatus());
     }
