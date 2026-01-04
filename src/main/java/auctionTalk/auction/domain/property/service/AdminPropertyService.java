@@ -11,7 +11,7 @@ import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 
 public interface AdminPropertyService {
 
-    PropertyIdResponse createProperty(Long memberId, PropertyCreateRequest request);
+    PropertyIdResponse createProperty(PropertyCreateRequest request);
     PropertyDetailResponse getPropertyDetail(Long propertyId);
     PropertyIdResponse updateProperty(Long propertyId, PropertyUpdateRequest request);
     PropertyIdResponse deleteProperty(Long propertyId);

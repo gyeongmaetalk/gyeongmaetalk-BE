@@ -9,13 +9,18 @@ import auctionTalk.auction.domain.property.entity.AuctionSchedule;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
+import auctionTalk.auction.utils.s3.S3Service;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class PropertyMapper {
+
+    private final S3Service s3Service;
 
     public Property toProperty(Member member, Counselor counselor, PropertyCreateRequest request) {
         return Property.builder()
@@ -126,6 +131,8 @@ public class PropertyMapper {
     }
 
     private List<String> toImageUrls(List<PropertyImage> images) {
-        return images.stream().map(PropertyImage::getUrl).toList();
+        return images.stream()
+                .map(img -> s3Service.generatePresignedGetUrl(img.getUrl())) // S3 key → presigned URL
+                .toList();
     }
 }

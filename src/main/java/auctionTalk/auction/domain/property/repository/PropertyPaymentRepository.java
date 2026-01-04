@@ -4,6 +4,8 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
+import auctionTalk.auction.domain.subscription.entity.Subscription;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

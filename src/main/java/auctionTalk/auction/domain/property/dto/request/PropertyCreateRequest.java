@@ -15,6 +15,9 @@ import java.util.List;
 @Builder
 public class PropertyCreateRequest {
 
+    @Schema(description = "멤버 id", example = "1")
+    private Long memberId;
+
     @Schema(description = "이름", example = "서울 서초구 아파트")
     private String name;
 

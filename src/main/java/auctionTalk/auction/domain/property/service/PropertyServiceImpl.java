@@ -9,6 +9,7 @@ import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
 import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
+import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;
@@ -50,6 +51,13 @@ public class PropertyServiceImpl implements PropertyService{
     @Override
     @Transactional
     public PropertyIdResponse preparePropertyPayment(Member member, Long propertyId) {
+
+        // 중복 구매 신청 검사 추가.
+        if (propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
+                member, propertyId, PaymentStatus.READY)) {
+            throw new CustomApiException(ErrorCode.PROPERTY_ALREADY_PURCHASED);
+        }
+
         Property property = propertyRepository.getProperty(propertyId);
 
         PropertyPayment payment = propertyMapper.toPropertyPayment(member, property);
