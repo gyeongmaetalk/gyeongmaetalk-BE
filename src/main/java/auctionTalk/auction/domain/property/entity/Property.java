@@ -67,6 +67,7 @@ public class Property extends BaseEntity {
     private boolean isPurchased = false;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PropertyImage> images = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
