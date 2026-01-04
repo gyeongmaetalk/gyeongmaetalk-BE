@@ -1,17 +1,24 @@
 package auctionTalk.auction.domain.property.controller;
 
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
+import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.request.PropertyUpdateRequest;
 import auctionTalk.auction.domain.property.dto.response.PropertyDetailResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyIdResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.service.AdminPropertyService;
+import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
+import auctionTalk.auction.domain.subscription.service.SubscriptionService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "어드민 용 추천 매물 API", description = "어드민 용 추천 매물 관련 API")
@@ -21,6 +28,15 @@ import org.springframework.web.bind.annotation.*;
 public class AdminPropertyController {
 
     private final AdminPropertyService adminPropertyService;
+    private final SubscriptionService subscriptionService;
+
+    @Operation(summary = "어드민 추천 매물 생성 API")
+    @PostMapping
+    public BaseResponse<PropertyIdResponse> createProperty(
+            @RequestBody PropertyCreateRequest request
+    ) {
+        return BaseResponse.onSuccess(adminPropertyService.createProperty(request));
+    }
     
     @Operation(summary = "어드민 추천 매물 수정 API")
     @PatchMapping("/{propertyId}")
@@ -70,4 +86,25 @@ public class AdminPropertyController {
     ) {
         return BaseResponse.onSuccess(adminPropertyService.inquiryPropertiesByMember(memberId, page, size));
     }
+
+    @Operation(summary = "어드민 추천 매물 구독 결제 상태 변경(승인 or 취소) API")
+    @PatchMapping("/subscription/{subscriptionId}/status")
+    public BaseResponse<SubscriptionIdResponse> confirmSubscriptionPayment(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @PathVariable("subscriptionId") Long subscriptionId,
+            @RequestParam PaymentStatus status
+    ){
+        return BaseResponse.onSuccess(subscriptionService.updateSubscriptionStatus(principal.getMember(), subscriptionId, status));
+    }
+
+    @Operation(summary = "추천 매물 구매 결제 상태 변경(승인 or 취소) API")
+    @PatchMapping("/{propertyId}/status")
+    public BaseResponse<PaymentResultResponse> confirmPropertyPayment(
+            @PathVariable("propertyId") Long propertyId,
+            @RequestParam PaymentStatus status
+    ) {
+        return BaseResponse.onSuccess(adminPropertyService.updatePropertyPaymentStatus(propertyId, status));
+    }
+
+
 }

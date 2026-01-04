@@ -67,6 +67,7 @@ public class Property extends BaseEntity {
     private boolean isPurchased = false;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PropertyImage> images = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -106,5 +107,30 @@ public class Property extends BaseEntity {
 
     public void purchase(){
         this.isPurchased = true;
+    }
+
+    public List<String> updateImages(List<String> remainKeys, List<String> addKeys) {
+
+        // 🔥 삭제될 key 목록 수집
+        List<String> deleteKeys = this.images.stream()
+                .map(PropertyImage::getUrl)
+                .filter(key -> !remainKeys.contains(key))
+                .toList();
+
+        this.images.removeIf(img -> !remainKeys.contains(img.getUrl()));
+
+        // 2) 추가
+        if (addKeys != null) {
+            for (String key : addKeys) {
+                PropertyImage newImg = PropertyImage.builder()
+                        .url(key)
+                        .property(this)
+                        .build();
+                this.images.add(newImg);
+            }
+        }
+
+        // 🔥 삭제해야 하는 key들을 서비스로 전달
+        return deleteKeys;
     }
 }

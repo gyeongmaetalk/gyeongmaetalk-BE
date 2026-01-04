@@ -54,7 +54,7 @@ public class AdminAuthController {
         AuthTokenResponse tokenResponse = adminAuthService.adminLogin(username, password);
 
 
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", tokenResponse.getAccessToken())
+        ResponseCookie accessTokenCookie = ResponseCookie.from("ACCESS_TOKEN", tokenResponse.getAccessToken())
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
@@ -62,7 +62,7 @@ public class AdminAuthController {
                 .maxAge(60 * 60)  // 1시간
                 .build();
 
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("REFRESH_TOKEN", tokenResponse.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")

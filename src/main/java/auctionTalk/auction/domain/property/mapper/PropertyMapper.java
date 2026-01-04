@@ -9,15 +9,18 @@ import auctionTalk.auction.domain.property.entity.AuctionSchedule;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
-import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPreparePaymentResponse;
-import auctionTalk.auction.domain.subscription.entity.Subscription;
+import auctionTalk.auction.utils.s3.S3Service;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class PropertyMapper {
+
+    private final S3Service s3Service;
 
     public Property toProperty(Member member, Counselor counselor, PropertyCreateRequest request) {
         return Property.builder()
@@ -108,23 +111,11 @@ public class PropertyMapper {
     }
 
 
-    public PropertyPayment toPropertyPayment(Member member, Property property, String orderId, Long amount, String orderName){
+    public PropertyPayment toPropertyPayment(Member member, Property property){
         return PropertyPayment.builder()
                 .member(member)
                 .property(property)
-                .orderId(orderId)
-                .orderName(orderName)
-                .amount(amount)
                 .status(PaymentStatus.READY)
-                .build();
-    }
-
-    public PropertyPreparePaymentResponse toPropertyPreparePaymentResponse(PropertyPayment payment){
-        return PropertyPreparePaymentResponse.builder()
-                .propertyId(payment.getProperty().getId())
-                .orderId(payment.getOrderId())
-                .amount(payment.getAmount())
-                .orderName(payment.getOrderName())
                 .build();
     }
 
@@ -140,6 +131,8 @@ public class PropertyMapper {
     }
 
     private List<String> toImageUrls(List<PropertyImage> images) {
-        return images.stream().map(PropertyImage::getUrl).toList();
+        return images.stream()
+                .map(img -> s3Service.generatePresignedGetUrl(img.getUrl())) // S3 key → presigned URL
+                .toList();
     }
 }

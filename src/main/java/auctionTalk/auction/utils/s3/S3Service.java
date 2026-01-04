@@ -27,7 +27,6 @@ public class S3Service {
 
     // Presigned Url 생성
     public String generatePresignedPutUrl(String category, String originalFileName) {
-        // 파일명 생성 (네가 준 메서드 그대로 사용)
         String fileName = createFileName(category, Objects.requireNonNull(originalFileName));
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -53,12 +52,12 @@ public class S3Service {
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
-                .key(fileKey) // DB에 저장한 파일 경로 그대로 넣으면 됨
+                .key(fileKey)
                 .build();
 
         PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(
                 builder -> builder
-                        .signatureDuration(Duration.ofMinutes(10)) // 조회는 10분 정도 보통 충분함
+                        .signatureDuration(Duration.ofMinutes(10))
                         .getObjectRequest(getObjectRequest)
         );
 

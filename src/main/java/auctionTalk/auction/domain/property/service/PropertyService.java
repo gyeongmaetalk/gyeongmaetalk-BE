@@ -5,15 +5,14 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
+import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.response.*;
 
 public interface PropertyService {
 
     PropertyIdResponse purchaseProperty(Member member, Long propertyId);
-    PropertyPreparePaymentResponse preparePropertyPayment(Member member, Long propertyId);
-    PaymentResultResponse confirmPropertyPayment(Long propertyId, PaymentConfirmRequest paymentConfirmRequest);
-
+    PropertyIdResponse preparePropertyPayment(Member member, Long propertyId);
 
     PropertyDetailResponse inquiryPropertyDetail(Member member, Long propertyId);
     PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size);
