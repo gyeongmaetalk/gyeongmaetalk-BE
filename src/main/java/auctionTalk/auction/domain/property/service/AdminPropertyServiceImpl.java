@@ -56,7 +56,7 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         Member member = memberRepository.getMember(request.getMemberId());
 
-        Subscription subscription = subscriptionRepository.getSubscription(request.getMemberId());
+        Subscription subscription = subscriptionRepository.getSubscriptionByMemberId(request.getMemberId());
 
         Counselor counselor = subscription.getCounselor();
 
