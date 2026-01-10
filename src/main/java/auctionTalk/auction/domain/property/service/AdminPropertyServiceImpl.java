@@ -157,7 +157,6 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         if(status == PaymentStatus.SUCCESS) {
             payment.updatePaymentStatus(status);
-            property.purchase();
         }
         if(status == PaymentStatus.FAIL) {
             payment.updatePaymentStatus(status);
