@@ -19,9 +19,7 @@ public class ParamValidator {
     }
 
     // FCM 토큰 유효성 검증
-    public static void validateFcmToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new CustomApiException(ErrorCode.INVALID_FCM_TOKEN);
-        }
+    public static boolean validateFcmToken(String token) {
+        return token != null && !token.isBlank();
     }
 }
