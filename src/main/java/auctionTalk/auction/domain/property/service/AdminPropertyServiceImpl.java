@@ -79,7 +79,9 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         String fcmToken = member.getFcmToken();
 
-        ParamValidator.validateFcmToken(fcmToken);
+        if (!ParamValidator.validateFcmToken(fcmToken)) {
+            return new PropertyIdResponse(newProperty.getId());
+        }
 
         String title = "추천 매물";
         String body = "추천 매물을 올려주셨어요.";
@@ -175,7 +177,9 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         }
 
         String fcmToken = member.getFcmToken();
-        ParamValidator.validateFcmToken(fcmToken);
+        if (!ParamValidator.validateFcmToken(fcmToken)) {
+            return;
+        }
 
         String title = "추천 매물";
         String body = "입금 확인이 완료되었습니다.\n" +

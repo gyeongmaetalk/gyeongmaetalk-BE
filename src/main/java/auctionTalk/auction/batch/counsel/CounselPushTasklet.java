@@ -50,7 +50,7 @@ public class CounselPushTasklet implements Tasklet {
 
             notificationService.sendPushReviewNotification(
                     token,
-                    "리뷰 작성.",
+                    "리뷰 작성",
                     "무료 상담은 어떠셨나요? 후기를 남겨주세요",
                     member,
                     counsel

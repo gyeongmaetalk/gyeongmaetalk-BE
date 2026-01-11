@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class AdminInquiryPayment {
 
     private Long id;
+    private Long memberId;
     private LocalDateTime payDate;
     private String userName;
     private String cellPhone;
