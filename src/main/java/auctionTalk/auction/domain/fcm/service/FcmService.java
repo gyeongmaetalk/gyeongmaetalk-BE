@@ -40,30 +40,6 @@ public class FcmService {
     private final NotificationMapper notificationMapper;
 
     @DependsOn("firebaseConfig")
-    public void sendPushPropertyPurchaseNotification(String targetToken, String title, String body, Member member, Property property) {
-
-        try {
-            Message message = fcmMapper.ToMessage(targetToken, title, body);
-            FirebaseMessaging.getInstance().send(message);
-
-            Notification notification = Notification.builder()
-                    .member(member)
-                    .title(title)
-                    .body(body)
-                    .contentId(property.getId())
-                    .thumbnail(property.getThumbnail())
-                    .counselorName(property.getCounselor().getName())
-                    .propertyName(property.getName())
-                    .isRead(false)
-                    .type(NotificationType.RECOMMENDED_PROPERTY)
-                    .build();
-            notificationRepository.save(notification);
-        } catch (FirebaseMessagingException e) {
-            throw new CustomApiException(ErrorCode.FIREBASE_PUSH_FAILED);
-        }
-    }
-
-    @DependsOn("firebaseConfig")
     public void sendPushPropertyConfirmNotification(String targetToken, String title, String body, Member member, Property property) {
 
         try {

@@ -61,4 +61,5 @@ public class AdminSubscriptionServiceImpl implements AdminSubscriptionService {
 
         return new SubscriptionIdResponse(subscriptionId);
     }
+
 }

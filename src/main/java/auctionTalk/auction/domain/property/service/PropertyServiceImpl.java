@@ -9,7 +9,6 @@ import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
 import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
-import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;

@@ -89,8 +89,8 @@ public class AdminPropertyController {
     @Operation(summary = "어드민 추천 매물 구독 결제 상태 변경(승인 or 취소) API")
     @PatchMapping("/subscription/{subscriptionId}/status")
     public BaseResponse<SubscriptionIdResponse> confirmSubscriptionPayment(
-            @RequestParam Long memberId,
             @PathVariable("subscriptionId") Long subscriptionId,
+            @RequestParam Long memberId,
             @RequestParam PaymentStatus status
     ){
         return BaseResponse.onSuccess(adminSubscriptionService.updateSubscriptionStatus(memberId, subscriptionId, status));
@@ -100,9 +100,10 @@ public class AdminPropertyController {
     @PatchMapping("/{propertyId}/status")
     public BaseResponse<PaymentResultResponse> confirmPropertyPayment(
             @PathVariable("propertyId") Long propertyId,
+            @RequestParam Long memberId,
             @RequestParam PaymentStatus status
     ) {
-        return BaseResponse.onSuccess(adminPropertyService.updatePropertyPaymentStatus(propertyId, status));
+        return BaseResponse.onSuccess(adminPropertyService.updatePropertyPaymentStatus(propertyId, memberId, status));
     }
 
 
