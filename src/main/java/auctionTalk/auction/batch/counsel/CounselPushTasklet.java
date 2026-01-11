@@ -27,7 +27,6 @@ public class CounselPushTasklet implements Tasklet {
     private final FcmService notificationService;
 
     @Override
-    @Transactional
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
 
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(40);

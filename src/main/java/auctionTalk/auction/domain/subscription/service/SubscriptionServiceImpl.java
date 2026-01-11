@@ -57,27 +57,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public SubscriptionIdResponse updateSubscriptionStatus(Member member, Long subscriptionId, PaymentStatus status) {
-
-        Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
-        Counsel counsel = counselRepository.getCounselByMember(member);
-
-        if(status == PaymentStatus.SUCCESS) {
-            counsel.updateStatus(CounselStatus.SUBSCRIBE);
-            subscription.activate();
-        }
-        if(status == PaymentStatus.FAIL) {
-            counsel.updateStatus(CounselStatus.COUNSEL_AFTER);
-            subscription.failed();
-        }
-
-        subscriptionRepository.save(subscription);
-
-        return new SubscriptionIdResponse(subscriptionId);
-    }
-
-    @Override
-    @Transactional
     public SubscriptionIdResponse completeSubscription(Long subscriptionId) {
         Subscription subscription = subscriptionRepository.getSubscription(subscriptionId);
 

@@ -2,7 +2,6 @@ package auctionTalk.auction.domain.fcm.service;
 
 import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
-import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.fcm.dto.FcmTokenResponse;
 import auctionTalk.auction.domain.fcm.dto.NotificationIdResponse;
 import auctionTalk.auction.domain.fcm.dto.NotificationResponse;
@@ -22,6 +21,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,12 +31,61 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FcmService {
 
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
     private final FcmMapper fcmMapper;
     private final NotificationMapper notificationMapper;
+
+    @DependsOn("firebaseConfig")
+    public void sendPushPropertyPurchaseNotification(String targetToken, String title, String body, Member member, Property property) {
+
+        try {
+            Message message = fcmMapper.ToMessage(targetToken, title, body);
+            FirebaseMessaging.getInstance().send(message);
+
+            Notification notification = Notification.builder()
+                    .member(member)
+                    .title(title)
+                    .body(body)
+                    .contentId(property.getId())
+                    .thumbnail(property.getThumbnail())
+                    .counselorName(property.getCounselor().getName())
+                    .propertyName(property.getName())
+                    .isRead(false)
+                    .type(NotificationType.RECOMMENDED_PROPERTY)
+                    .build();
+            notificationRepository.save(notification);
+        } catch (FirebaseMessagingException e) {
+            throw new CustomApiException(ErrorCode.FIREBASE_PUSH_FAILED);
+        }
+    }
+
+    @DependsOn("firebaseConfig")
+    public void sendPushPropertyConfirmNotification(String targetToken, String title, String body, Member member, Property property) {
+
+        try {
+            Message message = fcmMapper.ToMessage(targetToken, title, body);
+            FirebaseMessaging.getInstance().send(message);
+
+            Notification notification = Notification.builder()
+                    .member(member)
+                    .title(title)
+                    .body(body)
+                    .contentId(property.getId())
+                    .thumbnail(property.getThumbnail())
+                    .counselorName(property.getCounselor().getName())
+                    .propertyName(property.getName())
+                    .isRead(false)
+                    .type(NotificationType.RECOMMENDED_PROPERTY)
+                    .build();
+            notificationRepository.save(notification);
+        } catch (FirebaseMessagingException e) {
+            throw new CustomApiException(ErrorCode.FIREBASE_PUSH_FAILED);
+        }
+    }
 
     @DependsOn("firebaseConfig")
     public void sendPushPropertyNotification(String targetToken, String title, String body, Member member, Property property) {
@@ -88,7 +137,7 @@ public class FcmService {
                     .build();
             notificationRepository.save(notification);
         } catch (FirebaseMessagingException e) {
-            throw new CustomApiException(ErrorCode.FIREBASE_PUSH_FAILED);
+            log.warn("[FCM_FAIL] {}", e.getMessage(), e);
         }
     }
 
