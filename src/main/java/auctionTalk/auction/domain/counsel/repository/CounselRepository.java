@@ -27,7 +27,14 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
                 .orElseThrow(() -> new CustomApiException(ErrorCode.COUNSEL_NOT_FOUND));
     }
 
+    default Counsel getCounselByMemberId(Long memberId) {
+        return findByMemberId(memberId)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.COUNSEL_NOT_FOUND));
+    }
+
     Optional<Counsel> findByMember(Member member);
+    Optional<Counsel> findByMemberId(Long memberId);
+
 
     @Query("SELECT c.counselTime FROM Counsel c " +
             "WHERE c.counselor.id = :counselorId " +

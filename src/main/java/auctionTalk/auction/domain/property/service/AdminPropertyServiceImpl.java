@@ -148,7 +148,9 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
     @Override
     @Transactional
-    public PaymentResultResponse updatePropertyPaymentStatus(Long propertyId, PaymentStatus status){
+    public PaymentResultResponse updatePropertyPaymentStatus(Long propertyId, Long memberId, PaymentStatus status){
+
+        Member member = memberRepository.getMember(memberId);
 
         Property property = propertyRepository.getProperty(propertyId);
 
@@ -157,12 +159,28 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         if(status == PaymentStatus.SUCCESS) {
             payment.updatePaymentStatus(status);
+            sendPushPropertyConfirmNotification(member, property);
         }
         if(status == PaymentStatus.FAIL) {
             payment.updatePaymentStatus(status);
         }
 
         return new PaymentResultResponse(payment.getStatus());
+    }
+
+    public void sendPushPropertyConfirmNotification(Member member, Property property){
+        NotificationSetting setting = member.getNotificationSetting();
+        if (!setting.isPropertyNotificationEnabled()) {
+            return;
+        }
+
+        String fcmToken = member.getFcmToken();
+        ParamValidator.validateFcmToken(fcmToken);
+
+        String title = "추천 매물";
+        String body = "입금 확인이 완료되었습니다.\n" +
+                "이제 추천 매물을 확인하실 수 있습니다.";
+        fcmService.sendPushPropertyConfirmNotification(fcmToken, title, body, member, property);
     }
 
 }
