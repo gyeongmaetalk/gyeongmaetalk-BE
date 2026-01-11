@@ -56,7 +56,7 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         Member member = memberRepository.getMember(request.getMemberId());
 
-        Subscription subscription = subscriptionRepository.getSubscription(request.getMemberId());
+        Subscription subscription = subscriptionRepository.getSubscriptionByMemberId(request.getMemberId());
 
         Counselor counselor = subscription.getCounselor();
 
@@ -157,7 +157,6 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
         if(status == PaymentStatus.SUCCESS) {
             payment.updatePaymentStatus(status);
-            property.purchase();
         }
         if(status == PaymentStatus.FAIL) {
             payment.updatePaymentStatus(status);

@@ -25,8 +25,17 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
                 .orElseThrow(() -> new CustomApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
     }
 
-    boolean existsByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
+    default Subscription getSubscriptionByMemberId(Long memberId) {
+        return findByMemberId(memberId)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+    }
+
     Optional<Subscription> findByMember(Member member);
+    Optional<Subscription> findByMemberId(Long memberId);
+
+
+    boolean existsByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
+
 
     Page<Subscription> findAllByCreatedAtBetweenOrderByCreatedAtDesc(
             LocalDateTime start, LocalDateTime end, Pageable pageable);
