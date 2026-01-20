@@ -94,9 +94,12 @@ public class AuthServiceImpl implements AuthService{
     @Transactional(readOnly = true)
     public MemberInfoResponse getMemberInfo(Member member){
         Subscription subscription = subscriptionRepository.findByMember(member)
-                .orElseThrow(() -> new CustomApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+                .orElse(null);
 
-        return authMapper.toMemberInfoResponse(member, subscription.getSubscriptionStatus());
+        SubscriptionStatus status =
+                (subscription != null) ? subscription.getSubscriptionStatus() : null;
+
+        return authMapper.toMemberInfoResponse(member, status);
     }
 
     @Override

@@ -72,7 +72,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEV_HOST }}
-          username: root
+          username: ubuntu
           key: ${{ secrets.DEV_KEY }}
           script: |
             cd ~/dev
