@@ -8,13 +8,18 @@ import auctionTalk.auction.domain.qna.dto.response.QnaResponse;
 import auctionTalk.auction.domain.qna.entity.Faq;
 import auctionTalk.auction.domain.qna.entity.Qna;
 import auctionTalk.auction.domain.qna.entity.QnaAnswer;
+import auctionTalk.auction.domain.qna.event.QnaCreatedEvent;
 import auctionTalk.auction.domain.qna.mapper.QnaMapper;
 import auctionTalk.auction.domain.qna.repository.FaqRepository;
 import auctionTalk.auction.domain.qna.repository.QnaAnswerRepository;
 import auctionTalk.auction.domain.qna.repository.QnaRepository;
+import auctionTalk.auction.utils.n8n.N8nNotifyClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -26,6 +31,7 @@ public class QnaServiceImpl implements QnaService {
     private final QnaAnswerRepository qnaAnswerRepository;
     private final QnaMapper qnaMapper;
     private final FaqRepository faqRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -33,8 +39,17 @@ public class QnaServiceImpl implements QnaService {
         Qna newQna = qnaMapper.ToQna(request, member);
 
         qnaRepository.save(newQna);
+
+        applicationEventPublisher.publishEvent(
+                new QnaCreatedEvent(
+                        member.getName(),
+                        newQna.getTitle(),
+                        newQna.getContent()
+                )
+        );
         return new  QnaIdResponse(newQna.getId());
     }
+
     @Override
     @Transactional
     public QnaIdResponse answerQna(Long qnaId, String content) {
