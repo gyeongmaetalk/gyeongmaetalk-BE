@@ -10,19 +10,65 @@ public class SecurityConstant {
 
     // 비로그인 허용 API
     public static final String[] PUBLIC_URLS = {
-            "/auth/**", "/auth/refresh",
             "/v3/**", "/swagger-ui/**",
+
+            // auth
+            "/auth/exchange", "/auth/refresh",
+            "/auth/signup",
+
+            //s3
+            "/s3/presigned/get",
+
+            //qna
+            "/qna/faq",
+
+            //reviews
+            "/reviews/*", "/reviews/list/**", "/reviews/list",
+
             "/test/**", "/login/**", "/oauth2/**",
-            "/reviews/**", "/qna/**", "/fcm/**", "/admin/**"
+            "/reviews/**", "/qna/**", "/fcm/**"
     };
 
     // 로그인 필요 API
     public static final String[] AUTHENTICATED_URLS = {
+            // auth
+            "/auth/delete", "/auth/info",
+            "/auth/logout", "/auth/notification/setting",
+            "/auth/sms", "/auth/sms/verify",
+
+            //counsels
+            "/counsels/**",
+
+            //counselor
+            "/counselor/**",
+
+            //properties
             "/properties/**",
+
+            //s3
+            "/s3/presigned/**",
+
+            //qna
+            "/qna", "/qna/my",
+
+            //reviews
+            "/reviews", "/reviews/*/reports", "/reviews/my",
+
+            //fcm
+            "/fcm/token", "/fcm/notifications/setting",
+            "/fcm/notifications", "/fcm/*/read",
+
     };
 
     // 관리자 전용 API
     public static final String[] ADMIN_URLS = {
+            "/admin/**",
+
+            "/counselor", "/counselor/**",
+
+            "/s3/presigned/**",
+
+            "/qna/**/answer",
     };
 
     // 모든 경로를 포함한 배열 (필요할 경우 사용)
