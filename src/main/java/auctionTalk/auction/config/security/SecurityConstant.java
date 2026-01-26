@@ -24,6 +24,9 @@ public class SecurityConstant {
 
             //reviews
             "/reviews/*", "/reviews/list/**", "/reviews/list",
+
+            //admin
+            "/admin/auth/login",
     };
 
     // 로그인 필요 API
