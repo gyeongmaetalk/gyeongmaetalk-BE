@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface AuthService {
     AuthTokenResponse login(Member member);
     void logout(HttpServletResponse response, Member member);
-    void softDeleteMember(HttpServletResponse response, Member member);
+    void softDeleteMember(HttpServletResponse response, Long memberId);
     AuthTokenResponse exchangeCode(String code);
     MemberIdResponse register(Member member, SignupRequest request);
     AuthTokenResponse refresh(String refreshToken);
