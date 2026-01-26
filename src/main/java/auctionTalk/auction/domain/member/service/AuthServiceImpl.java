@@ -123,7 +123,6 @@ public class AuthServiceImpl implements AuthService{
         tokenRepository.deleteRefreshToken(member.getId());
         CookieUtils.clearAuthCookies(response);
         SecurityContextHolder.clearContext();
-
     }
 
     private String getClientIdByLoginType(String accessToken, LoginType loginType) {
