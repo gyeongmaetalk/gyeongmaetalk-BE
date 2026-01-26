@@ -38,8 +38,9 @@ public class PropertyServiceImpl implements PropertyService{
     @Override
     @Transactional
     public PropertyIdResponse purchaseProperty(Member member, Long propertyId){
-        ParamValidator.validModify(member.getId(), propertyId); // 권한 유효성 검사
         Property property = propertyRepository.getProperty(propertyId);
+
+        ParamValidator.validModify(member.getId(), property.getMember().getId()); // 권한 유효성 검사
 
         property.purchase();
 
