@@ -118,7 +118,7 @@ public class AuthController {
             @AuthenticationPrincipal PrincipalDetails principal,
             HttpServletResponse response
     ){
-        authService.softDeleteMember(response, principal.getMember());
+        authService.softDeleteMember(response, principal.getMember().getId());
         return BaseResponse.onSuccess( "SOFT_DELETE_SUCCESS");
     }
 

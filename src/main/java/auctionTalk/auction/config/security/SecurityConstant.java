@@ -24,9 +24,6 @@ public class SecurityConstant {
 
             //reviews
             "/reviews/*", "/reviews/list/**", "/reviews/list",
-
-            "/test/**", "/login/**", "/oauth2/**",
-            "/reviews/**", "/qna/**", "/fcm/**"
     };
 
     // 로그인 필요 API
@@ -68,7 +65,7 @@ public class SecurityConstant {
 
             "/s3/presigned/**",
 
-            "/qna/**/answer",
+            "/qna/*/answer",
     };
 
     // 모든 경로를 포함한 배열 (필요할 경우 사용)
