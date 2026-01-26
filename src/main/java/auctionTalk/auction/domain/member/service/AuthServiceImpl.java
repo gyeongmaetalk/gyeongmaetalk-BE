@@ -118,7 +118,8 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     @Transactional
-    public void softDeleteMember(HttpServletResponse response, Member member){
+    public void softDeleteMember(HttpServletResponse response, Long memberId){
+        Member member = memberRepository.getMember(memberId);
         member.delete();
         tokenRepository.deleteRefreshToken(member.getId());
         CookieUtils.clearAuthCookies(response);
