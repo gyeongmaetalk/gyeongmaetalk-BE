@@ -54,16 +54,20 @@ public class Review extends BaseEntity {
         // 2) 추가
         if (addKeys != null) {
             for (String key : addKeys) {
-                ReviewImage newImg = ReviewImage.builder()
+                ReviewImage img = ReviewImage.builder()
                         .url(key)
-                        .review(this)
                         .build();
-                this.images.add(newImg);
+                addImage(img);
             }
         }
 
         // 🔥 삭제해야 하는 key들을 서비스로 전달
         return deleteKeys;
+    }
+
+    public void addImage(ReviewImage img) {
+        images.add(img);
+        img.updateReview(this);
     }
 
     public void changeImages(List<ReviewImage> reviewImages) {
