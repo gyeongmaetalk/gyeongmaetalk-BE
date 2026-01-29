@@ -32,7 +32,7 @@ public class Review extends BaseEntity {
 
     private String content;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ReviewImage> images = new ArrayList<>();
 
     public void updateReviewInfo(ReviewUpdateRequest requestDto){
