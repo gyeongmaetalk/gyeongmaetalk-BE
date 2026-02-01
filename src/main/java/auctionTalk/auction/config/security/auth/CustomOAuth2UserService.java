@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +39,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     String name = extractName(registrationId, attributes);
 
                     Member newMember = authMapper.toMember(clientId, LoginType.from(registrationId));
-                    newMember.updateName(name);
+                    if (StringUtils.hasText(name)) {
+                        newMember.updateName(name);
+                    }
+
                     return memberRepository.save(newMember);
                 });
 

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -67,8 +68,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String redirectUrl = baseRedirectUrl
                 + "?registered=" + member.isRegistered()
-                + "&name=" + URLEncoder.encode(member.getName(), StandardCharsets.UTF_8);
-
+                + "&name=" + URLEncoder.encode(
+                Optional.ofNullable(member.getName()).orElse(""),
+                StandardCharsets.UTF_8
+        );
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
