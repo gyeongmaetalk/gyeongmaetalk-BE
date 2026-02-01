@@ -57,6 +57,10 @@ public class Member extends BaseEntity {
 
     public void saveFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
     public void updateNotificationSetting(NotificationSetting newSetting) {
         this.notificationSetting.update(
                 newSetting.isReviewNotificationEnabled(),

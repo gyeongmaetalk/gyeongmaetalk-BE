@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Component
@@ -64,7 +66,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         String redirectUrl = baseRedirectUrl
-                + "?registered=" + member.isRegistered();
+                + "?registered=" + member.isRegistered()
+                + "&name=" + URLEncoder.encode(member.getName(), StandardCharsets.UTF_8);
+
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }

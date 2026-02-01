@@ -2,6 +2,7 @@ package auctionTalk.auction.config.security.auth;
 
 import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.entity.Role;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,10 +35,43 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Member member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
                 .orElseGet(() -> {
+                    String name = extractName(registrationId, attributes);
+
                     Member newMember = authMapper.toMember(clientId, LoginType.from(registrationId));
+                    newMember.updateName(name);
                     return memberRepository.save(newMember);
                 });
 
         return new PrincipalDetails(member, attributes);
     }
+
+    private String extractName(String registrationId, Map<String, Object> attributes) {
+
+        // Kakao
+        if ("kakao".equals(registrationId)) {
+            Map<String, Object> kakaoAccount =
+                    (Map<String, Object>) attributes.get("kakao_account");
+
+            if (kakaoAccount != null) {
+                Map<String, Object> profile =
+                        (Map<String, Object>) kakaoAccount.get("profile");
+
+                if (profile != null) {
+                    return (String) profile.get("nickname");
+                }
+            }
+        }
+
+        // Apple
+        if ("apple".equals(registrationId)) {
+            Object name = attributes.get("name");
+            if (name != null) {
+                return name.toString();
+            }
+        }
+
+        // fallback
+        return "사용자";
+    }
+
 }
