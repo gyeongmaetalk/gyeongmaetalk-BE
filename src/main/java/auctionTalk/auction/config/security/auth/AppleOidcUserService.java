@@ -34,7 +34,7 @@ public class AppleOidcUserService extends OidcUserService {
                     return memberRepository.save(newMember);
                 });
 
-        // ✅ PrincipalDetails로 통일하여 반환
+        // PrincipalDetails로 통일하여 반환
         return new PrincipalDetails(member, oidcUser.getAttributes());
     }
 }

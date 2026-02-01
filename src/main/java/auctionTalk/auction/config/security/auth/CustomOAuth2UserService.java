@@ -66,20 +66,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
         }
 
-        // Apple
-        if ("apple".equals(registrationId)) {
-            Object nameObj = attributes.get("name");
-
-            if (nameObj instanceof Map<?, ?> nameMap) {
-                String firstName = (String) nameMap.get("firstName");
-                String lastName = (String) nameMap.get("lastName");
-
-                if (StringUtils.hasText(firstName) && StringUtils.hasText(lastName)) {
-                    return lastName + firstName;
-                }
-            }
-        }
-
         // fallback
         return "사용자";
     }
