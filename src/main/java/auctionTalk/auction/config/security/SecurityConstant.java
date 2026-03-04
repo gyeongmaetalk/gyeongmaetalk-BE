@@ -25,6 +25,11 @@ public class SecurityConstant {
             //reviews
             "/reviews/*", "/reviews/list/**", "/reviews/list",
 
+            //actuator
+            "/actuator/prometheus",
+            "/actuator/health",
+            "/actuator/info",
+
             //admin
             "/admin/auth/login",
     };
