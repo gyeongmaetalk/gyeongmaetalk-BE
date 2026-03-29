@@ -13,6 +13,9 @@ import java.util.List;
 public class PropertyDetailResponse {
 
     @Schema(description = "매물 이름", example = "아이파크뷰")
+    private Long id;
+
+    @Schema(description = "매물 이름", example = "아이파크뷰")
     private String name;
 
     @Schema(description = "평수", example = "30")

@@ -86,6 +86,7 @@ public class PropertyMapper {
 
     public PropertyDetailResponse toPropertyDetailResponse(Property property) {
         return PropertyDetailResponse.builder()
+                .id(property.getId())
                 .name(property.getName())
                 .area(property.getArea())
                 .appraisedPrice(property.getAppraisedPrice())
