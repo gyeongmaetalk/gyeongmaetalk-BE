@@ -25,7 +25,6 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // Presigned Url 생성
     public String generatePresignedPutUrl(String category, String originalFileName) {
         String fileName = createFileName(category, Objects.requireNonNull(originalFileName));
 
@@ -45,7 +44,6 @@ public class S3Service {
     }
 
     public String generatePresignedGetUrl(String fileKey) {
-
         if (!StringUtils.hasText(fileKey)) {
             return null;
         }
@@ -64,14 +62,30 @@ public class S3Service {
         return presignedRequest.url().toString();
     }
 
+    public void deleteFile(String key) {
+        if (!StringUtils.hasText(key)) {
+            return;
+        }
+
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build());
+    }
+
     public void deleteFiles(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
             return;
         }
 
         List<ObjectIdentifier> objects = keys.stream()
+                .filter(StringUtils::hasText)
                 .map(key -> ObjectIdentifier.builder().key(key).build())
                 .toList();
+
+        if (objects.isEmpty()) {
+            return;
+        }
 
         Delete delete = Delete.builder()
                 .objects(objects)
@@ -83,6 +97,27 @@ public class S3Service {
                 .build();
 
         s3Client.deleteObjects(request);
+    }
+
+    public boolean existsFile(String key) {
+        if (!StringUtils.hasText(key)) {
+            return false;
+        }
+
+        try {
+            s3Client.headObject(HeadObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build());
+            return true;
+        } catch (NoSuchKeyException e) {
+            return false;
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                return false;
+            }
+            throw e;
+        }
     }
 
 
