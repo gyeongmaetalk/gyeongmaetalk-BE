@@ -17,6 +17,8 @@ import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -85,18 +87,37 @@ public class CounselServiceImpl implements CounselService {
     @Override
     @Transactional
     public ApplyCounselResponse applyCounsel(Member member, Long counselorId, CounselApplyRequest request){
-        Counselor counselor = counselorRepository.getCounselor(counselorId);
+        LocalDateTime counselDateTime = request.getCounselTime();
+        LocalDate counselDate = counselDateTime.toLocalDate();
+        LocalTime counselTime = counselDateTime.toLocalTime();
+
+        Counselor counselor = counselorRepository.getCounselorWithLock(counselorId);
+
+        validateCounselReservation(counselorId, counselDate, counselTime);
+
 
         CounselForm counselForm = createAndSaveCounselForm(request.getCounselFormCreateRequest(), member);
 
-        LocalDateTime counselDateTime = request.getCounselTime();
 
-        Counsel counsel = createAndSaveCounsel(member, counselor, counselDateTime.toLocalDate(), counselDateTime.toLocalTime(), counselForm);
+        Counsel counsel = createAndSaveCounsel(member, counselor, counselDate, counselTime, counselForm);
 
         counselor.addCounselCount();
 
-        return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDateTime.toLocalDate(), counselDateTime.toLocalTime(), counselor);
+        return counselMapper.toApplyCounselResponse(counsel.getId(), counselForm, counselDate, counselTime, counselor);
     }
+
+    private void validateCounselReservation(Long counselorId, LocalDate counselDate, LocalTime counselTime) {
+        boolean alreadyReserved = counselRepository.existsByCounselorIdAndCounselDateAndCounselTime(
+                counselorId,
+                counselDate,
+                counselTime
+        );
+
+        if (alreadyReserved) {
+            throw new CustomApiException(ErrorCode.ALREADY_RESERVED_TIME);
+        }
+    }
+
 
     @Override
     @Transactional

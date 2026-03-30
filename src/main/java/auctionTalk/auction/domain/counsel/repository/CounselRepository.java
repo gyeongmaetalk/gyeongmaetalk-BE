@@ -61,4 +61,10 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
             @Param("today") LocalDate today,
             @Param("nowTime") LocalTime nowTime
     );
+
+    boolean existsByCounselorIdAndCounselDateAndCounselTime(
+            Long counselorId,
+            LocalDate counselDate,
+            LocalTime counselTime
+    );
 }
