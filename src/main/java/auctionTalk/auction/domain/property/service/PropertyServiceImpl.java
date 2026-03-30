@@ -19,6 +19,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -91,19 +94,34 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional(readOnly = true)
-    public PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size){
-
+    public PropertyPagingResponse inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size) {
         Member member = principal.getMember();
-        Page<Property> properties = propertyRepository.findAllByMemberIdAndIsPurchased(member.getId(), isPurchased, PageRequest.of(page, size));
 
-        Page<PropertySummaryResponse> responsePage = properties.map(property -> {
-            boolean hasPaid = propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                    member,
-                    property.getId(),
-                    PaymentStatus.SUCCESS
-            );
-            return propertyMapper.toPropertySummaryResponse(property, hasPaid);
-        });
+        Page<Property> properties = propertyRepository.findAllByMemberIdAndIsPurchased(
+                member.getId(),
+                isPurchased,
+                PageRequest.of(page, size)
+        );
+
+        List<Property> content = properties.getContent();
+        List<Long> propertyIds = content.stream()
+                .map(Property::getId)
+                .toList();
+
+        Set<Long> paidPropertyIds = propertyIds.isEmpty()
+                ? Set.of()
+                : new HashSet<>(propertyPaymentRepository.findPaidPropertyIdsByMemberAndPropertyIdsAndStatus(
+                member,
+                propertyIds,
+                PaymentStatus.SUCCESS
+        ));
+
+        Page<PropertySummaryResponse> responsePage = properties.map(property ->
+                propertyMapper.toPropertySummaryResponse(
+                        property,
+                        paidPropertyIds.contains(property.getId())
+                )
+        );
 
         return propertyMapper.toPropertyPagingResponse(responsePage);
     }

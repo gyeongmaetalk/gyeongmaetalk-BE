@@ -4,13 +4,14 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyPayment;
-import auctionTalk.auction.domain.subscription.entity.Subscription;
-import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface PropertyPaymentRepository extends JpaRepository<PropertyPayment, Long> {
@@ -28,4 +29,17 @@ public interface PropertyPaymentRepository extends JpaRepository<PropertyPayment
     Page<PropertyPayment> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<PropertyPayment> findByProperty(Property property);
+
+    @Query("""
+    select pp.property.id
+    from PropertyPayment pp
+    where pp.member = :member
+      and pp.property.id in :propertyIds
+      and pp.status = :status
+""")
+    List<Long> findPaidPropertyIdsByMemberAndPropertyIdsAndStatus(
+            @Param("member") Member member,
+            @Param("propertyIds") List<Long> propertyIds,
+            @Param("status") PaymentStatus status
+    );
 }
