@@ -11,6 +11,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_counselor_date_time",
+                        columnNames = {"counselor_id", "counsel_date", "counsel_time"}
+                )
+        }
+)
 @Getter
 @Builder
 @AllArgsConstructor

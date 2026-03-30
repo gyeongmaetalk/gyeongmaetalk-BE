@@ -42,6 +42,7 @@ public enum ErrorCode {
 
     // Counsel
     COUNSEL_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSEL401", "상담을 찾을 수 없습니다."),
+    ALREADY_RESERVED_TIME(HttpStatus.BAD_REQUEST, "COUNSEL402", "이미 상담이 예약된 시간입니다."),
 
     // Counsel_Form
     COUNSEL_FORM_NOT_FOUND(HttpStatus.NOT_FOUND, "COUNSEL_FORM401", "상담 신청 폼을 찾을 수 없습니다."),
