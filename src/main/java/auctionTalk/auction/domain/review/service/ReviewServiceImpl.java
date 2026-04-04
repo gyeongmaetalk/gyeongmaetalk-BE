@@ -133,7 +133,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Cacheable(
             value = "reviewList",
-            key = "'member=' + #member.id + ':sort=' + #sortType.name() + ':page=' + #page + ':size=' + #size",
+            key = "'member=' + (#member == null ? 'anonymous' : #member.id) + ':sort=' + #sortType.name() + ':page=' + #page + ':size=' + #size",
             condition = "#page == 0"
     )
     @Transactional(readOnly = true)

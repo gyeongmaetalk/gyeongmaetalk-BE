@@ -34,9 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = CookieUtils.getCookie(request, "ACCESS_TOKEN")
-                .map(Cookie::getValue)   // ★ 여기서 value 꺼냄
-                .orElse(null);
+        String token = resolveToken(request);
 
         if (token != null) {
             try {
@@ -45,10 +43,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 }
 
                 Claims claims = jwtTokenProvider.parseClaims(token);
-
                 Long memberId = Long.valueOf(claims.getSubject());
 
-                // 데이터베이스에서 Member 조회
                 Member member = memberRepository.getMember(memberId);
 
                 PrincipalDetails principal = new PrincipalDetails(member, null);
@@ -65,11 +61,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 sendErrorResponse(response, e.getErrorCode());
                 return;
             }
-
-
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+
+        return CookieUtils.getCookie(request, "ACCESS_TOKEN")
+                .map(Cookie::getValue)
+                .orElse(null);
     }
 
     private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
