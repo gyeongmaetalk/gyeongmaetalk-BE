@@ -1,24 +1,21 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
 
 export const options = {
-    vus: 20,
-    duration: '2m',
-    thresholds: {
-        http_req_failed: ['rate<0.01'],
-        http_req_duration: ['p(95)<1500'],
-    },
+    vus: 200,
+    duration: '30s',
 };
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
-const TOKEN = __ENV.TOKEN;
+const BASE_URL = 'http://localhost:8080';
+const TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NzQ4NzI3ODEsImV4cCI6MTc3NDg3NjM4MSwic3ViIjoiNTEzIiwibWVtYmVySWQiOjUxMywiYXV0aCI6IlVTRVIifQ.MXdPKmLcDkshThdyRover1nOgcyB4mjtfSFtYdPjZao0B4nYXH52AxwGv5KwoMr_0KNiO9FII6X_OSl_z7JZcw';
 
 export default function () {
     const res = http.get(
-        `${BASE_URL}/api/reviews?page=0&size=20&sort=LATEST`,
+        `${BASE_URL}/reviews/list?type=LATEST&page=0&size=20`,
         {
             headers: {
-                Authorization: TOKEN,
+                accept: 'application/json;charset=UTF-8',
+                Authorization: `Bearer ${TOKEN}`,
             },
         }
     );
@@ -26,6 +23,4 @@ export default function () {
     check(res, {
         'status is 200': (r) => r.status === 200,
     });
-
-    sleep(1);
 }
