@@ -11,4 +11,4 @@ public enum ProductComponentType {
 
     private final String description;
 
-    }
+}
