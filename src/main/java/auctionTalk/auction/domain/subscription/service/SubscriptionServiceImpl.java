@@ -28,7 +28,6 @@ import java.util.UUID;
 public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final CounselRepository counselRepository;
     private final CounselorRepository counselorRepository;
     private final SubscriptionMapper subscriptionMapper;
 

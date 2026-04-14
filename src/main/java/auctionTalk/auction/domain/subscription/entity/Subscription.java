@@ -2,6 +2,8 @@ package auctionTalk.auction.domain.subscription.entity;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.payment.entity.Payment;
+import auctionTalk.auction.domain.purchase.entity.Purchase;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +32,9 @@ public class Subscription extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SubscriptionStatus subscriptionStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Payment payment;
 
     private LocalDateTime startDate;
 
