@@ -27,6 +27,7 @@ public class ProductMapper {
                 .name(product.getName())
                 .description(product.getDescription())
                 .productType(product.getProductType().name())
+                .quantity(getViewTicketQuantity(product))
                 .originalPrice(product.getOriginalPrice())
                 .price(product.getPrice())
                 .components(components)
@@ -48,5 +49,13 @@ public class ProductMapper {
                 .description(component.getDescription())
                 .ticketCount(ticketCount)
                 .build();
+    }
+
+    private int getViewTicketQuantity(Product product) {
+        return product.getComponentMappings().stream()
+                .filter(mapping -> mapping.getComponent().getComponentType() == ProductComponentType.VIEW_TICKET)
+                .map(ProductComponentMapping::getQuantity)
+                .findFirst()
+                .orElse(0);
     }
 }
