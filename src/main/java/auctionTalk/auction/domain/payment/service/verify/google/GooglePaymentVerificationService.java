@@ -21,7 +21,6 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "payment.google.enabled", havingValue = "true")
 public class GooglePaymentVerificationService implements PaymentVerificationService {
 
     private final AndroidPublisher androidPublisher;

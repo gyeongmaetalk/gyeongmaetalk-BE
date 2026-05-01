@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.util.List;
 
 @Configuration
-@ConditionalOnProperty(name = "payment.google.enabled", havingValue = "true")
 public class GooglePlayPublisherConfig {
 
     @Value("${payment.google.service-account-path}")
