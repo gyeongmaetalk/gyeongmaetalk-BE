@@ -19,14 +19,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findProductById(Long id);
 
     @Query("""
-            select distinct p
-            from Product p
-            join fetch p.componentMappings pcm
-            join fetch pcm.component c
-            left join fetch c.viewTicketDetail
-            where p.deletedAt is null
-            order by p.id asc
-            """)
+        select distinct p
+        from Product p
+        join fetch p.componentMappings pcm
+        join fetch pcm.component c
+        where p.deletedAt is null
+        order by p.id asc
+    """)
     List<Product> findAllWithComponents();
 
     Optional<Product> findByStoreProductId(String storeProductId);
