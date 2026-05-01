@@ -4,8 +4,6 @@ import auctionTalk.auction.domain.payment.mapper.PaymentMapper;
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentType;
-import auctionTalk.auction.domain.property.entity.PropertyPayment;
-import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;

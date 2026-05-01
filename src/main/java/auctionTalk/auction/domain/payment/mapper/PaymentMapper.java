@@ -7,9 +7,7 @@ import auctionTalk.auction.domain.payment.dto.response.PaymentConfirmResponse;
 import auctionTalk.auction.domain.payment.entity.Payment;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.product.entity.Product;
-import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
-import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 

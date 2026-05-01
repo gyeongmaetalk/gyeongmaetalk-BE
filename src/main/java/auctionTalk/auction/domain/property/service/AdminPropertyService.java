@@ -15,7 +15,5 @@ public interface AdminPropertyService {
     PropertyDetailResponse getPropertyDetail(Long propertyId);
     PropertyIdResponse updateProperty(Long propertyId, PropertyUpdateRequest request);
     PropertyIdResponse deleteProperty(Long propertyId);
-    PropertyPagingResponse<PropertySummaryResponse> inquiryPropertiesByMember(Long memberId, int page, int size);
-    PaymentResultResponse updatePropertyPaymentStatus(Long propertyId, Long memberId, PaymentStatus status);
-
+//    PropertyPagingResponse<PropertySummaryResponse> inquiryPropertiesByMember(Long memberId, int page, int size);
 }
