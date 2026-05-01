@@ -24,7 +24,10 @@ public class ProductDetailResponse {
     @Schema(description = "상품 타입", example = "PACKAGE")
     private String productType;
 
-    @Schema(description = "상품 가격", example = "387000")
+    @Schema(description = "정가", example = "400000")
+    private Long originalPrice;
+
+    @Schema(description = "할인 가격", example = "387000")
     private Long price;
 
     private List<ProductComponentResponse> components;

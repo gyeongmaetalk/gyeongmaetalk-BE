@@ -28,6 +28,8 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductType productType;
 
+    private Long originalPrice;
+
     private Long price;
 
     private boolean active;
