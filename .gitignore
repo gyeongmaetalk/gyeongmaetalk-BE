@@ -42,4 +42,4 @@ src/main/generated/
 *.json
 *.yml
 
-src/main/resources
+src/main/resources/data.sql
