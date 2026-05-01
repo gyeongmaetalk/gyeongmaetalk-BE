@@ -75,6 +75,12 @@ jobs:
           username: ubuntu
           key: ${{ secrets.DEV_KEY }}
           script: |
+            mkdir -p /opt/auctiontalk/secrets
+
+            echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON_BASE64 }}' | base64 -d | sudo tee /opt/auctiontalk/secrets/google-service-account.json > /dev/null
+            sudo chmod 600 /opt/auctiontalk/secrets/google-service-account.json
+            sudo chown ubuntu:ubuntu /opt/auctiontalk/secrets/google-service-account.json
+            
             cd ~/dev
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}:dev
