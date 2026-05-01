@@ -28,8 +28,8 @@ public class ProductController {
     }
 
     @Operation(summary = "상품 단건 조회", description = "상품 코드를 통해 단건 상품 정보를 조회합니다.")
-    @GetMapping("/{code}")
-    public ProductDetailResponse getProduct(@PathVariable String code) {
-        return productService.getProduct(code);
+    @GetMapping("/{productId}")
+    public ProductDetailResponse getProduct(@PathVariable Long productId) {
+        return productService.getProduct(productId);
     }
 }

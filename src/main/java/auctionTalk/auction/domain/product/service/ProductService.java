@@ -7,5 +7,5 @@ import java.util.List;
 public interface ProductService {
 
     List<ProductDetailResponse> getProducts();
-    ProductDetailResponse getProduct(String code);
+    ProductDetailResponse getProduct(Long id);
 }

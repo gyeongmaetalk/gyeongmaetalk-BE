@@ -11,12 +11,12 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    default Product getProductByCode(String code) {
-        return findProductByCode(code)
+    default Product getProduct(Long id) {
+        return findProductById(id)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.PROPERTY_NOT_FOUND));
     }
 
-    Optional<Product> findProductByCode(String code);
+    Optional<Product> findProductById(Long id);
 
     @Query("""
             select distinct p
@@ -29,5 +29,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """)
     List<Product> findAllWithComponents();
 
+    Optional<Product> findByStoreProductId(String storeProductId);
 
 }

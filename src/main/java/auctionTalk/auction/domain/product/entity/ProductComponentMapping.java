@@ -22,4 +22,6 @@ public class ProductComponentMapping extends BaseEntity {
     @JoinColumn(name = "product_component_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private ProductComponent component;
+
+    private Integer quantity;
 }

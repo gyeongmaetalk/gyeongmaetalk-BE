@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.product.entity;
 
+import auctionTalk.auction.domain.payment.entity.PaymentProvider;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,7 +19,7 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String code; // 상품 코드
+    private String storeProductId;
 
     private String name;
 
@@ -28,6 +29,8 @@ public class Product extends BaseEntity {
     private ProductType productType;
 
     private Long price;
+
+    private boolean active;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<ProductComponentMapping> componentMappings = new ArrayList<>();

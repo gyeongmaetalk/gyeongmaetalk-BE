@@ -4,7 +4,6 @@ import auctionTalk.auction.domain.product.dto.response.ProductDetailResponse;
 import auctionTalk.auction.domain.product.entity.Product;
 import auctionTalk.auction.domain.product.mapper.ProductMapper;
 import auctionTalk.auction.domain.product.repository.ProductRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +17,9 @@ public class ProductServiceImpl implements ProductService{
     private final ProductMapper productMapper;
 
     @Override
-    public ProductDetailResponse getProduct(String code) {
+    public ProductDetailResponse getProduct(Long id) {
 
-        Product product = productRepository.getProductByCode(code);
+        Product product = productRepository.getProduct(id);
 
         return productMapper.toProductDetailResponse(product);
 

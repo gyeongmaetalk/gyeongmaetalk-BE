@@ -15,9 +15,6 @@ public class ProductDetailResponse {
     @Schema(description = "상품 ID", example = "1")
     private Long id;
 
-    @Schema(description = "상품 코드", example = "PACKAGE_PREMIUM")
-    private String code;
-
     @Schema(description = "상품명", example = "프리미엄 패키지")
     private String name;
 

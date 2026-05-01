@@ -24,7 +24,6 @@ public class ProductMapper {
 
         return ProductDetailResponse.builder()
                 .id(product.getId())
-                .code(product.getCode())
                 .name(product.getName())
                 .description(product.getDescription())
                 .productType(product.getProductType().name())

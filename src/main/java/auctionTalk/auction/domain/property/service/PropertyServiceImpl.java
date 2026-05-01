@@ -57,7 +57,7 @@ public class PropertyServiceImpl implements PropertyService{
 
         // 중복 구매 신청 검사 추가.
         if (propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                member, propertyId, PaymentStatus.READY)) {
+                member, propertyId, PaymentStatus.PENDING)) {
             throw new CustomApiException(ErrorCode.PROPERTY_ALREADY_PURCHASED);
         }
 

@@ -12,11 +12,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class SubscriptionMapper {
 
-    public Subscription toSubscription(Member member,  Counselor counselor){
+    public Subscription toSubscription(Long sourceOrderId, Member member,  Counselor counselor){
             return Subscription.builder()
+                    .sourceOrderId(sourceOrderId)
                     .member(member)
                     .counselor(counselor)
-                    .subscriptionStatus(SubscriptionStatus.PENDING)
+                    .subscriptionStatus(SubscriptionStatus.IN_PROGRESS)
                     .build();
     }
 
