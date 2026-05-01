@@ -96,15 +96,15 @@ public class AdminPropertyController {
         return BaseResponse.onSuccess(adminSubscriptionService.updateSubscriptionStatus(memberId, subscriptionId, status));
     }
 
-    @Operation(summary = "어드민 추천 매물 구매 결제 상태 변경(승인 or 취소) API")
-    @PatchMapping("/{propertyId}/status")
-    public BaseResponse<PaymentResultResponse> confirmPropertyPayment(
-            @PathVariable("propertyId") Long propertyId,
-            @RequestParam Long memberId,
-            @RequestParam PaymentStatus status
-    ) {
-        return BaseResponse.onSuccess(adminPropertyService.updatePropertyPaymentStatus(propertyId, memberId, status));
-    }
+//    @Operation(summary = "어드민 추천 매물 구매 결제 상태 변경(승인 or 취소) API")
+//    @PatchMapping("/{propertyId}/status")
+//    public BaseResponse<PaymentResultResponse> confirmPropertyPayment(
+//            @PathVariable("propertyId") Long propertyId,
+//            @RequestParam Long memberId,
+//            @RequestParam PaymentStatus status
+//    ) {
+//        return BaseResponse.onSuccess(adminPropertyService.updatePropertyPaymentStatus(propertyId, memberId, status));
+//    }
 
 
 }
