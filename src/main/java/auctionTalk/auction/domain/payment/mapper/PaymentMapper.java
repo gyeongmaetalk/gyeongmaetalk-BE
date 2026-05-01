@@ -50,17 +50,6 @@ public class PaymentMapper {
                 .build();
     }
 
-    public AdminInquiryPayment toAdminInquiryPaymentFromPropertyPayment(PropertyPayment payment) {
-        return AdminInquiryPayment.builder()
-                .id(payment.getProperty().getId())
-                .memberId(payment.getMember().getId())
-                .payDate(payment.getCreatedAt())
-                .userName(payment.getMember().getName())
-                .cellPhone(payment.getMember().getCellPhone())
-                .paymentStatus(payment.getStatus())
-                .build();
-    }
-
     public <T>AdminPaymentPagingResponse<T> toAdminPaymentPagingResponse(Page<T> payments) {
         return AdminPaymentPagingResponse.<T>builder()
                 .payments(payments.getContent())
