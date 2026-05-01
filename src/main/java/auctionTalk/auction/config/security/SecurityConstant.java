@@ -63,6 +63,12 @@ public class SecurityConstant {
             "/fcm/token", "/fcm/notifications/setting",
             "/fcm/notifications", "/fcm/*/read",
 
+            //order
+            "/orders",
+
+            //payment
+            "/payments/confirm",
+
     };
 
     // 관리자 전용 API
