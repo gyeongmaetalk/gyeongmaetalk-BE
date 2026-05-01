@@ -46,7 +46,7 @@ public class PropertyController {
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ) {
-        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, isPurchased, page, size));
+        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, page, size));
     }
 
     @Operation(summary = "추천 매물 상세 조회 API(결제 시 조회 가능)")

@@ -5,15 +5,14 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.entity.Property;
-import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
-import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
+import auctionTalk.auction.domain.viewticket.entity.MemberViewTicketWallet;
+import auctionTalk.auction.domain.viewticket.repository.MemberViewTicketWalletRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,21 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class PropertyServiceImpl implements PropertyService{
 
     private final PropertyRepository propertyRepository;
-    private final PropertyPaymentRepository propertyPaymentRepository;
     private final PropertyMapper propertyMapper;
-
-    @Value("${property.fixed-amount}")
-    private Long fixedAmount;
-
-    @Value("${property.fixed-name}")
-    private String fixedName;
+    private final MemberViewTicketWalletRepository memberViewTicketWalletRepository;
 
     @Override
     @Transactional
@@ -53,74 +45,48 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional
-    public PropertyIdResponse preparePropertyPayment(Member member, Long propertyId) {
-
-        // 중복 구매 신청 검사 추가.
-        if (propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                member, propertyId, PaymentStatus.PENDING)) {
-            throw new CustomApiException(ErrorCode.PROPERTY_ALREADY_PURCHASED);
-        }
-
-        Property property = propertyRepository.getProperty(propertyId);
-
-        PropertyPayment payment = propertyMapper.toPropertyPayment(member, property);
-
-        propertyPaymentRepository.save(payment);
-
-        return new PropertyIdResponse(propertyId);
-    }
-
-    private String generateUniqueOrderId(Long memberId) {
-        return "SUB-" + memberId + "-" + UUID.randomUUID().toString().substring(0, 8);
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
     public PropertyDetailResponse inquiryPropertyDetail(Member member, Long propertyId){
-
-        boolean hasPaid = propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                member, propertyId, PaymentStatus.SUCCESS
-        );
-
-        if (!hasPaid) {
-            throw new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND);
-        }
-
         Property property = propertyRepository.getProperty(propertyId);
 
-        return propertyMapper.toPropertyDetailResponse(property);
+        // 1차 확인: 이미 열람 가능하면 바로 반환
+        if (property.isPayment()) {
+            return propertyMapper.toPropertyDetailResponse(property);
+        }
+
+        // 같은 회원의 동시 차감을 막기 위해 지갑 lock
+        MemberViewTicketWallet wallet = memberViewTicketWalletRepository.findByMemberIdForUpdate(member.getId())
+                .orElseThrow(() -> new CustomApiException(ErrorCode.VIEW_TICKET_WALLET_NOT_FOUND));
+
+        // 락 잡은 뒤 다시 조회
+        Property lockedProperty = propertyRepository.getPropertyByIdAndMemberId(propertyId, member.getId());
+
+        // 2차 확인: 기다리는 동안 다른 요청이 이미 열람 처리했을 수 있음
+        if (lockedProperty.isPayment()) {
+            return propertyMapper.toPropertyDetailResponse(lockedProperty);
+        }
+
+        if (wallet.getBalance() <= 0) {
+            throw new CustomApiException(ErrorCode.VIEW_TICKET_NOT_ENOUGH);
+        }
+
+        wallet.decrease(1);
+        lockedProperty.markPaymentCompleted();
+
+        return propertyMapper.toPropertyDetailResponse(lockedProperty);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PropertyPagingResponse inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size) {
+    public PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, int page, int size) {
         Member member = principal.getMember();
 
-        Page<Property> properties = propertyRepository.findAllByMemberIdAndIsPurchased(
+        Page<Property> properties = propertyRepository.findAllByMemberId(
                 member.getId(),
-                isPurchased,
                 PageRequest.of(page, size)
         );
 
-        List<Property> content = properties.getContent();
-        List<Long> propertyIds = content.stream()
-                .map(Property::getId)
-                .toList();
-
-        Set<Long> paidPropertyIds = propertyIds.isEmpty()
-                ? Set.of()
-                : new HashSet<>(propertyPaymentRepository.findPaidPropertyIdsByMemberAndPropertyIdsAndStatus(
-                member,
-                propertyIds,
-                PaymentStatus.SUCCESS
-        ));
-
         Page<PropertySummaryResponse> responsePage = properties.map(property ->
-                propertyMapper.toPropertySummaryResponse(
-                        property,
-                        paidPropertyIds.contains(property.getId())
-                )
+                propertyMapper.toPropertySummaryResponse(property, property.isPayment())
         );
 
         return propertyMapper.toPropertyPagingResponse(responsePage);

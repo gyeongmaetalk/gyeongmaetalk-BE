@@ -85,6 +85,10 @@ public enum ErrorCode {
     // Product
     INVALID_COMPONENT_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT401", "유효하지 않은 상품 타입 입니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT402", "상품 정보를 찾을 수 없습니다."),
+
+    // MemberViewTicketWallet
+    VIEW_TICKET_WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "VIEW_TICKET_WALLET401", "열람권 정보를 찾을 수 없습니다."),
+    VIEW_TICKET_NOT_ENOUGH(HttpStatus.NOT_FOUND, "VIEW_TICKET_WALLET402", "열람권이 부족합니다.")
     ;
 
     private final HttpStatus httpStatus;

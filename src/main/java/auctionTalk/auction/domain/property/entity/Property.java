@@ -64,6 +64,8 @@ public class Property extends BaseEntity {
 
     private String buildingType;
 
+    private boolean isPayment = false;
+
     private boolean isPurchased = false;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
@@ -107,6 +109,10 @@ public class Property extends BaseEntity {
 
     public void purchase(){
         this.isPurchased = true;
+    }
+
+    public void markPaymentCompleted() {
+        this.isPayment = true;
     }
 
     public List<String> updateImages(List<String> remainKeys, List<String> addKeys) {

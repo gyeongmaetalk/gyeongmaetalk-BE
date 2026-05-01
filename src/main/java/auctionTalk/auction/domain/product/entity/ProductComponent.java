@@ -24,6 +24,4 @@ public class ProductComponent extends BaseEntity {
     @Column(length = 500)
     private String description;
 
-    @OneToOne(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ViewTicketComponentDetail viewTicketDetail;
 }

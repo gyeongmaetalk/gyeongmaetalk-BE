@@ -71,20 +71,20 @@ public class AdminPropertyController {
         return BaseResponse.onSuccess(adminPropertyService.getPropertyDetail(propertyId));
     }
 
-    @Operation(summary = "어드민 추천 매물 목록 조회 API")
-    @GetMapping("/list")
-    @Parameters(value = {
-            @Parameter(name = "memberId", description = "조회할 멤버 Id"),
-            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
-            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
-    })
-    public BaseResponse<PropertyPagingResponse<PropertySummaryResponse>> inquiryPropertiesByMemberId(
-            @RequestParam(name = "memberId") Long memberId,
-            @RequestParam(name = "page") int page,
-            @RequestParam(name = "size") int size
-    ) {
-        return BaseResponse.onSuccess(adminPropertyService.inquiryPropertiesByMember(memberId, page, size));
-    }
+//    @Operation(summary = "어드민 추천 매물 목록 조회 API")
+//    @GetMapping("/list")
+//    @Parameters(value = {
+//            @Parameter(name = "memberId", description = "조회할 멤버 Id"),
+//            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+//            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+//    })
+//    public BaseResponse<PropertyPagingResponse<PropertySummaryResponse>> inquiryPropertiesByMemberId(
+//            @RequestParam(name = "memberId") Long memberId,
+//            @RequestParam(name = "page") int page,
+//            @RequestParam(name = "size") int size
+//    ) {
+//        return BaseResponse.onSuccess(adminPropertyService.inquiryPropertiesByMember(memberId, page, size));
+//    }
 
     @Operation(summary = "어드민 추천 매물 구독 결제 상태 변경(승인 or 취소) API")
     @PatchMapping("/subscription/{subscriptionId}/status")
