@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.product.controller;
 
 import auctionTalk.auction.domain.product.dto.response.ProductDetailResponse;
+import auctionTalk.auction.domain.product.entity.ProductSearchCategory;
 import auctionTalk.auction.domain.product.service.ProductService;
 import auctionTalk.auction.domain.property.service.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +24,8 @@ public class ProductController {
 
     @Operation(summary = "상품 목록 조회", description = "판매 중인 상품 목록을 조회합니다.")
     @GetMapping
-    public List<ProductDetailResponse> getProducts() {
-        return productService.getProducts();
+    public List<ProductDetailResponse> getProducts(ProductSearchCategory category) {
+        return productService.getProducts(category);
     }
 
     @Operation(summary = "상품 단건 조회", description = "상품 코드를 통해 단건 상품 정보를 조회합니다.")

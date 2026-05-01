@@ -34,7 +34,7 @@ public class SecurityConstant {
             "/admin/auth/login",
 
             //product
-            "/proudcts",
+            "/prouducts",
     };
 
     // 로그인 필요 API
