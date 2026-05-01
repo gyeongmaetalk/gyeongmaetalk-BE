@@ -71,10 +71,20 @@ public enum ErrorCode {
     // Notification
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION401", "알림을 찾을 수 없습니다."),
 
+    // Order
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER401", "주문을 찾을 수 없습니다."),
+
+
     // Payment
     FAIL_CONFIRM_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT401", "결제 승인에 실패했습니다."),
     FAIL_CANCEL_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT402", "결제 취소에 실패했습니다."),
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT403", "결제 정보를 찾을 수 없습니다."),
+    SUCCESS_PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT404", "완료된 주문의 성공 결제 정보를 찾을 수 없습니다."),
+    INVALID_PAYMENT_PROVIDER(HttpStatus.BAD_REQUEST, "PAYMENT405", "유효하지 않은 결제 제공자 입니다." ),
+
+    // Product
+    INVALID_COMPONENT_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT401", "유효하지 않은 상품 타입 입니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT402", "상품 정보를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

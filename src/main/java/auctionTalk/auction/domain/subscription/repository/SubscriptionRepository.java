@@ -16,7 +16,8 @@ import java.util.Optional;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    boolean existsByMemberAndCounselorAndSubscriptionStatusIn(Member member, Counselor counselor, List<SubscriptionStatus> statuses);
+    boolean existsBySourceOrderId(Long sourceOrderId);
+    boolean existsByMemberIdAndCounselorId(Long memberId, Long counselorId);
 
     List<Subscription> findByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
 
@@ -33,8 +34,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     Optional<Subscription> findByMember(Member member);
     Optional<Subscription> findByMemberId(Long memberId);
 
-
     boolean existsByMemberAndSubscriptionStatus(Member member, SubscriptionStatus status);
+    boolean existsByMemberIdAndSubscriptionStatus(Long memberId, SubscriptionStatus status);
 
 
     Page<Subscription> findAllByCreatedAtBetweenOrderByCreatedAtDesc(

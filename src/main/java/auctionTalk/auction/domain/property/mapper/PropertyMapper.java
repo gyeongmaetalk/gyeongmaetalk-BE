@@ -116,7 +116,7 @@ public class PropertyMapper {
         return PropertyPayment.builder()
                 .member(member)
                 .property(property)
-                .status(PaymentStatus.READY)
+                .status(PaymentStatus.PENDING)
                 .build();
     }
 

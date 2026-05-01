@@ -1,12 +1,9 @@
 package auctionTalk.auction.domain.payment.controller;
 
-import auctionTalk.auction.domain.payment.dto.request.PaymentRefundRequest;
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
-import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentType;
 import auctionTalk.auction.domain.payment.service.PaymentQueryService;
-import auctionTalk.auction.domain.payment.service.PaymentService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -110,7 +110,7 @@ class PropertyServiceImplTest {
             // given
             Long propertyId = 1L;
             given(propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                    member, propertyId, PaymentStatus.READY
+                    member, propertyId, PaymentStatus.PENDING
             )).willReturn(true);
 
             // when & then
@@ -131,11 +131,11 @@ class PropertyServiceImplTest {
             PropertyPayment propertyPayment = PropertyPayment.builder()
                     .member(member)
                     .property(property)
-                    .status(PaymentStatus.READY)
+                    .status(PaymentStatus.PENDING)
                     .build();
 
             given(propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                    member, propertyId, PaymentStatus.READY
+                    member, propertyId, PaymentStatus.PENDING
             )).willReturn(false);
             given(propertyRepository.getProperty(propertyId)).willReturn(property);
             given(propertyMapper.toPropertyPayment(member, property)).willReturn(propertyPayment);

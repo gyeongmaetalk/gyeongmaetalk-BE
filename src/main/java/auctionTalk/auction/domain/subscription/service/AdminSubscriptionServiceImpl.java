@@ -54,7 +54,6 @@ public class AdminSubscriptionServiceImpl implements AdminSubscriptionService {
         }
         if(status == PaymentStatus.FAIL) {
             counsel.updateStatus(CounselStatus.COUNSEL_AFTER);
-            subscription.failed();
         }
 
         subscriptionRepository.save(subscription);
