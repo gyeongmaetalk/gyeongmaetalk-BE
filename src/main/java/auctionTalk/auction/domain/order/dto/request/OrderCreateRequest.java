@@ -17,10 +17,6 @@ public class OrderCreateRequest {
     @NotNull(message = "상품 ID는 필수입니다.")
     private Long productId;
 
-    @Schema(description = "결제 수단", example = "APPLE")
-    @NotNull
-    private PaymentProvider paymentProvider;
-
     @Schema(description = "주문 생성 멱등키", example = "8f6f2e1c-9f17-4c66-a4b1-8c8d1d234567")
     @NotBlank
     private String idempotencyKey;

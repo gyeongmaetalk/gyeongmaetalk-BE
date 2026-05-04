@@ -25,7 +25,7 @@ public class PaymentController {
     private final PaymentConfirmService paymentConfirmService;
 
     @PostMapping("/confirm")
-    @Operation(summary = "결제 승인", description = "스토어 결제 결과를 서버에서 검증하고 주문을 완료 처리.")
+    @Operation(summary = "RevenueCat 결제 승인", description = "RevenueCat 결제 결과를 서버에서 검증하고 주문을 완료 처리.")
     public BaseResponse<PaymentConfirmResponse> confirmPayment(
             @AuthenticationPrincipal PrincipalDetails member,
             @Valid @RequestBody PaymentConfirmRequest request
