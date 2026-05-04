@@ -16,4 +16,11 @@ public interface MemberViewTicketWalletRepository extends JpaRepository<MemberVi
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select w from MemberViewTicketWallet w where w.member.id = :memberId")
     Optional<MemberViewTicketWallet> findByMemberIdForUpdate(@Param("memberId") Long memberId);
+
+    @Query("""
+        select w.balance
+        from MemberViewTicketWallet w
+        where w.member.id = :memberId
+    """)
+    Optional<Integer> findBalanceByMemberId(@Param("memberId") Long memberId);
 }

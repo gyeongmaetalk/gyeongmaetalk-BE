@@ -13,13 +13,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrderMapper {
 
-    public Order toOrder(Member member, Product product, String orderNumber, String idempotencyKey, PaymentProvider paymentProvider, Long counselorId){
+    public Order toOrder(Member member, Product product, String orderNumber, String idempotencyKey, Long counselorId){
         return Order.builder()
                 .member(member)
                 .product(product)
                 .orderNumber(orderNumber)
                 .idempotencyKey(idempotencyKey)
-                .paymentProvider(paymentProvider)
                 .orderStatus(OrderStatus.FAILED)
                 .amount(product.getPrice())
                 .counselorId(counselorId)

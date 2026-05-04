@@ -26,11 +26,9 @@ public class ProductMapper {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .productType(product.getProductType().name())
-                .quantity(getViewTicketQuantity(product))
                 .originalPrice(product.getOriginalPrice())
                 .price(product.getPrice())
-                .components(components)
+                .recommended(product.isRecommended())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package auctionTalk.auction.domain.order.controller;
 
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.order.dto.request.OrderCreateRequest;
 import auctionTalk.auction.domain.order.dto.response.OrderCreateResponse;
@@ -26,9 +27,9 @@ public class OrderController {
     @PostMapping
     @Operation(summary = "주문 생성(결제 준비)", description = "상품 결제를 위한 주문과 결제 대기 데이터를 생성합니다.")
     public BaseResponse<OrderCreateResponse> createOrder(
-            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal PrincipalDetails member,
             @Valid @RequestBody OrderCreateRequest request
     ) {
-        return BaseResponse.onSuccess(orderService.createOrder(member, request));
+        return BaseResponse.onSuccess(orderService.createOrder(member.getMember(), request));
     }
 }

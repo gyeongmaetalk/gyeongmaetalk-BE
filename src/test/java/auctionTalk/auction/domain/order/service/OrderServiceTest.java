@@ -65,7 +65,6 @@ class OrderServiceTest {
         OrderCreateRequest request = OrderCreateRequest.builder()
                 .productId(1L)
                 .idempotencyKey("idem-key")
-                .paymentProvider(PaymentProvider.APPLE)
                 .counselorId(10L)
                 .build();
 
@@ -83,7 +82,6 @@ class OrderServiceTest {
                 .product(product)
                 .orderNumber("ORD-20260415180000-AB12CD34")
                 .idempotencyKey("idem-key")
-                .paymentProvider(PaymentProvider.APPLE)
                 .orderStatus(OrderStatus.FAILED)
                 .amount(product.getPrice())
                 .counselorId(10L)
@@ -100,7 +98,7 @@ class OrderServiceTest {
                 .orderId(1L)
                 .orderNumber("ORD-20260415180000-AB12CD34")
                 .amount(300000L)
-                .paymentProvider(PaymentProvider.APPLE)
+                .paymentProvider(PaymentProvider.REVENUECAT)
                 .productId(1L)
                 .productName("경매 대행 신청")
                 .productType(ProductType.SINGLE)
@@ -116,7 +114,6 @@ class OrderServiceTest {
                 eq(product),
                 anyString(),
                 eq("idem-key"),
-                eq(PaymentProvider.APPLE),
                 eq(10L)
         )).willReturn(order);
 
@@ -135,7 +132,7 @@ class OrderServiceTest {
         assertThat(result.getOrderId()).isEqualTo(1L);
         assertThat(result.getOrderNumber()).isEqualTo("ORD-20260415180000-AB12CD34");
         assertThat(result.getAmount()).isEqualTo(300000L);
-        assertThat(result.getPaymentProvider()).isEqualTo(PaymentProvider.APPLE);
+        assertThat(result.getPaymentProvider()).isEqualTo(PaymentProvider.REVENUECAT);
         assertThat(result.getProductId()).isEqualTo(1L);
         assertThat(result.getProductName()).isEqualTo("경매 대행 신청");
         assertThat(result.getProductType()).isEqualTo(ProductType.SINGLE);
@@ -156,7 +153,6 @@ class OrderServiceTest {
         OrderCreateRequest request = OrderCreateRequest.builder()
                 .productId(1L)
                 .idempotencyKey("idem-key")
-                .paymentProvider(PaymentProvider.APPLE)
                 .counselorId(10L)
                 .build();
 
@@ -174,7 +170,6 @@ class OrderServiceTest {
                 .product(product)
                 .orderNumber("ORD-20260415180000-AB12CD34")
                 .idempotencyKey("idem-key")
-                .paymentProvider(PaymentProvider.APPLE)
                 .counselorId(10L)
                 .build();
 
@@ -189,7 +184,6 @@ class OrderServiceTest {
                 .orderId(1L)
                 .orderNumber("ORD-20260415180000-AB12CD34")
                 .amount(300000L)
-                .paymentProvider(PaymentProvider.APPLE)
                 .productId(1L)
                 .productName("경매 대행 신청")
                 .productType(ProductType.SINGLE)
@@ -211,7 +205,7 @@ class OrderServiceTest {
         assertThat(result.getOrderId()).isEqualTo(1L);
         assertThat(result.getOrderNumber()).isEqualTo("ORD-20260415180000-AB12CD34");
         assertThat(result.getAmount()).isEqualTo(300000L);
-        assertThat(result.getPaymentProvider()).isEqualTo(PaymentProvider.APPLE);
+        assertThat(result.getPaymentProvider()).isEqualTo(PaymentProvider.REVENUECAT);
         assertThat(result.getProductId()).isEqualTo(1L);
         assertThat(result.getProductName()).isEqualTo("경매 대행 신청");
         assertThat(result.getProductType()).isEqualTo(ProductType.SINGLE);
@@ -233,7 +227,6 @@ class OrderServiceTest {
         OrderCreateRequest request = OrderCreateRequest.builder()
                 .productId(999L)
                 .idempotencyKey("idem-key")
-                .paymentProvider(PaymentProvider.APPLE)
                 .counselorId(10L)
                 .build();
 

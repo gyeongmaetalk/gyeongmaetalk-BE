@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.payment.dto.request;
 
-import auctionTalk.auction.domain.payment.entity.PaymentProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,18 +15,11 @@ public class PaymentConfirmRequest {
     @NotNull
     private Long orderId;
 
-    @Schema(description = "결제 제공자", example = "GOOGLE", allowableValues = {"GOOGLE", "APPLE"})
-    @NotNull
-    private PaymentProvider provider;
-
-    @Schema(description = "스토어 상품 ID", example = "view_ticket_10")
+    @Schema(description = "RevenueCat 상품 식별자", example = "view_ticket_10")
     @NotBlank
-    private String storeProductId;
+    private String productIdentifier;
 
-    @Schema(
-            description = "스토어 검증 데이터. GOOGLE은 purchaseToken, APPLE은 signedTransactionInfo(JWS)",
-            example = "sample-verification-data"
-    )
+    @Schema(description = "RevenueCat 결제 transactionIdentifier", example = "1000001234567890")
     @NotBlank
-    private String providerVerificationData;
+    private String transactionIdentifier;
 }

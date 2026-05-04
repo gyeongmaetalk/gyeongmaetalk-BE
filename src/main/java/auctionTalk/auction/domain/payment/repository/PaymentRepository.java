@@ -24,6 +24,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     boolean existsByPaymentProviderAndProviderTransactionId(PaymentProvider paymentProvider,
                                                             String providerTransactionId);
 
-    boolean existsByPaymentProviderAndPurchaseToken(PaymentProvider paymentProvider,
-                                                    String purchaseToken);
+    Optional<Payment> findByPaymentProviderAndProviderTransactionId(
+            PaymentProvider paymentProvider,
+            String providerTransactionId
+    );
 }

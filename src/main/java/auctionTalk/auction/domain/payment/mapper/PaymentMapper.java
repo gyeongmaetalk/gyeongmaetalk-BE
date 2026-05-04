@@ -5,6 +5,7 @@ import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
 import auctionTalk.auction.domain.payment.dto.response.PaymentConfirmResponse;
 import auctionTalk.auction.domain.payment.entity.Payment;
+import auctionTalk.auction.domain.payment.entity.PaymentProvider;
 import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.product.entity.Product;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
@@ -18,15 +19,16 @@ public class PaymentMapper {
         return Payment.builder()
                 .order(order)
                 .paymentNumber(paymentNumber)
-                .paymentProvider(order.getPaymentProvider())
+                .paymentProvider(PaymentProvider.REVENUECAT)
                 .paymentStatus(PaymentStatus.PENDING)
                 .storeProductId(storeProductId)
-                .rawProviderPayload(null)
                 .requestedAmount(order.getAmount())
                 .build();
     }
 
-    public PaymentConfirmResponse toPaymentConfirmResponse(Order order, Payment payment, Product product) {
+    public PaymentConfirmResponse toPaymentConfirmResponse(Order order, Payment payment) {
+        Product product = order.getProduct();
+
         return PaymentConfirmResponse.builder()
                 .orderId(order.getId())
                 .orderNumber(order.getOrderNumber())
@@ -40,24 +42,26 @@ public class PaymentMapper {
                 .build();
     }
 
-    public AdminInquiryPayment toAdminInquiryPaymentFromSubscription(Subscription subscription) {
-        return AdminInquiryPayment.builder()
-                .id(subscription.getId())
-                .memberId(subscription.getMember().getId())
-                .payDate(subscription.getCreatedAt())
-                .userName(subscription.getMember().getName())
-                .cellPhone(subscription.getMember().getCellPhone())
-                .build();
-    }
 
-    public <T>AdminPaymentPagingResponse<T> toAdminPaymentPagingResponse(Page<T> payments) {
-        return AdminPaymentPagingResponse.<T>builder()
-                .payments(payments.getContent())
-                .page(payments.getNumber())
-                .totalPages(payments.getTotalPages())
-                .totalElements((int) payments.getTotalElements())
-                .isFirst(payments.isFirst())
-                .isLast(payments.isLast())
-                .build();
-    }
+    //legacy
+//    public AdminInquiryPayment toAdminInquiryPaymentFromSubscription(Subscription subscription) {
+//        return AdminInquiryPayment.builder()
+//                .id(subscription.getId())
+//                .memberId(subscription.getMember().getId())
+//                .payDate(subscription.getCreatedAt())
+//                .userName(subscription.getMember().getName())
+//                .cellPhone(subscription.getMember().getCellPhone())
+//                .build();
+//    }
+//
+//    public <T>AdminPaymentPagingResponse<T> toAdminPaymentPagingResponse(Page<T> payments) {
+//        return AdminPaymentPagingResponse.<T>builder()
+//                .payments(payments.getContent())
+//                .page(payments.getNumber())
+//                .totalPages(payments.getTotalPages())
+//                .totalElements((int) payments.getTotalElements())
+//                .isFirst(payments.isFirst())
+//                .isLast(payments.isLast())
+//                .build();
+//    }
 }

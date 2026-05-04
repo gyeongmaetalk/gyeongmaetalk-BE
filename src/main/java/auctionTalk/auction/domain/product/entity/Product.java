@@ -32,6 +32,8 @@ public class Product extends BaseEntity {
 
     private Long price;
 
+    private boolean recommended;
+
     private boolean active;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

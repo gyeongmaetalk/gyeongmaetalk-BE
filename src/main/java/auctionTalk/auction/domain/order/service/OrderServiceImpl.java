@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService{
         }
 
         String orderNumber = generate();
-        Order order = orderMapper.toOrder(member, product, orderNumber, request.getIdempotencyKey(), request.getPaymentProvider(), request.getCounselorId());
+        Order order = orderMapper.toOrder(member, product, orderNumber, request.getIdempotencyKey(),  request.getCounselorId());
         orderRepository.save(order);
 
         String paymentNumber = paymentConfirmService.generate();

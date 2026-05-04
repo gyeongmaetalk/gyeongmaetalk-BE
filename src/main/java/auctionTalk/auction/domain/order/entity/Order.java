@@ -49,9 +49,6 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductType productType;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentProvider paymentProvider;
-
     private String orderNumber;
 
     @Enumerated(EnumType.STRING)
@@ -59,29 +56,44 @@ public class Order extends BaseEntity {
 
     private Long amount;
 
-    public void markComplete() {
+    public boolean isSuccess() {
+        return this.orderStatus == OrderStatus.COMPLETED;
+    }
+
+    public void markSuccess() {
+        if (this.orderStatus == OrderStatus.COMPLETED) {
+            return;
+        }
+
         if (this.orderStatus != OrderStatus.READY) {
             throw new IllegalStateException("완료 처리 가능한 주문 상태가 아닙니다.");
         }
+
         this.orderStatus = OrderStatus.COMPLETED;
     }
 
     public void markFail() {
-        if (this.orderStatus != OrderStatus.READY) {
-            throw new IllegalStateException("실패 가능한 주문 상태가 아닙니다.");
+        if (this.orderStatus == OrderStatus.FAILED) {
+            return;
         }
+
+        if (this.orderStatus != OrderStatus.READY) {
+            throw new IllegalStateException("실패 처리 가능한 주문 상태가 아닙니다.");
+        }
+
         this.orderStatus = OrderStatus.FAILED;
     }
 
-    public void markRefund(){
-        if (this.orderStatus != OrderStatus.COMPLETED){
+    public void markRefund() {
+        if (this.orderStatus == OrderStatus.REFUND) {
+            return;
+        }
+
+        if (this.orderStatus != OrderStatus.COMPLETED) {
             throw new IllegalStateException("환불 처리 가능한 주문 상태가 아닙니다.");
         }
-        this.orderStatus = OrderStatus.REFUND;
-    }
 
-    public boolean isSuccess() {
-        return this.orderStatus == OrderStatus.COMPLETED;
+        this.orderStatus = OrderStatus.REFUND;
     }
 
 }

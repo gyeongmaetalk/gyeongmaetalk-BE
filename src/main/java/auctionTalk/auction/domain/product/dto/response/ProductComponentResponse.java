@@ -10,9 +10,6 @@ import lombok.Getter;
 @Builder
 public class ProductComponentResponse {
 
-    @Schema(description = "상품 아이디", example = "1")
-    private Long productId;
-
     @Schema(description = "구성요소 타입", example = "VIEW_TICKET")
     private String componentType;
 

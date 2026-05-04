@@ -81,14 +81,21 @@ public enum ErrorCode {
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT403", "결제 정보를 찾을 수 없습니다."),
     SUCCESS_PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT404", "완료된 주문의 성공 결제 정보를 찾을 수 없습니다."),
     INVALID_PAYMENT_PROVIDER(HttpStatus.BAD_REQUEST, "PAYMENT405", "유효하지 않은 결제 제공자 입니다." ),
+    DUPLICATED_PAYMENT_TRANSACTION(HttpStatus.BAD_REQUEST, "PAYMENT406", "결제 트랙잭션이 중복 되었습니다."),
 
     // Product
     INVALID_COMPONENT_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT401", "유효하지 않은 상품 타입 입니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT402", "상품 정보를 찾을 수 없습니다."),
+    PRODUCT_IDENTIFIER_MISMATCH(HttpStatus.BAD_REQUEST, "PRODUCT402", "일치하지 않는 사용 식별자 입니다."),
 
     // MemberViewTicketWallet
     VIEW_TICKET_WALLET_NOT_FOUND(HttpStatus.NOT_FOUND, "VIEW_TICKET_WALLET401", "열람권 정보를 찾을 수 없습니다."),
-    VIEW_TICKET_NOT_ENOUGH(HttpStatus.NOT_FOUND, "VIEW_TICKET_WALLET402", "열람권이 부족합니다.")
+    VIEW_TICKET_NOT_ENOUGH(HttpStatus.NOT_FOUND, "VIEW_TICKET_WALLET402", "열람권이 부족합니다."),
+
+    // RevenueCat
+    REVENUECAT_API_FAILED(HttpStatus.BAD_REQUEST, "REVENUECAT401", "리베뉴 캣 api 가 실패했습니다."),
+    REVENUECAT_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "REVENUECAT402", "리베뉴 캣 검증에 실패했습니다."),
+    REVENUECAT_PURCHASE_NOT_FOUND(HttpStatus.NOT_FOUND, "REVENUECAT403", "리베뉴 캣 구입 내역을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -2,125 +2,107 @@ package auctionTalk.auction.domain.payment.service.verify;
 
 import auctionTalk.auction.domain.order.entity.Order;
 import auctionTalk.auction.domain.order.repository.OrderRepository;
-import auctionTalk.auction.domain.payment.dto.response.PaymentVerificationResult;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
 import auctionTalk.auction.domain.payment.dto.response.PaymentConfirmResponse;
+import auctionTalk.auction.domain.payment.dto.response.RevenueCatCustomerResponse;
 import auctionTalk.auction.domain.payment.entity.Payment;
 import auctionTalk.auction.domain.payment.entity.PaymentProvider;
+import auctionTalk.auction.domain.payment.infrastructure.revenuecat.RevenueCatClient;
+import auctionTalk.auction.domain.payment.infrastructure.revenuecat.RevenueCatPurchaseVerifier;
+import auctionTalk.auction.domain.payment.infrastructure.revenuecat.RevenueCatVerifiedPurchase;
 import auctionTalk.auction.domain.payment.mapper.PaymentMapper;
 import auctionTalk.auction.domain.payment.repository.PaymentRepository;
+import auctionTalk.auction.domain.payment.service.PaymentFailureRecorder;
 import auctionTalk.auction.domain.payment.service.PaymentFulfillmentService;
 import auctionTalk.auction.domain.product.entity.Product;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentConfirmServiceImpl implements PaymentConfirmService {
 
-    private static final String FAILURE_CODE_VERIFY_FAILED = "PAYMENT_VERIFY_FAILED";
-    private static final String FAILURE_CODE_DUPLICATED_TRANSACTION = "DUPLICATED_PROVIDER_TRANSACTION";
-    private static final String FAILURE_CODE_PRODUCT_MISMATCH = "STORE_PRODUCT_MISMATCH";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
-    private final PaymentVerificationServiceResolver verificationServiceResolver;
     private final PaymentMapper paymentMapper;
     private final PaymentFulfillmentService paymentFulfillmentService;
+    private final RevenueCatClient revenueCatClient;
+    private final RevenueCatPurchaseVerifier revenueCatPurchaseVerifier;
+    private final PaymentFailureRecorder paymentFailureRecorder;
 
 
     @Override
     @Transactional
     public PaymentConfirmResponse confirm(Long memberId, PaymentConfirmRequest request) {
         Order order = orderRepository.findByIdAndMemberId(request.getOrderId(), memberId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
 
-        Payment payment = paymentRepository.findByOrderId(order.getId())
-                .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
+        Payment payment = paymentRepository.findByOrderIdForUpdate(order.getId())
+                .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
 
         Product product = order.getProduct();
 
         if (payment.isSuccess() && order.isSuccess()) {
-            return paymentMapper.toPaymentConfirmResponse(order, payment, product);
+            return paymentMapper.toPaymentConfirmResponse(order, payment);
         }
 
-        payment.markVerifying(request.getProvider(), request.getStoreProductId(), extractPurchaseToken(request));
-
-        PaymentVerificationService verificationService =
-                verificationServiceResolver.resolve(request.getProvider());
-
-        PaymentVerificationResult result;
         try {
-            result = verificationService.verify(request);
-        } catch (RuntimeException e) {
-            payment.markFailed(
-                    request.getProvider(),
-                    extractPurchaseToken(request),
-                    request.getStoreProductId(),
-                    request.getProviderVerificationData(),
-                    FAILURE_CODE_VERIFY_FAILED,
-                    e.getMessage(),
-                    LocalDateTime.now()
+            validateProductIdentifier(product, request.getProductIdentifier());
+            validateDuplicatedTransaction(payment, request.getTransactionIdentifier());
+
+            String revenueCatAppUserId = String.valueOf(memberId);
+
+            RevenueCatCustomerResponse customerResponse =
+                    revenueCatClient.getCustomer(revenueCatAppUserId);
+
+            RevenueCatVerifiedPurchase verifiedPurchase =
+                    revenueCatPurchaseVerifier.verifyNonSubscriptionPurchase(
+                            customerResponse,
+                            request.getProductIdentifier(),
+                            request.getTransactionIdentifier()
+                    );
+
+            payment.markSuccessByRevenueCat(
+                    verifiedPurchase.getTransactionIdentifier(),
+                    verifiedPurchase.getProductIdentifier(),
+                    verifiedPurchase.getStore(),
+                    verifiedPurchase.getSandbox(),
+                    verifiedPurchase.getPurchasedAt()
             );
-            order.markFail();
+
+            order.markSuccess();
+
+            paymentFulfillmentService.fulfill(order);
+
+            return paymentMapper.toPaymentConfirmResponse(order, payment);
+
+        } catch (CustomApiException e) {
+            paymentFailureRecorder.recordFailure(
+                    order.getId(),
+                    payment.getId(),
+                    e.getErrorCode().getCode(),
+                    e.getErrorCode().getMessage()
+            );
             throw e;
-        }
-
-        if (!Objects.equals(product.getStoreProductId(), result.getStoreProductId())) {
-            payment.markFailed(
-                    request.getProvider(),
-                    extractPurchaseToken(request),
-                    result.getStoreProductId(),
-                    result.getRawVerificationData(),
-                    FAILURE_CODE_PRODUCT_MISMATCH,
-                    "스토어 검증 결과 상품 ID가 주문 상품과 다릅니다.",
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            paymentFailureRecorder.recordFailure(
+                    order.getId(),
+                    payment.getId(),
+                    "PAYMENT500",
+                    e.getMessage()
             );
-            order.markFail();
-            throw new IllegalStateException("스토어 검증 결과 상품 ID가 주문 상품과 다릅니다.");
+            throw new CustomApiException(ErrorCode.FAIL_CONFIRM_PAYMENT);
         }
-
-        boolean duplicated = paymentRepository.existsByPaymentProviderAndProviderTransactionId(
-                request.getProvider(),
-                result.getProviderTransactionId()
-        );
-
-        if (duplicated && !Objects.equals(payment.getProviderTransactionId(), result.getProviderTransactionId())) {
-            payment.markFailed(
-                    request.getProvider(),
-                    extractPurchaseToken(request),
-                    result.getStoreProductId(),
-                    result.getRawVerificationData(),
-                    FAILURE_CODE_DUPLICATED_TRANSACTION,
-                    "이미 처리된 스토어 거래입니다.",
-                    LocalDateTime.now()
-            );
-            order.markFail();
-            throw new IllegalStateException("이미 처리된 결제입니다.");
-        }
-
-        payment.markApproved(
-                request.getProvider(),
-                result.getProviderTransactionId(),
-                extractPurchaseToken(request),
-                result.getStoreProductId(),
-                result.getRawVerificationData(),
-                order.getAmount(),
-                result.getApprovedAt()
-        );
-
-        order.markComplete();
-        paymentFulfillmentService.fulfill(order);
-
-        return paymentMapper.toPaymentConfirmResponse(order, payment, product);
     }
 
     @Override
@@ -135,9 +117,22 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
 
         return "ORD-" + timestamp + "-" + random;
     }
-    private String extractPurchaseToken(PaymentConfirmRequest request) {
-        return request.getProvider() == PaymentProvider.GOOGLE
-                ? request.getProviderVerificationData()
-                : null;
+
+
+    private void validateProductIdentifier(Product product, String productIdentifier) {
+        if (!product.getStoreProductId().equals(productIdentifier)) {
+            throw new CustomApiException(ErrorCode.PRODUCT_IDENTIFIER_MISMATCH);
+        }
+    }
+
+    private void validateDuplicatedTransaction(Payment currentPayment, String transactionIdentifier) {
+        paymentRepository.findByPaymentProviderAndProviderTransactionId(
+                        PaymentProvider.REVENUECAT,
+                        transactionIdentifier
+                )
+                .filter(existingPayment -> !existingPayment.getId().equals(currentPayment.getId()))
+                .ifPresent(existingPayment -> {
+                    throw new CustomApiException(ErrorCode.DUPLICATED_PAYMENT_TRANSACTION);
+                });
     }
 }

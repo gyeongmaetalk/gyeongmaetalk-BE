@@ -19,8 +19,10 @@ import java.time.LocalDateTime;
         },
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_payments_payment_number", columnNames = "payment_number"),
-                @UniqueConstraint(name = "uk_payments_idempotency_key", columnNames = "idempotency_key"),
-                @UniqueConstraint(name = "uk_payments_provider_transaction_id", columnNames = {"payment_provider", "provider_transaction_id"})
+                @UniqueConstraint(
+                        name = "uk_payments_provider_transaction_id",
+                        columnNames = {"payment_provider", "provider_transaction_id"}
+                )
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,33 +46,17 @@ public class Payment extends BaseEntity {
 
 
     /**
-     * 결제사 기준 거래 식별자
-     * - APPLE: transactionId
-     * - GOOGLE: orderId 또는 latestSuccessfulOrderId
+     * RevenueCat 또는 스토어 거래 식별자
+     * transactionIdentifier 저장
      */
     private String providerTransactionId;
 
     /**
-     * Google 전용 검증 키
-     * - GOOGLE: purchaseToken
-     * - APPLE: null
-     */
-    private String purchaseToken;
-
-    /**
-     * 실제 결제 검증에 사용된 스토어 상품 ID 스냅샷
-     * - APPLE: productId
-     * - GOOGLE: productId
+     * 결제된 스토어 상품 ID
+     * 예: view_ticket_10
      */
     private String storeProductId;
 
-    /**
-     * 원본 검증 데이터
-     * - APPLE: signedTransactionInfo JWS
-     * - GOOGLE: purchaseToken 또는 raw response json
-     */
-    @Lob
-    private String rawProviderPayload;
 
     private Long requestedAmount;
 
@@ -84,7 +70,9 @@ public class Payment extends BaseEntity {
 
     private String failureCode;
 
-    private LocalDateTime refundedAt;
+    private String store;
+
+    private Boolean sandbox = false;
 
     /**
      * Google acknowledge 완료 시각
@@ -92,64 +80,29 @@ public class Payment extends BaseEntity {
      */
     private LocalDateTime acknowledgedAt;
 
-    public void markVerifying(PaymentProvider paymentProvider, String storeProductId, String purchaseToken) {
-        this.paymentProvider = paymentProvider;
-        this.storeProductId = storeProductId;
-        this.purchaseToken = purchaseToken;
-        this.paymentStatus = PaymentStatus.VERIFYING;
-    }
-
-
-    public void markApproved(
-            PaymentProvider paymentProvider,
-            String providerTransactionId,
-            String purchaseToken,
+    public void markSuccessByRevenueCat(
+            String transactionIdentifier,
             String storeProductId,
-            String rawProviderPayload,
-            Long approvedAmount,
+            String store,
+            Boolean sandbox,
             LocalDateTime approvedAt
     ) {
-        this.paymentProvider = paymentProvider;
-        this.providerTransactionId = providerTransactionId;
-        this.purchaseToken = purchaseToken;
-        this.storeProductId = storeProductId;
-        this.rawProviderPayload = rawProviderPayload;
-        this.approvedAmount = approvedAmount;
-        this.approvedAt = approvedAt;
+        this.paymentProvider = PaymentProvider.REVENUECAT;
         this.paymentStatus = PaymentStatus.SUCCESS;
-
-        this.failedAt = null;
-        this.failureCode = null;
-        this.failureReason = null;
+        this.providerTransactionId = transactionIdentifier;
+        this.storeProductId = storeProductId;
+        this.store = store;
+        this.sandbox = sandbox;
+        this.approvedAt = approvedAt != null ? approvedAt : LocalDateTime.now();
     }
 
-    public void markFailed(
-            PaymentProvider paymentProvider,
-            String purchaseToken,
-            String storeProductId,
-            String rawProviderPayload,
-            String failureCode,
-            String failureReason,
-            LocalDateTime failedAt
-    ) {
-        this.paymentProvider = paymentProvider;
-        this.purchaseToken = purchaseToken;
-        this.storeProductId = storeProductId;
-        this.rawProviderPayload = rawProviderPayload;
-        this.paymentStatus = PaymentStatus.FAIL;
+    public void markFailed(String failureCode, String failureReason) {
+        this.paymentStatus = PaymentStatus.FAILED;
+        this.failedAt = LocalDateTime.now();
         this.failureCode = failureCode;
         this.failureReason = failureReason;
-        this.failedAt = failedAt;
     }
 
-    public void markRefunded(LocalDateTime refundedAt) {
-        this.paymentStatus = PaymentStatus.REFUNDED;
-        this.refundedAt = refundedAt;
-    }
-
-    public void markAcknowledged(LocalDateTime acknowledgedAt) {
-        this.acknowledgedAt = acknowledgedAt;
-    }
 
     public boolean isSuccess() {
         return this.paymentStatus == PaymentStatus.SUCCESS;
