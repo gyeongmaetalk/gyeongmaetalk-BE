@@ -52,7 +52,7 @@ public class AdminSubscriptionServiceImpl implements AdminSubscriptionService {
             counsel.updateStatus(CounselStatus.SUBSCRIBE);
             subscription.activate();
         }
-        if(status == PaymentStatus.FAIL) {
+        if(status == PaymentStatus.FAILED) {
             counsel.updateStatus(CounselStatus.COUNSEL_AFTER);
         }
 
