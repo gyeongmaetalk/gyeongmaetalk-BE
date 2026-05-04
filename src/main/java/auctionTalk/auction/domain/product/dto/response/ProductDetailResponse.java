@@ -21,17 +21,12 @@ public class ProductDetailResponse {
     @Schema(description = "상품 설명", example = "월 구독 + 매물 열람권 5장")
     private String description;
 
-    @Schema(description = "상품 타입", example = "PACKAGE")
-    private String productType;
-
-    @Schema(description = "열람권 갯수", example = "1")
-    private int quantity;
-
     @Schema(description = "정가", example = "400000")
     private Long originalPrice;
 
     @Schema(description = "할인 가격", example = "387000")
     private Long price;
 
-    private List<ProductComponentResponse> components;
+    @Schema(description = "추천 여부", example = "false")
+    private boolean recommended;
 }

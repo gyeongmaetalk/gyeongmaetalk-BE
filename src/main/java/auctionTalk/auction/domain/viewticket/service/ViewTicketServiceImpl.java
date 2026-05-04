@@ -9,7 +9,6 @@ import auctionTalk.auction.domain.product.service.ProductService;
 import auctionTalk.auction.domain.viewticket.dto.response.ViewTicketPurchasePageResponse;
 import auctionTalk.auction.domain.viewticket.dto.response.ViewTicketWalletResponse;
 import auctionTalk.auction.domain.viewticket.entity.MemberViewTicketWallet;
-import auctionTalk.auction.domain.viewticket.entity.ViewTicketGrantHistory;
 import auctionTalk.auction.domain.viewticket.mapper.ViewTicketMapper;
 import auctionTalk.auction.domain.viewticket.repository.MemberViewTicketWalletRepository;
 import auctionTalk.auction.domain.viewticket.repository.ViewTicketGrantHistoryRepository;
