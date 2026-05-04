@@ -72,6 +72,9 @@ public class SecurityConstant {
             //payment
             "/payments/confirm",
 
+            //view-tickets
+            "/view-tickets/**",
+
     };
 
     // 관리자 전용 API
