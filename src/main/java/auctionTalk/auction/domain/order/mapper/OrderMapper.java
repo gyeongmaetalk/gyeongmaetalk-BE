@@ -34,7 +34,6 @@ public class OrderMapper {
                 .productId(product.getId())
                 .productName(product.getName())
                 .amount(order.getAmount())
-                .paymentProvider(order.getPaymentProvider())
                 .storeProductId(payment.getStoreProductId())
                 .build();
     }
