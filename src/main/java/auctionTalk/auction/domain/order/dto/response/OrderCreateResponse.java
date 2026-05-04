@@ -20,17 +20,11 @@ public class OrderCreateResponse {
     @Schema(description = "결제 금액", example = "300000")
     private Long amount;
 
-    @Schema(description = "결제 수단", example = "APPLE")
-    private PaymentProvider paymentProvider;
-
     @Schema(description = "상품 ID", example = "1")
     private Long productId;
 
     @Schema(description = "상품 이름", example = "매물 열람권 10개")
     private String productName;
-
-    @Schema(description = "상품 타입", example = "VIEW_TICKET")
-    private ProductType productType;
 
     @Schema(description = "스토어 상품 ID", example = "auction_forever_premium_ios")
     private String storeProductId;
