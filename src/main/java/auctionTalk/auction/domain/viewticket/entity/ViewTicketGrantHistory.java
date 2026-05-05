@@ -36,11 +36,4 @@ public class ViewTicketGrantHistory extends BaseEntity {
 
     @Column(nullable = false)
     private Integer quantity;
-
-    @Builder
-    private ViewTicketGrantHistory(Order order, ProductComponent productComponent, Integer quantity) {
-        this.order = order;
-        this.productComponent = productComponent;
-        this.quantity = quantity;
-    }
 }

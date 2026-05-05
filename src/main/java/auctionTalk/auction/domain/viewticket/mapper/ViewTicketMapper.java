@@ -22,8 +22,9 @@ public class ViewTicketMapper {
                 .build();
     }
 
-    public ViewTicketWalletResponse toViewTicketWalletResponse(Integer balance) {
+    public ViewTicketWalletResponse toViewTicketWalletResponse(String packageName, Integer balance) {
         return ViewTicketWalletResponse.builder()
+                .packageName(packageName)
                 .balance(balance)
                 .build();
     }

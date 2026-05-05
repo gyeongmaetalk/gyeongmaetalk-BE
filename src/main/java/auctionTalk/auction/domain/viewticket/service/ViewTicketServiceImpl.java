@@ -9,11 +9,15 @@ import auctionTalk.auction.domain.product.service.ProductService;
 import auctionTalk.auction.domain.viewticket.dto.response.ViewTicketPurchasePageResponse;
 import auctionTalk.auction.domain.viewticket.dto.response.ViewTicketWalletResponse;
 import auctionTalk.auction.domain.viewticket.entity.MemberViewTicketWallet;
+import auctionTalk.auction.domain.viewticket.entity.ViewTicketGrantHistory;
 import auctionTalk.auction.domain.viewticket.mapper.ViewTicketMapper;
 import auctionTalk.auction.domain.viewticket.repository.MemberViewTicketWalletRepository;
 import auctionTalk.auction.domain.viewticket.repository.ViewTicketGrantHistoryRepository;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,21 +31,35 @@ public class ViewTicketServiceImpl implements ViewTicketService{
     private final ViewTicketGrantHistoryRepository viewTicketGrantHistoryRepository;
     private final ViewTicketMapper viewTicketMapper;
 
-    public ViewTicketPurchasePageResponse getPurchasePage(Long memberId) {
+    @Override
+    @Transactional
+    public ViewTicketPurchasePageResponse getPurchasePage(Member member) {
         List<ProductDetailResponse> products =
                 productService.getProducts(ProductSearchCategory.VIEW_TICKET);
 
-        Integer balance = memberViewTicketWalletRepository.findBalanceByMemberId(memberId)
+        Integer balance = memberViewTicketWalletRepository.findBalanceByMemberId(member.getId())
                 .orElse(0);
 
         return viewTicketMapper.toViewTicketPurchasePageResponse(balance, products);
     }
 
-    public ViewTicketWalletResponse getMyWallet(Long memberId) {
-        Integer balance = memberViewTicketWalletRepository.findBalanceByMemberId(memberId)
+    @Override
+    @Transactional
+    public ViewTicketWalletResponse getMyWallet(Member member) {
+
+        Integer balance = memberViewTicketWalletRepository.findBalanceByMemberId(member.getId())
                 .orElse(0);
 
-        return viewTicketMapper.toViewTicketWalletResponse(balance);
+        String packageName = viewTicketGrantHistoryRepository
+                .findLatestPackageNameByMemberId(
+                        member.getId(),
+                        PageRequest.of(0, 1)
+                )
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
+
+        return viewTicketMapper.toViewTicketWalletResponse(packageName, balance);
     }
 
     @Override
