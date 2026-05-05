@@ -17,9 +17,7 @@ public interface ViewTicketGrantHistoryRepository extends JpaRepository<ViewTick
         from ViewTicketGrantHistory h
         join h.order o
         join o.product p
-        join h.productComponent pc
         where o.member.id = :memberId
-          and pc.componentType = :componentType
         order by h.createdAt desc
     """)
     List<String> findLatestPackageNameByMemberId(
