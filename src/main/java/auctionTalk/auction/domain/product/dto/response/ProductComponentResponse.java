@@ -10,15 +10,9 @@ import lombok.Getter;
 @Builder
 public class ProductComponentResponse {
 
-    @Schema(description = "구성요소 타입", example = "VIEW_TICKET")
-    private String componentType;
-
-    @Schema(description = "구성요소 이름", example = "매물 열람권 5장")
-    private String name;
-
-    @Schema(description = "구성요소 설명", example = "프리미엄 패키지의 열람권 구성요소")
+    @Schema(description = "상품 설명", example = "경매 대행 시작")
     private String description;
 
-    @Schema(description = "열람권 개수", example = "5", nullable = true)
-    private Integer ticketCount;
+    @Schema(description = "갯수", example = "3")
+    private Integer quantity;
 }
