@@ -4,6 +4,7 @@ import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Entity
 @Getter
 @Builder
@@ -23,5 +24,4 @@ public class ProductComponent extends BaseEntity {
 
     @Column(length = 500)
     private String description;
-
 }

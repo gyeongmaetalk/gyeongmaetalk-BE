@@ -31,7 +31,7 @@ public class ViewTicketController {
             @AuthenticationPrincipal(errorOnInvalidType = true) PrincipalDetails principal
     ) {
         return BaseResponse.onSuccess(
-                viewTicketService.getPurchasePage(principal.getMember().getId())
+                viewTicketService.getPurchasePage(principal.getMember())
         );
     }
 
@@ -44,7 +44,7 @@ public class ViewTicketController {
             @AuthenticationPrincipal(errorOnInvalidType = true) PrincipalDetails principal
     ) {
         return BaseResponse.onSuccess(
-                viewTicketService.getMyWallet(principal.getMember().getId())
+                viewTicketService.getMyWallet(principal.getMember())
         );
     }
 }

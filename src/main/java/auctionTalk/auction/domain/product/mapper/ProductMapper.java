@@ -25,29 +25,22 @@ public class ProductMapper {
         return ProductDetailResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
-                .description(product.getDescription())
                 .originalPrice(product.getOriginalPrice())
                 .price(product.getPrice())
                 .recommended(product.isRecommended())
+                .components(components)
                 .build();
     }
 
     public ProductComponentResponse toComponentResponse(ProductComponentMapping mapping) {
         ProductComponent component = mapping.getComponent();
 
-        Integer ticketCount = null;
-
-        if (component.getComponentType() == ProductComponentType.VIEW_TICKET) {
-            ticketCount = mapping.getQuantity();
-        }
-
         return ProductComponentResponse.builder()
-                .componentType(component.getComponentType().name())
-                .name(component.getName())
                 .description(component.getDescription())
-                .ticketCount(ticketCount)
+                .quantity(mapping.getQuantity())
                 .build();
     }
+
 
     private int getViewTicketQuantity(Product product) {
         return product.getComponentMappings().stream()
