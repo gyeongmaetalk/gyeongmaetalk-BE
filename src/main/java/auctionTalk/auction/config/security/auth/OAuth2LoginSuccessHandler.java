@@ -38,8 +38,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 60L * 60 * 1000;           // 1시간
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 15L * 24 * 60 * 60 * 1000; // 15일
 
-    @Value("${app.redirect-url}")
-    private String baseRedirectUrl;
+    @Value("${app.redirect-url.local}")
+    private String localRedirectUrl;
+
+    @Value("${app.redirect-url.preview}")
+    private String previewRedirectUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -89,6 +92,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
+        String baseRedirectUrl = resolveRedirectUrl(request);
+
         String redirectUrl = baseRedirectUrl
                 + "?registered=" + member.isRegistered()
                 + "&name=" + URLEncoder.encode(
@@ -120,5 +125,30 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             log.warn("🍎 Apple name 파싱 실패", e);
         }
         return null;
+    }
+
+    private String resolveRedirectUrl(HttpServletRequest request) {
+        String origin = request.getHeader("Origin");
+        String referer = request.getHeader("Referer");
+
+        log.info("OAuth redirect resolve origin={}, referer={}", origin, referer);
+
+        if (origin != null && origin.startsWith("https://preview.gyeongmaetalk.shop")) {
+            return previewRedirectUrl;
+        }
+
+        if (referer != null && referer.startsWith("https://preview.gyeongmaetalk.shop")) {
+            return previewRedirectUrl;
+        }
+
+        if (origin != null && origin.startsWith("http://gyeongmaetalk.shop:5173")) {
+            return localRedirectUrl;
+        }
+
+        if (referer != null && referer.startsWith("http://gyeongmaetalk.shop:5173")) {
+            return localRedirectUrl;
+        }
+
+        return localRedirectUrl;
     }
 }
