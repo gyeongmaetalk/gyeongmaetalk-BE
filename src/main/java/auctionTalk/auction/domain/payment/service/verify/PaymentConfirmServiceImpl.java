@@ -1,5 +1,7 @@
 package auctionTalk.auction.domain.payment.service.verify;
 
+import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.member.repository.MemberRepository;
 import auctionTalk.auction.domain.order.entity.Order;
 import auctionTalk.auction.domain.order.repository.OrderRepository;
 import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
@@ -12,8 +14,6 @@ import auctionTalk.auction.domain.payment.infrastructure.revenuecat.RevenueCatPu
 import auctionTalk.auction.domain.payment.infrastructure.revenuecat.RevenueCatVerifiedPurchase;
 import auctionTalk.auction.domain.payment.mapper.PaymentMapper;
 import auctionTalk.auction.domain.payment.repository.PaymentRepository;
-import auctionTalk.auction.domain.payment.service.PaymentFailureRecorder;
-import auctionTalk.auction.domain.payment.service.PaymentFulfillmentService;
 import auctionTalk.auction.domain.payment.service.PaymentSuccessProcessor;
 import auctionTalk.auction.domain.product.entity.Product;
 import auctionTalk.auction.global.exception.CustomApiException;
@@ -38,10 +38,9 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final PaymentMapper paymentMapper;
-    private final PaymentFulfillmentService paymentFulfillmentService;
     private final RevenueCatClient revenueCatClient;
     private final RevenueCatPurchaseVerifier revenueCatPurchaseVerifier;
-    private final PaymentFailureRecorder paymentFailureRecorder;
+    private final MemberRepository memberRepository;
     private final PaymentSuccessProcessor paymentSuccessProcessor;
 
 
@@ -73,9 +72,12 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
             step = "VALIDATE_DUPLICATED_TRANSACTION";
             validateDuplicatedTransaction(payment, request.getTransactionIdentifier());
 
-            String revenueCatAppUserId = String.valueOf(memberId);
+            Member member = memberRepository.getMember(memberId);
+
+            String revenueCatAppUserId = member.getRevenueCatAppUserId();
 
             step = "REVENUECAT_GET_CUSTOMER";
+
             RevenueCatCustomerResponse customerResponse =
                     revenueCatClient.getCustomer(revenueCatAppUserId);
 
@@ -117,7 +119,6 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
             // 실패 기록
             // 단, order/payment 조회 전에 터질 수도 있으니까 target 정보 구조에 따라 조심해야 함
             throw e;
-
         } catch (Exception e) {
             log.error("[PAYMENT_CONFIRM_UNKNOWN_ERROR] step={}, memberId={}, orderId={}, productIdentifier={}, transactionIdentifier={}",
                     step,

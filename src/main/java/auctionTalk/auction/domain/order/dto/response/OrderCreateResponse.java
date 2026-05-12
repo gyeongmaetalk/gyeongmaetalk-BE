@@ -28,4 +28,7 @@ public class OrderCreateResponse {
 
     @Schema(description = "스토어 상품 ID", example = "auction_forever_premium_ios")
     private String storeProductId;
+
+    @Schema(description = "RevenueCat App User ID", example = "rc_550e8400-e29b-41d4-a716-446655440000")
+    private String revenueCatAppUserId;
 }

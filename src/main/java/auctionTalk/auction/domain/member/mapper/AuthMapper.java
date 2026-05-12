@@ -35,11 +35,13 @@ public class AuthMapper {
     public MemberInfoResponse toMemberInfoResponse(Member member, SubscriptionStatus auctionStatus){
 
         return MemberInfoResponse.builder()
+                .memberId(member.getId())
                 .name(member.getName())
                 .loginType(member.getLoginType())
                 .cellPhone(member.getCellPhone())
                 .birth(member.getBirth())
                 .auctionStatus(auctionStatus)
+                .revenueCatAppUserId(member.getRevenueCatAppUserId())
                 .build();
     }
 

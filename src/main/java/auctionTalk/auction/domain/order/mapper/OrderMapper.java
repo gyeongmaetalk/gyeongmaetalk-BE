@@ -35,6 +35,7 @@ public class OrderMapper {
                 .productName(product.getName())
                 .amount(order.getAmount())
                 .storeProductId(payment.getStoreProductId())
+                .revenueCatAppUserId(order.getMember().getRevenueCatAppUserId())
                 .build();
     }
 }

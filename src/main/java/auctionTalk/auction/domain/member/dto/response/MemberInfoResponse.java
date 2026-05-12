@@ -12,6 +12,9 @@ import java.time.LocalDate;
 @Builder
 public class MemberInfoResponse {
 
+    @Schema(description = "회원 ID", example = "3")
+    private Long memberId;
+
     @Schema(description = "멤버 이름", example = "임팡수")
     private String name;
 
@@ -26,4 +29,7 @@ public class MemberInfoResponse {
 
     @Schema(description = "경매 진행 상태", example = "true")
     private SubscriptionStatus auctionStatus;
+
+    @Schema(description = "RevenueCat App User ID", example = "rc_550e8400-e29b-41d4-a716-446655440000")
+    private String revenueCatAppUserId;
 }
