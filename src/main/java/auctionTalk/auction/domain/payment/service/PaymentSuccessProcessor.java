@@ -10,11 +10,13 @@ import auctionTalk.auction.domain.payment.repository.PaymentRepository;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentSuccessProcessor {
 
     private final OrderRepository orderRepository;
@@ -28,28 +30,54 @@ public class PaymentSuccessProcessor {
             Long paymentId,
             RevenueCatVerifiedPurchase verifiedPurchase
     ) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
+        String step = "INIT";
 
-        Payment payment = paymentRepository.findByIdForUpdate(paymentId)
-                .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
+        try {
+            step = "LOAD_ORDER";
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (payment.isSuccess() && order.isSuccess()) {
-            return paymentMapper.toPaymentConfirmResponse(order, payment);
+            step = "LOCK_PAYMENT";
+            Payment payment = paymentRepository.findByIdForUpdate(paymentId)
+                    .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
+
+            log.info("[PAYMENT_SUCCESS_LOCKED] orderId={}, paymentId={}, paymentStatus={}, orderStatus={}",
+                    orderId, paymentId, payment.getPaymentStatus(), order.getOrderStatus());
+
+            if (payment.isSuccess() && order.isSuccess()) {
+                log.info("[PAYMENT_SUCCESS_ALREADY_PROCESSED] orderId={}, paymentId={}", orderId, paymentId);
+                return paymentMapper.toPaymentConfirmResponse(order, payment);
+            }
+
+            step = "MARK_PAYMENT_SUCCESS";
+            payment.markSuccessByRevenueCat(
+                    verifiedPurchase.getTransactionIdentifier(),
+                    verifiedPurchase.getProductIdentifier(),
+                    verifiedPurchase.getStore(),
+                    verifiedPurchase.getSandbox(),
+                    verifiedPurchase.getPurchasedAt()
+            );
+
+            step = "MARK_ORDER_SUCCESS";
+            order.markSuccess();
+
+            step = "FULFILL_PAYMENT";
+            paymentFulfillmentService.fulfill(order);
+
+            step = "CREATE_RESPONSE";
+            PaymentConfirmResponse response = paymentMapper.toPaymentConfirmResponse(order, payment);
+
+            log.info("[PAYMENT_SUCCESS_COMPLETED] orderId={}, paymentId={}, transactionIdentifier={}",
+                    orderId,
+                    paymentId,
+                    verifiedPurchase.getTransactionIdentifier());
+
+            return response;
+
+        } catch (Exception e) {
+            log.error("[PAYMENT_SUCCESS_PROCESS_FAILED] step={}, orderId={}, paymentId={}",
+                    step, orderId, paymentId, e);
+            throw e;
         }
-
-        payment.markSuccessByRevenueCat(
-                verifiedPurchase.getTransactionIdentifier(),
-                verifiedPurchase.getProductIdentifier(),
-                verifiedPurchase.getStore(),
-                verifiedPurchase.getSandbox(),
-                verifiedPurchase.getPurchasedAt()
-        );
-
-        order.markSuccess();
-
-        paymentFulfillmentService.fulfill(order);
-
-        return paymentMapper.toPaymentConfirmResponse(order, payment);
     }
 }
