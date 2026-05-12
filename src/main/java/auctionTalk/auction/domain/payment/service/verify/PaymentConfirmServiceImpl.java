@@ -14,6 +14,7 @@ import auctionTalk.auction.domain.payment.mapper.PaymentMapper;
 import auctionTalk.auction.domain.payment.repository.PaymentRepository;
 import auctionTalk.auction.domain.payment.service.PaymentFailureRecorder;
 import auctionTalk.auction.domain.payment.service.PaymentFulfillmentService;
+import auctionTalk.auction.domain.payment.service.PaymentSuccessProcessor;
 import auctionTalk.auction.domain.product.entity.Product;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -39,15 +40,15 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
     private final RevenueCatClient revenueCatClient;
     private final RevenueCatPurchaseVerifier revenueCatPurchaseVerifier;
     private final PaymentFailureRecorder paymentFailureRecorder;
+    private final PaymentSuccessProcessor paymentSuccessProcessor;
 
 
     @Override
-    @Transactional
     public PaymentConfirmResponse confirm(Long memberId, PaymentConfirmRequest request) {
         Order order = orderRepository.findByIdAndMemberId(request.getOrderId(), memberId)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
 
-        Payment payment = paymentRepository.findByOrderIdForUpdate(order.getId())
+        Payment payment = paymentRepository.findByOrderId(order.getId())
                 .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
 
         Product product = order.getProduct();
@@ -80,11 +81,11 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
                     verifiedPurchase.getPurchasedAt()
             );
 
-            order.markSuccess();
-
-            paymentFulfillmentService.fulfill(order);
-
-            return paymentMapper.toPaymentConfirmResponse(order, payment);
+            return paymentSuccessProcessor.processSuccess(
+                    order.getId(),
+                    payment.getId(),
+                    verifiedPurchase
+            );
 
         } catch (CustomApiException e) {
             paymentFailureRecorder.recordFailure(

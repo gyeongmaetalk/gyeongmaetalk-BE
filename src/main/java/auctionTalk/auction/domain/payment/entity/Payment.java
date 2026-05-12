@@ -74,10 +74,6 @@ public class Payment extends BaseEntity {
 
     private Boolean sandbox = false;
 
-    /**
-     * Google acknowledge 완료 시각
-     * - APPLE은 null
-     */
     private LocalDateTime acknowledgedAt;
 
     public void markSuccessByRevenueCat(
