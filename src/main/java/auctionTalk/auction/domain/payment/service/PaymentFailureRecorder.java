@@ -18,7 +18,7 @@ public class PaymentFailureRecorder {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void recordFailure(Long orderId, Long paymentId, String failureCode, String failureReason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
