@@ -29,7 +29,7 @@ public class OAuthClientEnvCookieFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String clientEnvValue = request.getParameter("client_env");
+        String clientEnvValue = request.getParameter("env");
 
         if (!ClientEnv.isValid(clientEnvValue)) {
             filterChain.doFilter(request, response);
