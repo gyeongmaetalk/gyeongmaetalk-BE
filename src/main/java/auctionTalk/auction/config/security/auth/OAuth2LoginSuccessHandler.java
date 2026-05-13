@@ -7,6 +7,7 @@ import auctionTalk.auction.domain.member.repository.MemberRepository;
 import auctionTalk.auction.domain.member.repository.TokenRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +39,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 60L * 60 * 1000;           // 1시간
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 15L * 24 * 60 * 60 * 1000; // 15일
 
-    @Value("${app.redirect-url.local}")
-    private String localRedirectUrl;
+    @Value("${app.redirect-url.dev}")
+    private String devRedirectUrl;
 
     @Value("${app.redirect-url.preview}")
     private String previewRedirectUrl;
+
+    @Value("${app.redirect-url.prod}")
+    private String prodRedirectUrl;
+
+    @Value("${app.oauth.default-client-env:DEV}")
+    private String defaultClientEnv;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -101,6 +108,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 StandardCharsets.UTF_8
         );
 
+        deleteClientEnvCookie(response);
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
@@ -128,27 +136,42 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private String resolveRedirectUrl(HttpServletRequest request) {
-        String origin = request.getHeader("Origin");
-        String referer = request.getHeader("Referer");
+        ClientEnv clientEnv = resolveClientEnv(request);
 
-        log.info("OAuth redirect resolve origin={}, referer={}", origin, referer);
+        return switch (clientEnv) {
+            case DEV -> devRedirectUrl;
+            case PREVIEW -> previewRedirectUrl;
+            case PROD -> prodRedirectUrl;
+        };
+    }
 
-        if (origin != null && origin.startsWith("https://preview.gyeongmaetalk.shop")) {
-            return previewRedirectUrl;
+    private ClientEnv resolveClientEnv(HttpServletRequest request) {
+        ClientEnv defaultEnv = ClientEnv.fromOrDefault(defaultClientEnv, ClientEnv.DEV);
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return defaultEnv;
         }
 
-        if (referer != null && referer.startsWith("https://preview.gyeongmaetalk.shop")) {
-            return previewRedirectUrl;
+        for (Cookie cookie : cookies) {
+            if (OAuthClientEnvCookieFilter.COOKIE_NAME.equals(cookie.getName())) {
+                return ClientEnv.fromOrDefault(cookie.getValue(), defaultEnv);
+            }
         }
 
-        if (origin != null && origin.startsWith("http://gyeongmaetalk.shop:5173")) {
-            return localRedirectUrl;
-        }
+        return defaultEnv;
+    }
 
-        if (referer != null && referer.startsWith("http://gyeongmaetalk.shop:5173")) {
-            return localRedirectUrl;
-        }
+    private void deleteClientEnvCookie(HttpServletResponse response) {
+        ResponseCookie deleteCookie = ResponseCookie.from(OAuthClientEnvCookieFilter.COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(Duration.ZERO)
+                .build();
 
-        return localRedirectUrl;
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
     }
 }
