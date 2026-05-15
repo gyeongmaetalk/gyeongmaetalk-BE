@@ -66,26 +66,18 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
                 return paymentMapper.toPaymentConfirmResponse(order, payment);
             }
 
-            step = "VALIDATE_PRODUCT_IDENTIFIER";
-            validateProductIdentifier(product, request.getProductIdentifier());
-
             step = "VALIDATE_DUPLICATED_TRANSACTION";
             validateDuplicatedTransaction(payment, request.getTransactionIdentifier());
 
             Member member = memberRepository.getMember(memberId);
 
-            String revenueCatAppUserId = member.getRevenueCatAppUserId();
-
             step = "REVENUECAT_GET_CUSTOMER";
-
-            RevenueCatCustomerResponse customerResponse =
-                    revenueCatClient.getCustomer(revenueCatAppUserId);
 
             step = "REVENUECAT_VERIFY_PURCHASE";
             RevenueCatVerifiedPurchase verifiedPurchase =
-                    revenueCatPurchaseVerifier.verifyNonSubscriptionPurchase(
-                            customerResponse,
-                            request.getProductIdentifier(),
+                    verifyRevenueCatPurchaseWithRetry(
+                            member.getRevenueCatAppUserId(),
+                            product.getStoreProductId(),
                             request.getTransactionIdentifier()
                     );
 
@@ -133,6 +125,51 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
         }
     }
 
+    private RevenueCatVerifiedPurchase verifyRevenueCatPurchaseWithRetry(
+            String revenueCatAppUserId,
+            String productIdentifier,
+            String transactionIdentifier
+    ) {
+        int maxAttempts = 5;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                RevenueCatCustomerResponse response =
+                        revenueCatClient.getCustomer(revenueCatAppUserId);
+
+                return revenueCatPurchaseVerifier.verifyNonSubscriptionPurchase(
+                        response,
+                        productIdentifier,
+                        transactionIdentifier
+                );
+            } catch (CustomApiException e) {
+                if (attempt == maxAttempts) {
+                    throw e;
+                }
+
+                log.warn("[REVENUECAT_VERIFY_RETRY] attempt={}, productIdentifier={}, transactionIdentifier={}, reason={}",
+                        attempt,
+                        productIdentifier,
+                        transactionIdentifier,
+                        e.getErrorCode()
+                );
+
+                sleepRevenueCatRetry();
+            }
+        }
+
+        throw new CustomApiException(ErrorCode.REVENUECAT_PURCHASE_NOT_FOUND);
+    }
+
+    private void sleepRevenueCatRetry() {
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CustomApiException(ErrorCode.REVENUECAT_VERIFICATION_FAILED);
+        }
+    }
+
     @Override
     @Transactional
     public String generate() {
@@ -144,13 +181,6 @@ public class PaymentConfirmServiceImpl implements PaymentConfirmService {
                 .toUpperCase();
 
         return "ORD-" + timestamp + "-" + random;
-    }
-
-
-    private void validateProductIdentifier(Product product, String productIdentifier) {
-        if (!product.getStoreProductId().equals(productIdentifier)) {
-            throw new CustomApiException(ErrorCode.PRODUCT_IDENTIFIER_MISMATCH);
-        }
     }
 
     private void validateDuplicatedTransaction(Payment currentPayment, String transactionIdentifier) {
