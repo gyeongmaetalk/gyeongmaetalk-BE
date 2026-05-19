@@ -33,12 +33,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String clientId = attributes.get(userNameAttribute).toString();
+        LoginType loginType = LoginType.from(registrationId);
 
-        Member member = memberRepository.findByClientIdAndLoginType(clientId, LoginType.from(registrationId))
+        Member member = memberRepository
+                .findByClientIdAndLoginTypeIncludingDeleted(clientId, loginType)
+                .map(existingMember -> {
+                    if (existingMember.isDeleted()) {
+                        existingMember.restore();
+                    }
+
+                    return existingMember;
+                })
                 .orElseGet(() -> {
                     String name = extractName(registrationId, attributes);
 
-                    Member newMember = authMapper.toMember(clientId, LoginType.from(registrationId));
+                    Member newMember = authMapper.toMember(clientId, loginType);
+
                     if (StringUtils.hasText(name)) {
                         newMember.updateName(name);
                     }

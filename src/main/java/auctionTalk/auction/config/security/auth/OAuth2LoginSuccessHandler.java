@@ -63,7 +63,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
             String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
-            if ("apple".equals(registrationId) && !StringUtils.hasText(member.getName())) {
+            if ("apple".equals(registrationId) && canUpdateAppleName(member)) {
                 String appleName = extractAppleName(request);
 
                 if (StringUtils.hasText(appleName)) {
@@ -188,5 +188,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+    }
+
+    private boolean canUpdateAppleName(Member member) {
+        return !StringUtils.hasText(member.getName())
+                || "사용자".equals(member.getName())
+                || "unknown".equalsIgnoreCase(member.getName())
+                || "null".equalsIgnoreCase(member.getName());
     }
 }
