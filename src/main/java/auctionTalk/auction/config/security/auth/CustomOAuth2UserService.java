@@ -37,14 +37,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String clientId = attributes.get(userNameAttribute).toString();
         LoginType loginType = LoginType.from(registrationId);
 
-        Member member = memberRepository
-                .findByClientIdAndLoginTypeIncludingDeleted(clientId, loginType)
-                .map(existingMember -> {
-                    if (existingMember.isDeleted()) {
-                        existingMember.restore();
-                    }
+        String loginTypeDbValue = loginType.name();
 
-                    return existingMember;
+        Member member = memberRepository
+                .findIdByClientIdAndLoginTypeIncludingDeleted(clientId, loginTypeDbValue)
+                .map(memberId -> {
+                    int restoredCount = memberRepository.restoreById(memberId);
+
+                    return memberRepository.findById(memberId)
+                            .orElseThrow(() -> new IllegalStateException("복구한 회원을 다시 조회할 수 없습니다."));
                 })
                 .orElseGet(() -> {
                     String name = extractName(registrationId, attributes);
