@@ -4,6 +4,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.order.entity.Order;
+import auctionTalk.auction.domain.payment.entity.Payment;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
@@ -29,7 +30,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public void createFromPaidOrder(Order order) {
+    public void createFromPaidOrder(Order order, Payment payment) {
         if (subscriptionRepository.existsBySourceOrderId(order.getId())) {
             return;
         }
@@ -47,7 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         subscriptionRepository.save(
-                subscriptionMapper.toSubscription(order.getId(), member, counselor)
+                subscriptionMapper.toSubscription(order.getId(), member, counselor, payment)
         );
     }
 

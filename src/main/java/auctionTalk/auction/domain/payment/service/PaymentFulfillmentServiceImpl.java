@@ -1,6 +1,7 @@
 package auctionTalk.auction.domain.payment.service;
 
 import auctionTalk.auction.domain.order.entity.Order;
+import auctionTalk.auction.domain.payment.entity.Payment;
 import auctionTalk.auction.domain.product.entity.Product;
 import auctionTalk.auction.domain.product.entity.ProductComponent;
 import auctionTalk.auction.domain.product.entity.ProductComponentMapping;
@@ -21,7 +22,7 @@ public class PaymentFulfillmentServiceImpl implements PaymentFulfillmentService{
 
     @Override
     @Transactional
-    public void fulfill(Order order) {
+    public void fulfill(Order order, Payment payment) {
         Product product = order.getProduct();
 
         for (ProductComponentMapping mapping : product.getComponentMappings()) {
@@ -30,7 +31,7 @@ public class PaymentFulfillmentServiceImpl implements PaymentFulfillmentService{
 
             switch (component.getComponentType()) {
                 case VIEW_TICKET -> viewTicketService.grant(order, component, quantity);
-                case SUBSCRIPTION -> subscriptionService.createFromPaidOrder(order);
+                case SUBSCRIPTION -> subscriptionService.createFromPaidOrder(order, payment);
                 default -> throw new CustomApiException(ErrorCode.INVALID_COMPONENT_TYPE);
             }
         }

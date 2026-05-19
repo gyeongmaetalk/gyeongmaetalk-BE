@@ -62,7 +62,7 @@ public class PaymentSuccessProcessor {
             order.markSuccess();
 
             step = "FULFILL_PAYMENT";
-            paymentFulfillmentService.fulfill(order);
+            paymentFulfillmentService.fulfill(order,payment);
 
             step = "CREATE_RESPONSE";
             PaymentConfirmResponse response = paymentMapper.toPaymentConfirmResponse(order, payment);
