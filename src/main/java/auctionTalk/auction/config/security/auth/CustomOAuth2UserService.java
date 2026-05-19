@@ -5,6 +5,7 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.entity.Role;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -23,6 +24,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
     private final AuthMapper authMapper;
 
+    @Transactional
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -61,7 +63,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private String extractName(String registrationId, Map<String, Object> attributes) {
 
-        // Kakao
         if ("kakao".equals(registrationId)) {
             Map<String, Object> kakaoAccount =
                     (Map<String, Object>) attributes.get("kakao_account");
@@ -76,7 +77,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
         }
 
-        // fallback
+        if ("apple".equals(registrationId)) {
+            return null;
+        }
+
         return "사용자";
     }
 
