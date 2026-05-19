@@ -16,11 +16,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @RequiredArgsConstructor
 public class RevenueCatClient {
 
-    private final WebClient webClient;
+    private final WebClient revenueCatWebClient;
     private final ObjectMapper objectMapper;
 
     public RevenueCatCustomerResponse getCustomer(String appUserId) {
-        String raw = webClient.get()
+        String raw = revenueCatWebClient.get()
                 .uri("/subscribers/{appUserId}", appUserId)
                 .retrieve()
                 .bodyToMono(String.class)
