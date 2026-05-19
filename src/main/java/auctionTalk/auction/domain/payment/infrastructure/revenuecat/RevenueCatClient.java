@@ -22,7 +22,17 @@ public class RevenueCatClient {
     public RevenueCatCustomerResponse getCustomer(String appUserId) {
         String raw = revenueCatWebClient.get()
                 .uri("/subscribers/{appUserId}", appUserId)
+                .header("X-Is-Sandbox", "true")
                 .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .map(body -> {
+                                    log.error("[REVENUECAT_ERROR_RESPONSE] status={}, appUserId={}, body={}",
+                                            response.statusCode(), appUserId, body);
+                                    return new CustomApiException(ErrorCode.REVENUECAT_VERIFICATION_FAILED);
+                                })
+                )
                 .bodyToMono(String.class)
                 .block();
 
