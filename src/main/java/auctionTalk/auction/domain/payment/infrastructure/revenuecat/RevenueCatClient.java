@@ -16,14 +16,12 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @RequiredArgsConstructor
 public class RevenueCatClient {
 
-    private final WebClient revenueCatWebClient;
+    private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
     public RevenueCatCustomerResponse getCustomer(String appUserId) {
-        String raw = revenueCatWebClient.get()
+        String raw = webClient.get()
                 .uri("/subscribers/{appUserId}", appUserId)
-                .header("X-Platform", "ios")
-                .header("X-Is-Sandbox", "true")
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
@@ -32,8 +30,8 @@ public class RevenueCatClient {
 
         try {
             return objectMapper.readValue(raw, RevenueCatCustomerResponse.class);
-        } catch (JsonProcessingException e) {
-            log.error("[REVENUECAT_RESPONSE_PARSE_FAILED] appUserId={}, raw={}", appUserId, raw, e);
+        } catch (Exception e) {
+            log.error("[REVENUECAT_PARSE_FAILED] appUserId={}, raw={}", appUserId, raw, e);
             throw new CustomApiException(ErrorCode.REVENUECAT_VERIFICATION_FAILED);
         }
     }
