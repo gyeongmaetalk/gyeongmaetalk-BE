@@ -5,6 +5,7 @@ import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,19 +25,25 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     }
 
     @Query(value = """
-        SELECT *
+        SELECT id
         FROM member
         WHERE client_id = :clientId
-          AND login_type = :#{#loginType.name()}
-        ORDER BY 
-          CASE WHEN deleted_at IS NULL THEN 0 ELSE 1 END,
-          id DESC
+          AND login_type = :loginType
+        ORDER BY id ASC
         LIMIT 1
         """, nativeQuery = true)
-    Optional<Member> findByClientIdAndLoginTypeIncludingDeleted(
+    Optional<Long> findIdByClientIdAndLoginTypeIncludingDeleted(
             @Param("clientId") String clientId,
-            @Param("loginType") LoginType loginType
+            @Param("loginType") String loginType
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = """
+        UPDATE member
+        SET deleted_at = NULL
+        WHERE id = :memberId
+        """, nativeQuery = true)
+    int restoreById(@Param("memberId") Long memberId);
 
     Optional<Member> findByUsername(String username);
     Optional<Member> findByClientIdAndLoginType(String clientId, LoginType loginType);
