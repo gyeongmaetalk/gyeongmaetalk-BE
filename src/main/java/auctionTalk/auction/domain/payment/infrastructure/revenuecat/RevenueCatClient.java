@@ -22,6 +22,8 @@ public class RevenueCatClient {
     public RevenueCatCustomerResponse getCustomer(String appUserId) {
         String raw = revenueCatWebClient.get()
                 .uri("/subscribers/{appUserId}", appUserId)
+                .header("X-Platform", "ios")
+                .header("X-Is-Sandbox", "true")
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
