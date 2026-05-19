@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class AppleOidcUserService extends OidcUserService {
 
     private final MemberRepository memberRepository;
-    private final AuthMapper authMapper; // ✅ Member 생성 로직 통일
+    private final AuthMapper authMapper;
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) {
@@ -27,14 +27,25 @@ public class AppleOidcUserService extends OidcUserService {
         String appleSub = oidcUser.getSubject();
         log.info("🍎 Apple 로그인 시도: sub = {}", appleSub);
 
-        // 기존 회원 조회 or 신규 생성
-        Member member = memberRepository.findByClientIdAndLoginType(appleSub, LoginType.APPLE)
+        String clientId = oidcUser.getSubject();
+        LoginType loginType = LoginType.APPLE;
+
+        Member member = memberRepository
+                .findIdByClientIdAndLoginTypeIncludingDeleted(clientId, loginType.name())
+                .map(memberId -> {
+                    int restoredCount = memberRepository.restoreById(memberId);
+
+                    log.info("[APPLE_MEMBER_RESTORE_RESULT] memberId={}, restoredCount={}",
+                            memberId, restoredCount);
+
+                    return memberRepository.findById(memberId)
+                            .orElseThrow(() -> new IllegalStateException("복구한 회원을 다시 조회할 수 없습니다. memberId=" + memberId));
+                })
                 .orElseGet(() -> {
-                    Member newMember = authMapper.toMember(appleSub, LoginType.APPLE);
+                    Member newMember = authMapper.toMember(clientId, loginType);
                     return memberRepository.save(newMember);
                 });
 
-        // PrincipalDetails로 통일하여 반환
         return new PrincipalDetails(member, oidcUser.getAttributes());
     }
 }

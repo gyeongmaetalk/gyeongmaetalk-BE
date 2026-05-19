@@ -36,7 +36,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String clientId = attributes.get(userNameAttribute).toString();
         LoginType loginType = LoginType.from(registrationId);
-
         String loginTypeDbValue = loginType.name();
 
         Member member = memberRepository
