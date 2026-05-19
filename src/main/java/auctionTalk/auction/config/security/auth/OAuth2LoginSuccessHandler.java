@@ -114,25 +114,40 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private String extractAppleName(HttpServletRequest request) {
         String userJson = request.getParameter("user");
+
+        log.info("[APPLE_USER_PARAM] user={}", userJson);
+
         if (!StringUtils.hasText(userJson)) {
             return null;
         }
 
         try {
             ObjectMapper mapper = new ObjectMapper();
+
             JsonNode root = mapper.readTree(userJson);
             JsonNode nameNode = root.path("name");
 
             String firstName = nameNode.path("firstName").asText(null);
             String lastName = nameNode.path("lastName").asText(null);
 
-            if (StringUtils.hasText(firstName) && StringUtils.hasText(lastName)) {
-                return lastName + firstName; // 🇰🇷 한국식
+            log.info("[APPLE_NAME_PARSED] firstName={}, lastName={}", firstName, lastName);
+
+            StringBuilder fullName = new StringBuilder();
+
+            if (StringUtils.hasText(lastName)) {
+                fullName.append(lastName);
             }
+
+            if (StringUtils.hasText(firstName)) {
+                fullName.append(firstName);
+            }
+
+            return StringUtils.hasText(fullName.toString()) ? fullName.toString() : null;
+
         } catch (Exception e) {
-            log.warn("🍎 Apple name 파싱 실패", e);
+            log.warn("[APPLE_NAME_PARSE_FAILED] userJson={}", userJson, e);
+            return null;
         }
-        return null;
     }
 
     private String resolveRedirectUrl(HttpServletRequest request) {
