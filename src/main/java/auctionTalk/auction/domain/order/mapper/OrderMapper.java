@@ -19,7 +19,7 @@ public class OrderMapper {
                 .product(product)
                 .orderNumber(orderNumber)
                 .idempotencyKey(idempotencyKey)
-                .orderStatus(OrderStatus.FAILED)
+                .orderStatus(OrderStatus.READY)
                 .amount(product.getPrice())
                 .counselorId(counselorId)
                 .build();
