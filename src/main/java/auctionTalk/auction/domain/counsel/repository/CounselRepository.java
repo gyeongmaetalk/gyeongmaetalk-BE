@@ -34,6 +34,10 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
 
     Optional<Counsel> findByMember(Member member);
     Optional<Counsel> findByMemberId(Long memberId);
+    Optional<Counsel> findTopByMemberIdAndCounselorIdOrderByIdDesc(
+            Long memberId,
+            Long counselorId
+    );
 
 
     @Query("SELECT c.counselTime FROM Counsel c " +

@@ -1,5 +1,8 @@
 package auctionTalk.auction.domain.subscription.service;
 
+import auctionTalk.auction.domain.counsel.entity.Counsel;
+import auctionTalk.auction.domain.counsel.repository.CounselRepository;
+import auctionTalk.auction.domain.counsel.service.CounselService;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
@@ -26,6 +29,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CounselorRepository counselorRepository;
     private final SubscriptionMapper subscriptionMapper;
+    private final CounselRepository counselRepository;
 
 
     @Override
@@ -50,6 +54,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionRepository.save(
                 subscriptionMapper.toSubscription(order.getId(), member, counselor, payment)
         );
+
+        Counsel counsel = counselRepository
+                .findTopByMemberIdAndCounselorIdOrderByIdDesc(member.getId(), counselor.getId())
+                .orElseThrow(() -> new CustomApiException(ErrorCode.COUNSEL_NOT_FOUND));
+
+        counsel.markSubscribed();
+
     }
 
       //legacy
