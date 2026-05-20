@@ -3,6 +3,7 @@ package auctionTalk.auction.domain.counsel.entity;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.common.BaseEntity;
+import auctionTalk.auction.global.exception.CustomApiException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -63,5 +64,12 @@ public class Counsel extends BaseEntity {
 
     public void updateStatus(CounselStatus counselStatus) {
         this.counselStatus = counselStatus;
+    }
+
+    public void markSubscribed() {
+        if (this.counselStatus == CounselStatus.SUBSCRIBE) {
+            return;
+        }
+        this.counselStatus = CounselStatus.SUBSCRIBE;
     }
 }
