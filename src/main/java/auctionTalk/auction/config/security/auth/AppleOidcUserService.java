@@ -4,6 +4,7 @@ import auctionTalk.auction.domain.member.entity.LoginType;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.mapper.AuthMapper;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -20,6 +21,7 @@ public class AppleOidcUserService extends OidcUserService {
     private final AuthMapper authMapper;
 
     @Override
+    @Transactional
     public OidcUser loadUser(OidcUserRequest userRequest) {
         // Apple에서 id_token 파싱하여 OIDC 사용자 정보 획득
         OidcUser oidcUser = super.loadUser(userRequest);
