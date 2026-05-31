@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.property.service;
 
-import auctionTalk.auction.domain.counsel.entity.CounselStatus;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.fcm.service.FcmService;
 import auctionTalk.auction.domain.member.entity.Member;
@@ -16,10 +15,8 @@ import auctionTalk.auction.domain.property.dto.response.PropertyPagingResponse;
 import auctionTalk.auction.domain.property.dto.response.PropertySummaryResponse;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
-import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.domain.property.mapper.PropertyMapper;
 import auctionTalk.auction.domain.property.repository.PropertyImageRepository;
-import auctionTalk.auction.domain.property.repository.PropertyPaymentRepository;
 import auctionTalk.auction.domain.property.repository.PropertyRepository;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
@@ -44,7 +41,6 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     private final SubscriptionRepository subscriptionRepository;
     private final MemberRepository memberRepository;
     private final PropertyRepository propertyRepository;
-    private final PropertyPaymentRepository propertyPaymentRepository;
     private final PropertyMapper propertyMapper;
     private final FcmService fcmService;
     private final PropertyImageRepository propertyImageRepository;
@@ -91,24 +87,24 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         return new PropertyIdResponse(newProperty.getId());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public PropertyPagingResponse<PropertySummaryResponse> inquiryPropertiesByMember(Long memberId, int page, int size){
-
-        Member member = memberRepository.getMember(memberId);
-        Page<Property> properties = propertyRepository.findAllByMemberId(memberId, PageRequest.of(page, size));
-
-        Page<PropertySummaryResponse> responsePage = properties.map(property -> {
-            boolean hasPaid = propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
-                    member,
-                    property.getId(),
-                    PaymentStatus.SUCCESS
-            );
-            return propertyMapper.toPropertySummaryResponse(property, hasPaid);
-        });
-
-        return propertyMapper.toPropertyPagingResponse(responsePage);
-    }
+//    @Override
+//    @Transactional(readOnly = true)
+//    public PropertyPagingResponse<PropertySummaryResponse> inquiryPropertiesByMember(Long memberId, int page, int size){
+//
+//        Member member = memberRepository.getMember(memberId);
+//        Page<Property> properties = propertyRepository.findAllByMemberId(memberId, PageRequest.of(page, size));
+//
+//        Page<PropertySummaryResponse> responsePage = properties.map(property -> {
+//            boolean hasPaid = propertyPaymentRepository.existsByMemberAndPropertyIdAndStatus(
+//                    member,
+//                    property.getId(),
+//                    PaymentStatus.SUCCESS
+//            );
+//            return propertyMapper.toPropertySummaryResponse(property, hasPaid);
+//        });
+//
+//        return propertyMapper.toPropertyPagingResponse(responsePage);
+//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -146,28 +142,6 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         propertyRepository.deleteById(propertyId);
 
         return new PropertyIdResponse(propertyId);
-    }
-
-    @Override
-    @Transactional
-    public PaymentResultResponse updatePropertyPaymentStatus(Long propertyId, Long memberId, PaymentStatus status){
-
-        Member member = memberRepository.getMember(memberId);
-
-        Property property = propertyRepository.getProperty(propertyId);
-
-        PropertyPayment payment = propertyPaymentRepository.findByProperty(property)
-                .orElseThrow(() -> new CustomApiException(ErrorCode.PAYMENT_NOT_FOUND));
-
-        if(status == PaymentStatus.SUCCESS) {
-            payment.updatePaymentStatus(status);
-            sendPushPropertyConfirmNotification(member, property);
-        }
-        if(status == PaymentStatus.FAIL) {
-            payment.updatePaymentStatus(status);
-        }
-
-        return new PaymentResultResponse(payment.getStatus());
     }
 
     public void sendPushPropertyConfirmNotification(Member member, Property property){

@@ -1,12 +1,8 @@
 package auctionTalk.auction.domain.payment.controller;
 
-import auctionTalk.auction.domain.payment.dto.request.PaymentRefundRequest;
 import auctionTalk.auction.domain.payment.dto.response.AdminInquiryPayment;
 import auctionTalk.auction.domain.payment.dto.response.AdminPaymentPagingResponse;
-import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
 import auctionTalk.auction.domain.payment.entity.PaymentType;
-import auctionTalk.auction.domain.payment.service.PaymentQueryService;
-import auctionTalk.auction.domain.payment.service.PaymentService;
 import auctionTalk.auction.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,24 +19,24 @@ import java.time.LocalDate;
 @RequestMapping("/admin/payments")
 public class AdminPaymentController {
 
-    private final PaymentQueryService paymentQueryService;
-
-    @Operation(summary = "어드민용 결제 페이징 조회")
-    @GetMapping("/list")
-    @Parameters(value = {
-            @Parameter(name = "paymentType", description = "필터링 결제 타입"),
-            @Parameter(name = "startDate", description = "필터링 시작 날짜"),
-            @Parameter(name = "endDate", description = "필터링 끝 날짜"),
-            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
-            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
-    })
-    public BaseResponse<AdminPaymentPagingResponse<AdminInquiryPayment>> InquiryPayments(
-            @RequestParam PaymentType paymentType,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam int page,
-            @RequestParam int size
-            ){
-        return BaseResponse.onSuccess(paymentQueryService.InquiryPayments(paymentType, startDate, endDate, page, size));
-    }
+//    private final PaymentQueryService paymentQueryService;
+//
+//    @Operation(summary = "어드민용 결제 페이징 조회")
+//    @GetMapping("/list")
+//    @Parameters(value = {
+//            @Parameter(name = "paymentType", description = "필터링 결제 타입"),
+//            @Parameter(name = "startDate", description = "필터링 시작 날짜"),
+//            @Parameter(name = "endDate", description = "필터링 끝 날짜"),
+//            @Parameter(name = "page", description = "페이지 번호(0부터 시작)"),
+//            @Parameter(name = "size", description = "한 페이지 당 이벤트 개수"),
+//    })
+//    public BaseResponse<AdminPaymentPagingResponse<AdminInquiryPayment>> InquiryPayments(
+//            @RequestParam PaymentType paymentType,
+//            @RequestParam LocalDate startDate,
+//            @RequestParam LocalDate endDate,
+//            @RequestParam int page,
+//            @RequestParam int size
+//            ){
+//        return BaseResponse.onSuccess(paymentQueryService.InquiryPayments(paymentType, startDate, endDate, page, size));
+//    }
 }

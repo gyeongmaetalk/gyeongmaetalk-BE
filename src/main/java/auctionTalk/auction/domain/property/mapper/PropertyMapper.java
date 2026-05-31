@@ -2,13 +2,11 @@ package auctionTalk.auction.domain.property.mapper;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
-import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.request.PropertyCreateRequest;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.entity.AuctionSchedule;
 import auctionTalk.auction.domain.property.entity.Property;
 import auctionTalk.auction.domain.property.entity.PropertyImage;
-import auctionTalk.auction.domain.property.entity.PropertyPayment;
 import auctionTalk.auction.utils.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -86,6 +84,7 @@ public class PropertyMapper {
 
     public PropertyDetailResponse toPropertyDetailResponse(Property property) {
         return PropertyDetailResponse.builder()
+                .id(property.getId())
                 .name(property.getName())
                 .area(property.getArea())
                 .appraisedPrice(property.getAppraisedPrice())
@@ -107,15 +106,6 @@ public class PropertyMapper {
                 .buildingType(property.getBuildingType())
                 .updateDate(property.getCreatedAt())
                 .images(toImageUrls(property.getImages()))
-                .build();
-    }
-
-
-    public PropertyPayment toPropertyPayment(Member member, Property property){
-        return PropertyPayment.builder()
-                .member(member)
-                .property(property)
-                .status(PaymentStatus.READY)
                 .build();
     }
 

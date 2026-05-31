@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.subscription.entity;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.payment.entity.Payment;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,6 +14,19 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "subscriptions",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_subscription_source_order",
+                        columnNames = "source_order_id"
+                ),
+                @UniqueConstraint(
+                        name = "uk_subscription_member_counselor",
+                        columnNames = {"member_id", "counselor_id"}
+                )
+        }
+)
 public class Subscription extends BaseEntity {
 
     @Id
@@ -31,13 +45,14 @@ public class Subscription extends BaseEntity {
     @Column(nullable = false)
     private SubscriptionStatus subscriptionStatus;
 
+    private Long sourceOrderId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Payment payment;
+
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
-
-    public void initStatus(){
-        this.subscriptionStatus = SubscriptionStatus.PENDING;
-    }
 
     public void activate() {
         this.subscriptionStatus = SubscriptionStatus.IN_PROGRESS;
@@ -47,9 +62,5 @@ public class Subscription extends BaseEntity {
     public void complete() {
         this.subscriptionStatus = SubscriptionStatus.COMPLETED;
         this.endDate = LocalDateTime.now();
-    }
-
-    public void failed() {
-        this.subscriptionStatus = SubscriptionStatus.PAYMENT_FAILED;
     }
 }

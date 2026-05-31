@@ -18,6 +18,9 @@ import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.global.validation.ParamValidator;
 import auctionTalk.auction.utils.s3.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +44,11 @@ public class ReviewServiceImpl implements ReviewService {
     private final S3Service s3Service;
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "counselorReviewList", allEntries = true),
+            @CacheEvict(value = "myReviewList", allEntries = true)
+    })
     @Transactional
     public ReviewIdResponse createReview(
             ReviewCreateRequest request, Member member
@@ -62,6 +70,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "counselorReviewList", allEntries = true),
+            @CacheEvict(value = "myReviewList", allEntries = true)
+    })
     @Transactional
     public ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, Long memberId) {
 
@@ -87,6 +100,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "counselorReviewList", allEntries = true),
+            @CacheEvict(value = "myReviewList", allEntries = true)
+    })
     @Transactional
     public ReviewIdResponse deleteReview(Long reviewId, Long memberId){
 
@@ -113,6 +131,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Cacheable(
+            value = "reviewList",
+            key = "'member=' + (#member == null ? 'anonymous' : #member.id) + ':sort=' + #sortType.name() + ':page=' + #page + ':size=' + #size",
+            condition = "#page == 0"
+    )
     @Transactional(readOnly = true)
     public AllReviewPagingResponse<ReviewSummaryResponse> inquiryReviews(Member member, ReviewSortType sortType, int page, int size){
         Pageable pageable = PageRequest.of(page, size);
@@ -131,6 +154,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Cacheable(
+            value = "counselorReviewList",
+            key = "'member=' + #member.id + ':counselor=' + #counselorId + ':sort=' + #sortType.name() + ':page=' + #page + ':size=' + #size",
+            condition = "#page == 0"
+    )
     @Transactional(readOnly = true)
     public ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size){
 

@@ -1,9 +1,6 @@
 package auctionTalk.auction.domain.property.controller;
 
 import auctionTalk.auction.config.security.auth.PrincipalDetails;
-import auctionTalk.auction.domain.payment.dto.request.PaymentConfirmRequest;
-import auctionTalk.auction.domain.payment.dto.response.PaymentResultResponse;
-import auctionTalk.auction.domain.payment.entity.PaymentStatus;
 import auctionTalk.auction.domain.property.dto.response.*;
 import auctionTalk.auction.domain.property.service.PropertyService;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionIdResponse;
@@ -49,7 +46,7 @@ public class PropertyController {
             @RequestParam(name = "page") int page,
             @RequestParam(name = "size") int size
     ) {
-        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, isPurchased, page, size));
+        return BaseResponse.onSuccess(propertyService.inquiryProperties(principal, page, size));
     }
 
     @Operation(summary = "추천 매물 상세 조회 API(결제 시 조회 가능)")
@@ -61,24 +58,23 @@ public class PropertyController {
         return BaseResponse.onSuccess(propertyService.inquiryPropertyDetail(principal.getMember(), propertyId));
     }
 
-    @Operation(summary = "추천 매물 구독 신청(결제 승인 대기) API")
-    @PostMapping("/{counselorId}/subscribe")
-    public BaseResponse<SubscriptionIdResponse> prepareSubscriptionPayment(
-            @AuthenticationPrincipal PrincipalDetails principal,
-            @PathVariable("counselorId") Long counselorId
-    ){
-        return BaseResponse.onSuccess(subscriptionService.prepareSubscriptionPayment(principal.getMember(), counselorId));
-    }
-
-    @Operation(summary = "추천 매물 구매 결제 준비 API")
-    @PostMapping("/{propertyId}/prepare")
-    public BaseResponse<PropertyIdResponse> preparePropertyPayment(
-            @AuthenticationPrincipal PrincipalDetails principal,
-            @PathVariable("propertyId") Long propertyId
-    ){
-        return BaseResponse.onSuccess(propertyService.preparePropertyPayment(principal.getMember(), propertyId));
-    }
-
+//    @Operation(summary = "추천 매물 구독 신청(결제 승인 대기) API")
+//    @PostMapping("/{counselorId}/subscribe")
+//    public BaseResponse<SubscriptionIdResponse> prepareSubscriptionPayment(
+//            @AuthenticationPrincipal PrincipalDetails principal,
+//            @PathVariable("counselorId") Long counselorId
+//    ){
+//        return BaseResponse.onSuccess(subscriptionService.prepareSubscriptionPayment(principal.getMember(), counselorId));
+//    }
+//
+//    @Operation(summary = "추천 매물 구매 결제 준비 API")
+//    @PostMapping("/{propertyId}/prepare")
+//    public BaseResponse<PropertyIdResponse> preparePropertyPayment(
+//            @AuthenticationPrincipal PrincipalDetails principal,
+//            @PathVariable("propertyId") Long propertyId
+//    ){
+//        return BaseResponse.onSuccess(propertyService.preparePropertyPayment(principal.getMember(), propertyId));
+//    }
 
 //    @Operation(summary = "추천 매물 계약 완료 신청 API")
 //    @PostMapping("/subscribe/{subscriptionId}/complete")

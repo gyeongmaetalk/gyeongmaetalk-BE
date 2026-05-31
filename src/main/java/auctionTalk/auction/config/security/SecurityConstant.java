@@ -25,8 +25,19 @@ public class SecurityConstant {
             //reviews
             "/reviews/*", "/reviews/list/**", "/reviews/list",
 
+            //actuator
+            "/actuator/prometheus",
+            "/actuator/health",
+            "/actuator/info",
+
             //admin
             "/admin/auth/login",
+
+            //product
+            "/products/**",
+
+            //app
+            "/app/config",
     };
 
     // 로그인 필요 API
@@ -57,6 +68,15 @@ public class SecurityConstant {
             //fcm
             "/fcm/token", "/fcm/notifications/setting",
             "/fcm/notifications", "/fcm/*/read",
+
+            //order
+            "/orders",
+
+            //payment
+            "/payments/confirm",
+
+            //view-tickets
+            "/view-tickets/**",
 
     };
 

@@ -1,9 +1,6 @@
 package auctionTalk.auction.config.security;
 
-import auctionTalk.auction.config.security.auth.AppleOidcUserService;
-import auctionTalk.auction.config.security.auth.CustomOAuth2UserService;
-import auctionTalk.auction.config.security.auth.HttpCookieOAuth2AuthorizationRequestRepository;
-import auctionTalk.auction.config.security.auth.OAuth2LoginSuccessHandler;
+import auctionTalk.auction.config.security.auth.*;
 import auctionTalk.auction.config.security.jwt.CustomAccessDeniedHandler;
 import auctionTalk.auction.config.security.jwt.CustomAuthenticationEntryPoint;
 import auctionTalk.auction.config.security.jwt.JwtAuthorizationFilter;
@@ -22,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.SecurityFilterChain;
@@ -64,6 +62,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리
                         .accessDeniedHandler(customAccessDeniedHandler)           // 인가 실패 처리
                 )
+                .addFilterBefore(oAuthClientEnvCookieFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(ae -> ae
@@ -88,6 +87,11 @@ public class SecurityConfig {
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
         return new JwtAuthorizationFilter(jwtTokenProvider, memberRepository);
+    }
+
+    @Bean
+    public OAuthClientEnvCookieFilter oAuthClientEnvCookieFilter() {
+        return new OAuthClientEnvCookieFilter();
     }
 
     @Bean

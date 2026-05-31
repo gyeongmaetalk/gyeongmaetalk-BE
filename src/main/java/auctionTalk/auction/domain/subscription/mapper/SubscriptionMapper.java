@@ -2,6 +2,7 @@ package auctionTalk.auction.domain.subscription.mapper;
 
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
+import auctionTalk.auction.domain.payment.entity.Payment;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionPagingResponse;
 import auctionTalk.auction.domain.subscription.dto.response.SubscriptionResponse;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
@@ -12,11 +13,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class SubscriptionMapper {
 
-    public Subscription toSubscription(Member member,  Counselor counselor){
+    public Subscription toSubscription(Long sourceOrderId, Member member, Counselor counselor, Payment payment){
             return Subscription.builder()
+                    .sourceOrderId(sourceOrderId)
                     .member(member)
                     .counselor(counselor)
-                    .subscriptionStatus(SubscriptionStatus.PENDING)
+                    .subscriptionStatus(SubscriptionStatus.IN_PROGRESS)
+                    .payment(payment)
                     .build();
     }
 

@@ -63,7 +63,7 @@ public class ReviewMapper {
                 .createAt(review.getCreatedAt())
                 .counselDate(review.getCounsel().getCounselDate())
                 .counselTime(review.getCounsel().getCounselTime())
-                .isMine(member != null &&
+                .mine(member != null &&
                         Objects.equals(review.getMember().getId(), member.getId()))
                 .imageCount(review.getImages().size())
                 .thumbnail(thumbnailUrl)

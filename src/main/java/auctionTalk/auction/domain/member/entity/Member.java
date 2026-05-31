@@ -6,7 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -34,6 +34,8 @@ public class Member extends BaseEntity {
 
     private String fcmToken;
 
+    private String revenueCatAppUserId;
+
     @Column(nullable = false)
     private boolean registered = false;
 
@@ -55,7 +57,22 @@ public class Member extends BaseEntity {
         this.registered = true;
     }
 
+    @PrePersist
+    protected void prePersist() {
+        if (revenueCatAppUserId == null || revenueCatAppUserId.isBlank()) {
+            revenueCatAppUserId = generateRevenueCatAppUserId();
+        }
+    }
+
+    private String generateRevenueCatAppUserId() {
+        return "rc_" + UUID.randomUUID();
+    }
+
     public void saveFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
 
     public void updateNotificationSetting(NotificationSetting newSetting) {
         this.notificationSetting.update(

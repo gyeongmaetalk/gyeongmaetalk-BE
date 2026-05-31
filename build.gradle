@@ -77,6 +77,17 @@ dependencies {
     // batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 
+    // metric
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // apple
+    implementation 'com.apple.itunes.storekit:app-store-server-library:5.0.0'
+
+    // google
+    implementation 'com.google.apis:google-api-services-androidpublisher:v3-rev20260318-2.0.0'
+    implementation 'com.google.auth:google-auth-library-oauth2-http'
+    implementation 'com.google.http-client:google-http-client-gson'
 }
 
 tasks.named('test') {

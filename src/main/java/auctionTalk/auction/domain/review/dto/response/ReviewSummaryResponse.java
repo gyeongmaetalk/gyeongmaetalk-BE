@@ -1,8 +1,10 @@
 package auctionTalk.auction.domain.review.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,6 +12,8 @@ import java.time.LocalTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReviewSummaryResponse {
 
     @Schema(description = "리뷰 ID", example = "1")
@@ -28,7 +32,7 @@ public class ReviewSummaryResponse {
     private LocalTime counselTime;
 
     @Schema(description = "본인 게시글 여부", example = "true")
-    private boolean isMine;
+    private boolean mine;
 
     @Schema(description = "별점", example = "4")
     private int score;

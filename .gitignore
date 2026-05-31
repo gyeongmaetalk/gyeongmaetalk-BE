@@ -36,4 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 
+src/main/generated/
+
+*.p8
+*.json
 *.yml
+
+src/main/resources/data.sql

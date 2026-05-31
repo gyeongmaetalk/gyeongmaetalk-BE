@@ -1,0 +1,35 @@
+package auctionTalk.auction.domain.payment.repository;
+
+import auctionTalk.auction.domain.payment.entity.Payment;
+import auctionTalk.auction.domain.payment.entity.PaymentProvider;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
+    Optional<Payment> findByOrderId(Long orderId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        select p
+        from Payment p
+        where p.order.id = :orderId
+    """)
+    Optional<Payment> findByOrderIdForUpdate(@Param("orderId") Long orderId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Payment p where p.id = :paymentId")
+    Optional<Payment> findByIdForUpdate(@Param("paymentId") Long paymentId);
+
+    boolean existsByPaymentProviderAndProviderTransactionId(PaymentProvider paymentProvider,
+                                                            String providerTransactionId);
+
+    Optional<Payment> findByPaymentProviderAndProviderTransactionId(
+            PaymentProvider paymentProvider,
+            String providerTransactionId
+    );
+}

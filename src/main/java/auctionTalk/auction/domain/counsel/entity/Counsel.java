@@ -3,6 +3,7 @@ package auctionTalk.auction.domain.counsel.entity;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.global.common.BaseEntity;
+import auctionTalk.auction.global.exception.CustomApiException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +12,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_counselor_date_time",
+                        columnNames = {"counselor_id", "counsel_date", "counsel_time"}
+                )
+        }
+)
 @Getter
 @Builder
 @AllArgsConstructor
@@ -55,5 +64,12 @@ public class Counsel extends BaseEntity {
 
     public void updateStatus(CounselStatus counselStatus) {
         this.counselStatus = counselStatus;
+    }
+
+    public void markSubscribed() {
+        if (this.counselStatus == CounselStatus.SUBSCRIBE) {
+            return;
+        }
+        this.counselStatus = CounselStatus.SUBSCRIBE;
     }
 }

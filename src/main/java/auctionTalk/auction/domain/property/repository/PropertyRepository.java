@@ -9,10 +9,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     default Property getProperty(Long id) {
         return findById(id)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.PROPERTY_NOT_FOUND));
+    }
+
+    @Query("""
+    select p
+    from Property p
+    where p.id = :propertyId
+      and p.member.id = :memberId
+""")
+    Optional<Property> findByIdAndMemberId(@Param("propertyId") Long propertyId,
+                                           @Param("memberId") Long memberId);
+
+    default Property getPropertyByIdAndMemberId(Long propertyId, Long memberId) {
+        return findByIdAndMemberId(propertyId, memberId)
                 .orElseThrow(() -> new CustomApiException(ErrorCode.PROPERTY_NOT_FOUND));
     }
 
