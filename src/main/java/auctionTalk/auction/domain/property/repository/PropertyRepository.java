@@ -33,6 +33,18 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     }
 
     @Query("""
+    SELECT p
+    FROM Property p
+    WHERE p.member.id = :memberId
+      AND (:isPurchased IS NULL OR p.isPurchased = :isPurchased)
+""")
+    Page<Property> findAllByMemberIdAndIsPurchasedOptional(
+            @Param("memberId") Long memberId,
+            @Param("isPurchased") Boolean isPurchased,
+            Pageable pageable
+    );
+
+    @Query("""
         SELECT p FROM Property p
         WHERE p.member.id = :memberId
           AND (:isPurchased IS NULL OR p.isPurchased = :isPurchased)

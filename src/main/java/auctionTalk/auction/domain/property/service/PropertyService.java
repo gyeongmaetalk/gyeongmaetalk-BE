@@ -8,5 +8,5 @@ public interface PropertyService {
 
     PropertyIdResponse purchaseProperty(Member member, Long propertyId);
     PropertyDetailResponse inquiryPropertyDetail(Member member, Long propertyId);
-    PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, int page, int size);
+    PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size);
 }
