@@ -77,11 +77,12 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional(readOnly = true)
-    public PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, int page, int size) {
+    public PropertyPagingResponse<PropertySummaryResponse> inquiryProperties(PrincipalDetails principal, Boolean isPurchased, int page, int size) {
         Member member = principal.getMember();
 
-        Page<Property> properties = propertyRepository.findAllByMemberId(
+        Page<Property> properties = propertyRepository.findAllByMemberIdAndIsPurchasedOptional(
                 member.getId(),
+                isPurchased,
                 PageRequest.of(page, size)
         );
 
