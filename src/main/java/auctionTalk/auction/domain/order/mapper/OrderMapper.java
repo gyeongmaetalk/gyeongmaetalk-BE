@@ -20,9 +20,17 @@ public class OrderMapper {
                 .orderNumber(orderNumber)
                 .idempotencyKey(idempotencyKey)
                 .orderStatus(OrderStatus.READY)
-                .amount(product.getPrice())
+                .amount(resolveProductPrice(product))
                 .counselorId(counselorId)
                 .build();
+    }
+
+    private Long resolveProductPrice(Product product) {
+        if (product.getPrice() != null) {
+            return product.getPrice();
+        }
+
+        return product.getOriginalPrice();
     }
 
     public OrderCreateResponse toCreateResponse(Order order, Payment payment) {
