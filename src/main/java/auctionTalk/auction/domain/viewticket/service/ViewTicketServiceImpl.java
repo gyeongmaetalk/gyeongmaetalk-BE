@@ -57,7 +57,7 @@ public class ViewTicketServiceImpl implements ViewTicketService{
                 )
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new CustomApiException(ErrorCode.ORDER_NOT_FOUND));
+                .orElse(null);
 
         return viewTicketMapper.toViewTicketWalletResponse(packageName, balance);
     }
