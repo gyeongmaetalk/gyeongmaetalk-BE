@@ -65,7 +65,7 @@ public class S3Service {
     /**
      * Copy before the enclosing DB transaction commits. Never persist the temporary key.
      * The destination is specific to one review and is never overwritten on retry.
-     * Keep the source for Lifecycle, including when the DB transaction rolls back.
+     * Cleanup follows the actual transaction outcome; Lifecycle remains the temp fallback.
      */
     public String confirmReviewImage(String key, Long memberId, Long reviewId, List<String> existingKeys) {
         if (key != null && !key.startsWith(TEMP_REVIEW_PREFIX) && existingKeys.contains(key)) {
@@ -76,16 +76,63 @@ public class S3Service {
                 || reviewId == null || reviewId <= 0) {
             throw new CustomApiException(ErrorCode.BAD_REQUEST);
         }
+        if (!TransactionSynchronizationManager.isActualTransactionActive()
+                || !TransactionSynchronizationManager.isSynchronizationActive()) {
+            throw new IllegalStateException("Image confirmation requires a DB transaction");
+        }
         String destination = "review/" + reviewId + "/" + key.substring(TEMP_REVIEW_PREFIX.length());
-        if (!existsFile(destination)) {
+        boolean copied = !existsFile(destination);
+        if (copied) {
             // A missing source, denied copy or network error aborts the DB transaction.
             s3Client.copyObject(CopyObjectRequest.builder()
                     .copySource(bucket + "/" + key)
                     .bucket(bucket)
                     .key(destination)
                     .build());
+        } else if (!existingKeys.contains(destination)
+                && TransactionSynchronizationManager.getSynchronizations().stream()
+                .noneMatch(sync -> sync instanceof ReviewImageCopyCleanup cleanup
+                        && cleanup.destination.equals(destination) && cleanup.copied)) {
+            // A concurrent rolled-back transaction may still be compensating this object.
+            // Never adopt an unreferenced copy whose ownership is uncertain.
+            throw new CustomApiException(ErrorCode.BAD_REQUEST);
         }
+        TransactionSynchronizationManager.registerSynchronization(new ReviewImageCopyCleanup(key, destination, copied));
         return destination;
+    }
+
+    private class ReviewImageCopyCleanup implements TransactionSynchronization {
+        private final String source;
+        private final String destination;
+        private final boolean copied;
+
+        private ReviewImageCopyCleanup(String source, String destination, boolean copied) {
+            this.source = source;
+            this.destination = destination;
+            this.copied = copied;
+        }
+
+        @Override
+        public void afterCompletion(int status) {
+            String deleteKey;
+            if (status == STATUS_COMMITTED) {
+                deleteKey = source;
+            } else if (status == STATUS_ROLLED_BACK && copied) {
+                deleteKey = destination;
+            } else {
+                if (status == STATUS_UNKNOWN) {
+                    log.error("Review image transaction outcome unknown; cleanup skipped. bucket={}, source={}, destination={}, copied={}",
+                            bucket, source, destination, copied);
+                }
+                return;
+            }
+            try {
+                deleteFile(deleteKey);
+            } catch (RuntimeException e) {
+                log.error("Review image transaction cleanup failed. status={}, bucket={}, source={}, destination={}, deleteKey={}",
+                        status, bucket, source, destination, deleteKey, e);
+            }
+        }
     }
 
     public void validateRetainedReviewImages(List<String> retainedKeys, List<String> existingKeys) {

@@ -53,9 +53,9 @@ Bucket의 실제 ACL, 정책, 버전 관리 및 기존 Lifecycle은 이 저장�
 | 기준 | 기존 스케줄러 유지 | 임시 prefix + Lifecycle | 임시 tag + Lifecycle |
 |---|---|---|---|
 | 구현/변경 범위 | 작음, 현재 DB 조회/삭제 유지 | 키 규칙·복사·도메인 저장 연결·검증·운영 규칙 | PUT tag 서명/클라이언트 헤더와 tag 전환·검증·운영 규칙 |
-| S3 호출 | 정리 대상마다 HEAD + DELETE | 최초 확정 HEAD + COPY, 재시도 HEAD; temp 삭제는 Lifecycle | 확정 때 보통 GetObjectTagging + PutObjectTagging; 검증 방식에 따라 HEAD 추가 |
+| S3 호출 | 정리 대상마다 HEAD + DELETE | 최초 확정 HEAD + COPY, 재시도 HEAD; 완료 시 best-effort DELETE | 확정 때 보통 GetObjectTagging + PutObjectTagging; 검증 방식에 따라 HEAD 추가 |
 | DB 요청 미도달 | 객체를 찾지 못함 | 임시 prefix 객체 자동 만료 | 업로드 시 tag가 확실히 부여되면 자동 만료 |
-| DB 저장 실패 | DB 행이 없으면 누락 | temp 원본은 남음. 선복사 후 롤백이면 영구 사본 누수 가능 | 선전환 후 롤백이면 active 객체 누수 가능 |
+| DB 저장 실패 | DB 행이 없으면 누락 | temp 원본 유지. 확정된 롤백이면 이번에 만든 영구 사본을 보상 삭제 | 선전환 후 롤백이면 active 객체 누수 가능 |
 | DB 커밋 후 확정 실패 | 해당 단계 없음 | 이 순서를 사용하지 않음 | 커밋 후 tag 변경은 정상 이미지 만료 위험 |
 | 정상 이미지 보호 | DB 후보 조건·동시성에 의존 | DB는 temp와 물리적으로 다른 키만 참조 | 동일 키의 tag 상태·만료 대기·재업로드에 의존 |
 | 재시도/멱등성 | 대상 DB 행이 남으면 재시도 | 같은 리뷰·temp 키는 같은 목적지, 존재하면 덮어쓰지 않음 | 같은 tag 설정은 반복 가능하나 오래된 PUT 재사용 시 상태 덮어쓰기 고려 필요 |
@@ -66,7 +66,8 @@ Bucket의 실제 ACL, 정책, 버전 관리 및 기존 Lifecycle은 이 저장�
 기존 API가 URL 문자열만 반환하므로 tag용 필수 헤더 계약을 늘리지 않는다. 별도 테이블, 큐,
 Saga나 분산 트랜잭션 없이 DB 커밋 시점에 임시 키를 참조하지 않는다는 조건을 유지한다.
 이는 모든 종류의 orphan을 완전히 없애는 설계가 아니라, 기존에 놓치던 **업로드 후 요청 미도달**을
-S3 자체가 처리하도록 개선하는 설계다. 정상 이미지 보호를 위해 롤백 후 영구 사본 누수를 허용한다.
+S3 자체가 처리하도록 개선하는 설계다. 롤백으로 남는 영구 사본은 트랜잭션 완료 훅에서
+best-effort 보상 삭제한다. 완료 상태 불명확·프로세스 종료·삭제 실패에 따른 누수 가능성은 남는다.
 
 ## 4. 구현된 업로드 → 확정 흐름
 
@@ -78,8 +79,21 @@ S3 자체가 처리하도록 개선하는 설계다. 정상 이미지 보호를 
 5. `S3Service.confirmReviewImage`가 정확한 prefix/숫자 사용자 ID/UUID/webp 형식과 소유자를 확인한다.
 6. 목적지는 `review/{reviewId}/{memberId}/{uuid}.webp`이다. HEAD로 목적지 존재를 확인하고,
    없으면 S3 COPY가 성공할 때까지 진행한다. 404 외 HEAD 오류는 복사로 우회하지 않는다.
-7. DB `ReviewImage.url`에는 영구 키만 저장하고 커밋한다. temp 원본은 즉시 지우지 않는다.
-8. 설정된 Lifecycle이 temp 원본을 삭제한다. 영구 키는 이 규칙과 일치하지 않는다.
+7. 복사 성공 후 `TransactionSynchronization`을 등록하고 DB에는 영구 키만 저장한다.
+8. `afterCompletion(COMMITTED)`에서 temp 원본 삭제를 즉시 시도한다. 실패는 로그로 남기고,
+   DB 성공이나 사용자 응답을 실패로 바꾸지 않는다. Lifecycle은 남은 temp의 최종 안전망이다.
+9. `afterCompletion(ROLLED_BACK)`에서는 **이번 트랜잭션에서 생성한** 영구 사본만 삭제한다.
+   temp는 재시도/Lifecycle을 위해 유지한다. 삭제 오류는 기록하되 원래 예외를 덮어쓰지 않는다.
+
+이는 서비스 메서드의 try/catch가 아니라 실제 트랜잭션 완료 상태를 따른다. 메서드 반환 후
+DB flush/commit 중 발생한 롤백도 처리한다. 활성 트랜잭션과 synchronization이 없으면 복사 전에 거부한다.
+`STATUS_UNKNOWN`은 커밋 여부를 알 수 없으므로 어느 객체도 지우지 않고 오류 로그로 운영 확인을 요청한다.
+로그에는 완료 상태, bucket, source, destination, 삭제 대상 키와 예외를 남긴다.
+
+목적지가 이미 존재할 때는 현재 리뷰에 연결되어 있거나 같은 트랜잭션이 생성한 사본만 재사용한다.
+미참조 목적지를 무조건 재사용하면, 이전 트랜잭션의 롤백 보상 삭제와 경쟁하여 정상 이미지가 지워질 수 있다.
+이 경우 안전하게 거부하며 보상 삭제 완료 후 재시도하거나 새 temp 키로 업로드한다.
+기존 영구 객체를 재사용한 요청은 롤백되더라도 그 객체를 삭제하지 않는다.
 
 수정·삭제는 리뷰 행에 비관적 쓰기 잠금을 잡아 같은 리뷰의 동시 수정을 직렬화한다.
 수정에서 동일 temp 키를 다시 전달하면 같은 영구 키로 해석하며 중복 DB 이미지를 만들지 않는다.
@@ -100,17 +114,19 @@ S3 자체가 처리하도록 개선하는 설계다. 정상 이미지 보호를 
 |---|---|
 | A. 업로드 성공, DB 요청 없음 | DB 추적 여부와 무관하게 temp 원본을 Lifecycle이 정리 |
 | B. 복사 전 DB 실패 | temp 원본만 남아 Lifecycle 정리 |
-| B. 복사 성공 후 DB 롤백/커밋 실패 | temp는 Lifecycle 대상 유지. 영구 사본은 남을 수 있음. 커밋 여부가 불확실한 객체를 자동 보상 삭제하지 않음 |
+| B. 복사 성공 후 DB 롤백/커밋 실패 | 확정된 롤백이면 이번에 생성한 영구 사본을 best-effort 삭제. temp 유지. 삭제 실패는 원래 예외에 영향 없이 로그로 남김 |
 | C. DB 성공 후 확정 실패 | 그런 순서를 쓰지 않음. COPY 실패를 전파해 DB 트랜잭션을 롤백. 커밋된 DB에는 영구 키만 존재 |
 | D. 같은 확정 재시도 | 같은 리뷰 ID와 temp 키는 같은 목적지. 목적지가 있으면 복사 생략. 수정 요청의 중복 이미지도 제거 |
 | E. 이미 확정된 키 전달 | 해당 리뷰의 현재 이미지이면 허용; 신규 리뷰/다른 리뷰의 영구 키는 거부 |
 | F. 타 사용자 temp 키 | 키의 사용자 namespace가 인증된 작성자와 다르면 AWS 호출 전에 거부 |
 | G. 임의 키/다른 prefix/URL/비정상 UUID | 신규 리뷰 이미지 확정에서 거부. 문법상 맞아도 원본이 없다면 COPY 실패로 DB 롤백 |
-| 원본이 Lifecycle로 먼저 만료됨 | 목적지가 있으면 재시도 성공. 없고 COPY도 실패하면 DB 저장 실패; 새 업로드 필요 |
+| 원본이 먼저 삭제됨 | 현재 리뷰에 연결된 목적지가 있으면 재시도 성공. 없고 COPY도 실패하면 DB 저장 실패; 새 업로드 필요 |
 | PUT URL 재사용 | temp만 변경 가능. 이미 확정된 목적지는 HEAD 성공 시 덮어쓰지 않음 |
 | 응답 손실 | 같은 리뷰 수정은 재시도 가능. 리뷰 생성 HTTP API 전체의 중복 방지/idempotency key는 이번에 추가하지 않음 |
 | 리뷰 수정 DB 롤백 | 기존 객체 삭제는 afterCommit이라 실행되지 않음 |
 | 커밋 후 삭제 오류/프로세스 종료 | 불필요한 영구 객체가 남을 수 있음. 정상 DB 이미지를 삭제하는 방향의 보상은 하지 않음 |
+| 커밋 후 temp 삭제 오류 | DB 성공 유지, temp는 Lifecycle이 정리 |
+| 완료 상태 UNKNOWN | 자동 삭제 생략, 상태와 두 키를 오류 로그로 남김 |
 
 소유권 방어는 **이 애플리케이션이 서명한 경로로만 클라이언트가 쓰기 가능하다**는 전제다.
 DB 업로드 발급 장부나 콘텐츠 검증은 없으며 AWS 쓰기 자격 증명을 가진 운영자를 방어하는 기능이 아니다.
@@ -192,7 +208,8 @@ PUT 재사용도 이전 temp 버전을 남길 수 있으므로 이 항목을 빠
 [AWS Lifecycle 설정 예시](https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-configuration-examples.html).
 
 애플리케이션 역할에는 temp 원본 GetObject, review 목적지 PutObject/GetObject(HEAD), 기존 삭제에 필요한
-DeleteObject 권한이 필요하다. CopyObject는 원본 읽기와 목적지 쓰기 권한을 사용한다.
+DeleteObject 권한이 필요하다. 완료 훅을 위해 `temp/review/`와 `review/` 양쪽에 DeleteObject를 허용한다.
+CopyObject는 원본 읽기와 목적지 쓰기 권한을 사용한다.
 SSE-KMS를 쓰는 환경은 원본 복호화/목적지 암호화에 필요한 KMS 권한도 확인한다.
 HEAD의 없는 키를 404로 판별할 수 있도록 필요한 범위의 ListBucket 권한도 확인한다.
 Object tag 권한이나 애플리케이션의 PutBucketLifecycleConfiguration 권한은 추가하지 않는다.
@@ -207,17 +224,22 @@ Object tag 권한이나 애플리케이션의 PutBucketLifecycleConfiguration �
   매물의 temp 참조 방지, 커밋 후 삭제와 롤백, S3 멀티 삭제의 개별 오류.
 - `S3ControllerTest`: 기존 HTTP 경로/파라미터/문자열 응답과 인증 principal 전달.
 - `ReviewImageTransactionTest`: 실제 H2/JPA 트랜잭션의 등록·확정·롤백·중복 수정·이미지 제거 시점.
-  복사 후 DB 롤백의 영구 사본 누수도 숨기지 않고 명시적으로 검증한다.
+  커밋 시 temp 삭제, 롤백 시 영구 사본 보상 삭제, 각각의 삭제 실패에 대한 DB 결과/원래 예외 보존,
+  실제 커밋 시점의 DB 제약조건 실패도 검증한다.
 - `ReviewImageCleanupSchedulerTest`: temp는 DB만 삭제, legacy는 기존 순서 유지, S3 오류 시 DB 유지.
 
 실행 명령: `.\gradlew.bat test --no-daemon`.
-2026-09-11 최종 실행 결과: **106 tests, 0 failures, 0 errors, 0 skipped**, `BUILD SUCCESSFUL` (51초).
-신규 테스트는 39개이며 기존 테스트 67개도 함께 통과했다.
+초기 `f91b299` 실행 결과: **106 tests, 0 failures, 0 errors, 0 skipped**.
+트랜잭션 완료 보상 처리 추가 후 전체 실행 결과: **113 tests, 0 failures, 0 errors, 0 skipped**,
+`BUILD SUCCESSFUL` (2026-09-11, 1분 23초). 실제 커밋 시점 제약조건 실패에 대한 보상도 통과했다.
 실제 AWS Bucket에서 Lifecycle 경과를 기다리는 통합 테스트는 수행하지 않는다.
 
-남는 범위: 복사 후 DB 롤백의 영구 orphan, 커밋 후 삭제 실패, 기존 리뷰 전체 삭제의 S3 누수,
+남는 범위: 완료 훅 실행 전 프로세스 종료, COPY 성공 응답 유실, 완료 상태 UNKNOWN,
+보상 삭제 실패에 따른 영구 orphan, 기존 리뷰 전체 삭제의 S3 누수,
 매물·상담사 업로드 취소 객체, 과거 DB 없는 객체는 이번 temp 규칙으로 해결되지 않는다.
 정상 데이터의 보관을 우선하여 영구 prefix에 포괄 만료를 추가하지 않는다.
+이 훅은 영속 재시도 큐가 아니다. 또한 버전 관리 버킷에서 일반 DeleteObject는 delete marker를
+생성할 수 있어 과거 버전의 물리 저장량까지 즉시 제거한다고 보장하지 않는다.
 향후 실제 누수량을 측정한 뒤 삭제 의도 기록 및 재시도, Inventory 기반 운영 점검 등을 별도 검토한다.
 또한 S3 네트워크 호출 동안 DB 트랜잭션/리뷰 잠금을 유지하는 지연 비용이 있다.
 파일 크기·내용 검증 및 공개된 GET 발급 API의 접근 정책은 이번 변경 범위가 아니다.

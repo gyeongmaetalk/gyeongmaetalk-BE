@@ -37,6 +37,8 @@ class S3ServiceTest {
                 .build();
         service = new S3Service(presigner, client);
         ReflectionTestUtils.setField(service, "bucket", "test-bucket");
+        TransactionSynchronizationManager.initSynchronization();
+        TransactionSynchronizationManager.setActualTransactionActive(true);
     }
 
     @AfterEach
@@ -156,8 +158,6 @@ class S3ServiceTest {
 
     @Test
     void deletionRunsOnlyAfterCommitAndPartialS3ErrorsAreDetected() {
-        TransactionSynchronizationManager.initSynchronization();
-        TransactionSynchronizationManager.setActualTransactionActive(true);
         service.deleteFilesAfterCommit(List.of(ACTIVE));
         verifyNoInteractions(client);
         when(client.deleteObjects(any(DeleteObjectsRequest.class))).thenReturn(DeleteObjectsResponse.builder()
@@ -170,11 +170,44 @@ class S3ServiceTest {
 
     @Test
     void rollbackDoesNotDeleteExistingImages() {
-        TransactionSynchronizationManager.initSynchronization();
-        TransactionSynchronizationManager.setActualTransactionActive(true);
         service.deleteFilesAfterCommit(List.of(ACTIVE));
         TransactionSynchronizationManager.getSynchronizations()
                 .forEach(sync -> sync.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
+        verifyNoInteractions(client);
+    }
+
+    @Test
+    void rollbackDoesNotDeleteDestinationReusedFromCommittedReview() {
+        when(client.headObject(any(HeadObjectRequest.class))).thenReturn(HeadObjectResponse.builder().build());
+        service.confirmReviewImage(TEMP, 7L, 42L, List.of(ACTIVE));
+        TransactionSynchronizationManager.getSynchronizations()
+                .forEach(sync -> sync.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
+        verify(client, never()).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void unknownCompletionNeverDeletesEitherObject() {
+        when(client.headObject(any(HeadObjectRequest.class))).thenThrow(NoSuchKeyException.builder().build());
+        service.confirmReviewImage(TEMP, 7L, 42L, List.of());
+        TransactionSynchronizationManager.getSynchronizations()
+                .forEach(sync -> sync.afterCompletion(TransactionSynchronization.STATUS_UNKNOWN));
+        verify(client, never()).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void unreferencedExistingDestinationCannotBeAdoptedDuringCompensation() {
+        when(client.headObject(any(HeadObjectRequest.class))).thenReturn(HeadObjectResponse.builder().build());
+        assertThatThrownBy(() -> service.confirmReviewImage(TEMP, 7L, 42L, List.of()))
+                .isInstanceOf(CustomApiException.class);
+        assertThat(TransactionSynchronizationManager.getSynchronizations()).isEmpty();
+        verify(client, never()).copyObject(any(CopyObjectRequest.class));
+    }
+
+    @Test
+    void confirmationWithoutTransactionFailsBeforeS3SideEffects() {
+        TransactionSynchronizationManager.clear();
+        assertThatThrownBy(() -> service.confirmReviewImage(TEMP, 7L, 42L, List.of()))
+                .isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(client);
     }
 }

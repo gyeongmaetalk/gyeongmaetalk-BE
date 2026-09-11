@@ -22,6 +22,7 @@ import org.springframework.orm.jpa.*;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -103,6 +104,10 @@ class ReviewImageTransactionTest {
             objects.add(request.key());
             return CopyObjectResponse.builder().build();
         });
+        when(s3.deleteObject(any(DeleteObjectRequest.class))).thenAnswer(invocation -> {
+            objects.remove(invocation.<DeleteObjectRequest>getArgument(0).key());
+            return DeleteObjectResponse.builder().build();
+        });
     }
 
     private ReviewCreateRequest createRequest() {
@@ -110,8 +115,12 @@ class ReviewImageTransactionTest {
     }
 
     @Test
-    void successfulCreateCommitsOnlyPermanentKeysAndLifecycleCanDeleteSource() {
-        service.createReview(createRequest(), member);
+    void successfulCreateCommitsPermanentKeyAndDeletesTempOnlyAtCompletion() {
+        tx.executeWithoutResult(status -> {
+            service.createReview(createRequest(), member);
+            assertThat(objects).contains(temp).hasSize(2);
+            verify(s3, never()).deleteObject(any(DeleteObjectRequest.class));
+        });
         String permanent = tx.execute(status -> {
             List<ReviewImage> saved = images.findAllByReview(em.createQuery(
                     "select r from Review r where r.member.id = :id", auctionTalk.auction.domain.review.entity.Review.class)
@@ -119,9 +128,9 @@ class ReviewImageTransactionTest {
             assertThat(saved).hasSize(1);
             return saved.get(0).getUrl();
         });
-        objects.removeIf(key -> key.startsWith(S3Service.TEMP_REVIEW_PREFIX));
         assertThat(permanent).startsWith("review/");
-        assertThat(objects).contains(permanent);
+        assertThat(objects).containsExactly(permanent);
+        verify(s3).deleteObject(DeleteObjectRequest.builder().bucket("test-bucket").key(temp).build());
     }
 
     @Test
@@ -133,14 +142,58 @@ class ReviewImageTransactionTest {
     }
 
     @Test
-    void dbRollbackAfterCopyKeepsTemporarySourceButCanLeaveUnreferencedPermanentCopy() {
+    void dbRollbackAfterCopyDeletesOnlyTheNewPermanentCopy() {
         assertThatThrownBy(() -> tx.executeWithoutResult(status -> {
             service.createReview(createRequest(), member);
             throw new IllegalStateException("DB transaction failed after copy");
         })).isInstanceOf(IllegalStateException.class);
         assertNoReview();
+        assertThat(objects).containsExactly(temp);
+        verify(s3).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void commitTempDeleteFailureDoesNotTurnSuccessfulDbCommitIntoFailure() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenThrow(S3Exception.builder().statusCode(503).build());
+        assertThatCode(() -> service.createReview(createRequest(), member)).doesNotThrowAnyException();
+        assertThat(reviewId()).isPositive();
         assertThat(objects).contains(temp).hasSize(2);
-        verify(s3, never()).deleteObject(any(DeleteObjectRequest.class));
+        verify(s3).deleteObject(DeleteObjectRequest.builder().bucket("test-bucket").key(temp).build());
+        // Lifecycle can still remove the failed immediate cleanup's source safely.
+        objects.remove(temp);
+        assertThat(objects).hasSize(1).allMatch(key -> key.startsWith("review/"));
+    }
+
+    @Test
+    void rollbackPermanentDeleteFailurePreservesOriginalExceptionAndDbRollback() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenThrow(S3Exception.builder().statusCode(503).build());
+        RuntimeException original = new IllegalStateException("original business failure");
+        assertThatThrownBy(() -> tx.executeWithoutResult(status -> {
+            service.createReview(createRequest(), member);
+            throw original;
+        })).isSameAs(original);
+        assertNoReview();
+        assertThat(objects).contains(temp).hasSize(2);
+        verify(s3).deleteObject(argThat((DeleteObjectRequest request) -> request.key().startsWith("review/")));
+    }
+
+    @Test
+    void commitTimeDbConstraintFailureAlsoCompensatesCopy() {
+        var bodyCompleted = new java.util.concurrent.atomic.AtomicBoolean();
+        assertThatThrownBy(() -> tx.executeWithoutResult(status -> {
+            service.createReview(createRequest(), member);
+            // Leave invalid managed state for Hibernate to flush during transaction commit.
+            Member managedMember = org.hibernate.Hibernate.unproxy(em.find(Member.class, member.getId()), Member.class);
+            ReflectionTestUtils.setField(managedMember, "clientId", null);
+            verify(s3, never()).deleteObject(any(DeleteObjectRequest.class));
+            bodyCompleted.set(true);
+        })).isInstanceOf(RuntimeException.class);
+        assertThat(bodyCompleted).isTrue();
+        assertNoReview();
+        assertThat(objects).containsExactly(temp);
+        verify(s3).deleteObject(any(DeleteObjectRequest.class));
     }
 
     @Test
