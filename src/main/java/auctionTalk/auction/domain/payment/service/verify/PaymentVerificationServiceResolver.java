@@ -1,6 +1,8 @@
 package auctionTalk.auction.domain.payment.service.verify;
 
 import auctionTalk.auction.domain.payment.entity.PaymentProvider;
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
@@ -14,14 +16,16 @@ public class PaymentVerificationServiceResolver {
 
     public PaymentVerificationServiceResolver(List<PaymentVerificationService> verificationServices) {
         for (PaymentVerificationService service : verificationServices) {
-            services.put(service.supportProvider(), service);
+            if (services.putIfAbsent(service.supportProvider(), service) != null) {
+                throw new IllegalStateException("중복 결제 검증기: " + service.supportProvider());
+            }
         }
     }
 
     public PaymentVerificationService resolve(PaymentProvider provider) {
         PaymentVerificationService service = services.get(provider);
         if (service == null) {
-            throw new IllegalArgumentException("지원하지 않는 결제 제공자입니다: " + provider);
+            throw new CustomApiException(ErrorCode.INVALID_PAYMENT_PROVIDER);
         }
         return service;
     }

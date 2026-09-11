@@ -44,6 +44,11 @@ public class Payment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private PaymentFulfillmentStatus paymentFulfillmentStatus
+            = PaymentFulfillmentStatus.PENDING;
+
 
     /**
      * RevenueCat 또는 스토어 거래 식별자
@@ -76,20 +81,31 @@ public class Payment extends BaseEntity {
 
     private LocalDateTime acknowledgedAt;
 
-    public void markSuccessByRevenueCat(
+    public void markFulfillmentSuccess() {
+        this.paymentFulfillmentStatus = PaymentFulfillmentStatus.SUCCESS;
+    }
+
+    public boolean isFulfilled() {
+        return this.paymentFulfillmentStatus == PaymentFulfillmentStatus.SUCCESS;
+    }
+
+    public void markSuccess(
+            PaymentProvider provider,
             String transactionIdentifier,
             String storeProductId,
             String store,
             Boolean sandbox,
-            LocalDateTime approvedAt
+            LocalDateTime approvedAt,
+            Long approvedAmount
     ) {
-        this.paymentProvider = PaymentProvider.REVENUECAT;
+        this.paymentProvider = provider;
         this.paymentStatus = PaymentStatus.SUCCESS;
         this.providerTransactionId = transactionIdentifier;
         this.storeProductId = storeProductId;
         this.store = store;
         this.sandbox = sandbox;
         this.approvedAt = approvedAt != null ? approvedAt : LocalDateTime.now();
+        this.approvedAmount = approvedAmount;
     }
 
     public void markFailed(String failureCode, String failureReason) {

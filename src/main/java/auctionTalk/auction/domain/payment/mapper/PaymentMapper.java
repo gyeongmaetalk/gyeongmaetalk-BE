@@ -11,15 +11,19 @@ import auctionTalk.auction.domain.product.entity.Product;
 import auctionTalk.auction.domain.subscription.entity.Subscription;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class PaymentMapper {
+
+    @Value("${payment.default-provider:REVENUECAT}")
+    private PaymentProvider defaultProvider = PaymentProvider.REVENUECAT;
 
     public Payment toPayment(Order order, String paymentNumber, String storeProductId) {
         return Payment.builder()
                 .order(order)
                 .paymentNumber(paymentNumber)
-                .paymentProvider(PaymentProvider.REVENUECAT)
+                .paymentProvider(defaultProvider)
                 .paymentStatus(PaymentStatus.PENDING)
                 .storeProductId(storeProductId)
                 .requestedAmount(order.getAmount())

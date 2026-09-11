@@ -37,7 +37,19 @@ class OrderControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(orderController)
+                .setCustomArgumentResolvers(new org.springframework.web.method.support.HandlerMethodArgumentResolver() {
+                    public boolean supportsParameter(org.springframework.core.MethodParameter parameter) {
+                        return parameter.getParameterType() == auctionTalk.auction.config.security.auth.PrincipalDetails.class;
+                    }
+                    public Object resolveArgument(org.springframework.core.MethodParameter parameter,
+                            org.springframework.web.method.support.ModelAndViewContainer container,
+                            org.springframework.web.context.request.NativeWebRequest request,
+                            org.springframework.web.bind.support.WebDataBinderFactory factory) {
+                        return new auctionTalk.auction.config.security.auth.PrincipalDetails(
+                                auctionTalk.auction.domain.member.entity.Member.builder().id(1L).build(), java.util.Map.of());
+                    }
+                }).build();
         objectMapper = new ObjectMapper();
     }
 
@@ -48,7 +60,6 @@ class OrderControllerTest {
         OrderCreateRequest request = OrderCreateRequest.builder()
                 .productId(1L)
                 .idempotencyKey("test-idempotency-key")
-                .paymentProvider(PaymentProvider.APPLE)
                 .counselorId(10L)
                 .build();
 
@@ -56,10 +67,8 @@ class OrderControllerTest {
                 .orderId(1L)
                 .orderNumber("ORD-20260415180000-AB12CD34")
                 .amount(300000L)
-                .paymentProvider(PaymentProvider.APPLE)
                 .productId(1L)
                 .productName("경매 대행 신청")
-                .productType(ProductType.SINGLE)
                 .storeProductId("auction_application")
                 .build();
 
@@ -70,12 +79,9 @@ class OrderControllerTest {
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.orderId").value(1L))
-                .andExpect(jsonPath("$.orderNumber").value("ORD-123"))
-                .andExpect(jsonPath("$.paymentNumber").value("PAY-123"))
-                .andExpect(jsonPath("$.storeProductId").value("auction_application"))
-                .andExpect(jsonPath("$.orderStatus").value("READY"))
-                .andExpect(jsonPath("$.paymentStatus").value("READY"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.orderId").value(1L))
+                .andExpect(jsonPath("$.result.orderNumber").value("ORD-20260415180000-AB12CD34"))
+                .andExpect(jsonPath("$.result.storeProductId").value("auction_application"));
     }
 }

@@ -73,7 +73,7 @@ public class ViewTicketServiceImpl implements ViewTicketService{
 
         Member member = order.getMember();
 
-        MemberViewTicketWallet wallet = memberViewTicketWalletRepository.findByMemberId(member.getId())
+        MemberViewTicketWallet wallet = memberViewTicketWalletRepository.findByMemberIdForUpdate(member.getId())
                 .orElseGet(() -> memberViewTicketWalletRepository.save(viewTicketMapper.toMemberViewTicketWallet(member)));
 
         wallet.increase(quantity);

@@ -98,10 +98,8 @@ class OrderServiceTest {
                 .orderId(1L)
                 .orderNumber("ORD-20260415180000-AB12CD34")
                 .amount(300000L)
-                .paymentProvider(PaymentProvider.REVENUECAT)
                 .productId(1L)
                 .productName("경매 대행 신청")
-                .productType(ProductType.SINGLE)
                 .storeProductId("auction_application")
                 .build();
 
@@ -132,10 +130,8 @@ class OrderServiceTest {
         assertThat(result.getOrderId()).isEqualTo(1L);
         assertThat(result.getOrderNumber()).isEqualTo("ORD-20260415180000-AB12CD34");
         assertThat(result.getAmount()).isEqualTo(300000L);
-        assertThat(result.getPaymentProvider()).isEqualTo(PaymentProvider.REVENUECAT);
         assertThat(result.getProductId()).isEqualTo(1L);
         assertThat(result.getProductName()).isEqualTo("경매 대행 신청");
-        assertThat(result.getProductType()).isEqualTo(ProductType.SINGLE);
         assertThat(result.getStoreProductId()).isEqualTo("auction_application");
 
         verify(orderRepository).save(order);
@@ -186,7 +182,6 @@ class OrderServiceTest {
                 .amount(300000L)
                 .productId(1L)
                 .productName("경매 대행 신청")
-                .productType(ProductType.SINGLE)
                 .storeProductId("auction_application")
                 .build();
 
@@ -205,10 +200,8 @@ class OrderServiceTest {
         assertThat(result.getOrderId()).isEqualTo(1L);
         assertThat(result.getOrderNumber()).isEqualTo("ORD-20260415180000-AB12CD34");
         assertThat(result.getAmount()).isEqualTo(300000L);
-        assertThat(result.getPaymentProvider()).isEqualTo(PaymentProvider.REVENUECAT);
         assertThat(result.getProductId()).isEqualTo(1L);
         assertThat(result.getProductName()).isEqualTo("경매 대행 신청");
-        assertThat(result.getProductType()).isEqualTo(ProductType.SINGLE);
         assertThat(result.getStoreProductId()).isEqualTo("auction_application");
 
         verify(orderRepository, never()).save(any());

@@ -249,7 +249,7 @@ class CounselServiceImplTest {
                     .cellPhone("010-1234-5678")
                     .build();
 
-            given(counselorRepository.getCounselor(counselorId)).willReturn(counselor);
+            given(counselorRepository.getCounselorWithLock(counselorId)).willReturn(counselor);
             given(counselMapper.toCounselForm(formRequest, member)).willReturn(counselForm);
             given(counselFormRepository.save(counselForm)).willReturn(counselForm);
             given(counselMapper.toCounsel(member, counselor, expectedDate, expectedTime, counselForm))
