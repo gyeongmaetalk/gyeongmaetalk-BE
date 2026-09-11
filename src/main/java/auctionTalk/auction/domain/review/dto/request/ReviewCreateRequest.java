@@ -28,6 +28,7 @@ public class ReviewCreateRequest {
     @Size(max=250, message = "리뷰 내용은 250자 이하여야 합니다.")
     private String content;
 
-    @Schema(description = "리뷰 이미지 URL 목록", example = "[\"https://bucket.s3.ap-northeast-2.amazonaws.com/review/abc.webp\"]")
+    @Schema(description = "Presigned PUT으로 업로드한 임시 S3 Object Key 목록 (URL 아님)",
+            example = "[\"temp/review/1/550e8400-e29b-41d4-a716-446655440000.webp\"]")
     private List<String> imageUrls;
 }

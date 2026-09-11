@@ -50,6 +50,8 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     @Transactional
     public PropertyIdResponse createProperty(PropertyCreateRequest request){
 
+        s3Service.validateNonReviewImages(request.getImageUrls());
+
         Member member = memberRepository.getMember(request.getMemberId());
 
         Subscription subscription = subscriptionRepository.getSubscriptionByMemberId(request.getMemberId());
@@ -117,6 +119,8 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     @Override
     @Transactional
     public PropertyIdResponse updateProperty(Long propertyId, PropertyUpdateRequest request){
+        s3Service.validateNonReviewImages(request.getRemainImageUrls());
+        s3Service.validateNonReviewImages(request.getAddImageUrls());
         Property property = propertyRepository.getProperty(propertyId);
 
         property.updateProperty(request);

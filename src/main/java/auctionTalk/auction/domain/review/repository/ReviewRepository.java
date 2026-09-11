@@ -10,11 +10,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Review r WHERE r.id = :id")
+    Optional<Review> findForUpdate(@Param("id") Long id);
+
+    default Review getReviewForUpdate(Long id) {
+        return findForUpdate(id)
+                .orElseThrow(() -> new CustomApiException(ErrorCode.REVIEW_NOT_FOUND));
+    }
 
     default Review getReview(Long id) {
         return findById(id)
