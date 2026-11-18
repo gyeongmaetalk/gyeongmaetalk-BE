@@ -81,6 +81,17 @@ jobs:
           --policy deptrace-licenses.yml
           --summary "$GITHUB_STEP_SUMMARY"
 
+      # 배포 클래스패스 SBOM(CycloneDX 1.6). 취약점 예외는 VEX not_affected로 함께 기록해 산출물로 남긴다
+      - name: Generate SBOM
+        if: ${{ !cancelled() && steps.export.outcome == 'success' }}
+        run: >-
+          .deptrace/build/install/deptrace/bin/deptrace sbom
+          --graphs build/deptrace
+          --out build/deptrace-report/bom.cdx.json
+          --cache .deptrace-cache
+          --analysis build/deptrace-report/analysis.json
+          --exceptions deptrace-exceptions.yml
+
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v7
