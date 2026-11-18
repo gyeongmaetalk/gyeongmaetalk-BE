@@ -1,0 +1,16 @@
+# DepTrace 라이선스 정책 (deptrace licenses --policy deptrace-licenses.yml)
+#
+# 경매톡은 비공개 소스 서버 애플리케이션이다. 바이너리를 외부에 배포하지 않으면 GPL의 소스 공개 의무는 생기지 않지만,
+# 배포 형태가 바뀌거나(설치형 제공, 이미지 공개) 네트워크 카피레프트(AGPL·SSPL)가 들어오면 의무가 생긴다.
+# 그래서 강한·네트워크 카피레프트는 금지하고, 사용 형태를 확인한 구성요소만 근거와 만료일을 붙여 예외로 둔다.
+deny: [STRONG_COPYLEFT, NETWORK_COPYLEFT]
+review: [WEAK_COPYLEFT, UNKNOWN]
+
+exceptions:
+  - package: com.mysql:mysql-connector-j
+    reason: >-
+      GPL-2.0 + Universal FOSS Exception. FOSS 예외는 비공개 소스에는 적용되지 않아 배포 시 소스 공개 의무가 생긴다.
+      경매톡은 서버에서만 실행하는 서비스이고, 2026-11-18 공개 Docker Hub 이미지 배포를 중단해 바이너리 외부 배포가 없다.
+      코드는 JDBC 표준 API만 쓰고 com.mysql 클래스를 직접 참조하지 않는다(src/main 검색 0건).
+      이미지 공개·설치형 제공 등 배포 형태가 바뀌면 MariaDB Connector/J(LGPL-2.1)로 교체한다.
+    expires: 2027-05-18
