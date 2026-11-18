@@ -107,6 +107,9 @@ dependencies {
         implementation('org.bouncycastle:bcprov-jdk18on:1.85') { because 'CVE-2026-0636 and 4 more advisories in 1.83' }
         // Spring Boot 3.5가 okhttp 버전 관리를 중단해 net.nurigo:sdk가 요청한 4.10.0으로 하향되는 것을 막고 기존 4.12.0을 유지
         implementation('com.squareup.okhttp3:logging-interceptor:4.12.0') { because 'keep version used before Spring Boot 3.5 upgrade' }
+        // firebase-admin·google-auth가 끌어오는 33.6.0-jre에 GHSA-xxph-c9ww-hj94(HIGH, 2026-10-27 공개)가 있어 하한을 지정.
+        // OSV 수정 버전 33.7.2는 -jre/-android 변형으로만 배포되므로 기존과 같은 -jre를 쓴다
+        implementation('com.google.guava:guava:33.7.2-jre') { because 'GHSA-xxph-c9ww-hj94 fixed in 33.7.2' }
     }
 }
 
