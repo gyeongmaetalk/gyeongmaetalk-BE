@@ -70,6 +70,21 @@ jobs:
           --exceptions deptrace-exceptions.yml
           --summary "$GITHUB_STEP_SUMMARY"
 
+      # OSV가 아직 Maven 패키지에 연결하지 못한 권고(GitHub 미검토)를 NVD 제품 단위로 보완 점검한다.
+      # 현재는 보고만 한다 (공개 수정 버전이 없는 Spring 6.2 라인 권고가 남아 있어 게이트로 쓰기 전 판단이 필요)
+      - name: Check advisories not yet in OSV (NVD)
+        if: ${{ !cancelled() && steps.export.outcome == 'success' }}
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          .deptrace/build/install/deptrace/bin/deptrace nvd-gaps
+          --graphs build/deptrace
+          --analysis build/deptrace-report/analysis.json
+          --out build/deptrace-report
+          --cache .deptrace-cache
+          --summary "$GITHUB_STEP_SUMMARY"
+
       # 취약점 게이트가 실패해도 라이선스 결과는 함께 보이도록 그래프 추출만 성공했으면 실행한다
       - name: Check licenses
         if: ${{ !cancelled() && steps.export.outcome == 'success' }}
