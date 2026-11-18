@@ -41,5 +41,6 @@ src/main/generated/
 *.p8
 *.json
 *.yml
+!deptrace-exceptions.yml
 
 src/main/resources/data.sql
