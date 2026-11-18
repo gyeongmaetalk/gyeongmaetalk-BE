@@ -1,0 +1,77 @@
+name: Dependency Audit
+
+# 의존성 해석 결과를 DepTrace로 분석해 배포 클래스패스에 HIGH 이상 취약점이 있으면 실패시킨다.
+# - push/PR: 빌드 파일이나 예외 목록이 바뀔 때
+# - schedule: 코드가 그대로여도 새 취약점이 공개되면 잡아내기 위해 매일 실행 (기본 브랜치에 병합된 뒤 동작)
+on:
+  push:
+    paths:
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'gradle/**'
+      - 'deptrace-exceptions.yml'
+      - '.github/workflows/dependency-audit.yml'
+  pull_request:
+    paths:
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'gradle/**'
+      - 'deptrace-exceptions.yml'
+      - '.github/workflows/dependency-audit.yml'
+  schedule:
+    - cron: '0 0 * * *'   # 매일 09:00 KST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout DepTrace
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.DEPTRACE_REPOSITORY || 'hig1002/deptrace' }}
+          path: .deptrace
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore OSV cache
+        uses: actions/cache@v4
+        with:
+          path: .deptrace-cache
+          key: deptrace-${{ github.run_id }}
+          restore-keys: deptrace-
+
+      - name: Build DepTrace
+        run: ./gradlew -p .deptrace installDist -q
+
+      - name: Export resolved dependency graphs
+        run: ./gradlew -I .deptrace/init/deptrace.init.gradle deptraceExport --no-configuration-cache
+
+      - name: Analyze and enforce policy
+        run: >-
+          .deptrace/build/install/deptrace/bin/deptrace analyze
+          --graphs build/deptrace
+          --out build/deptrace-report
+          --cache .deptrace-cache
+          --fail-on HIGH
+          --exceptions deptrace-exceptions.yml
+          --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deptrace-report
+          path: |
+            build/deptrace
+            build/deptrace-report
