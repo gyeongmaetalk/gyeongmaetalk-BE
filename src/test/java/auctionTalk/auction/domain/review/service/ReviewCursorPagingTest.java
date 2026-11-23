@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 /**
  * 커서 조회를 실제 JPA·DB(H2)로 검증한다.
  * - 같은 작성 시각이 섞여 있어도 끝까지 넘겼을 때 누락·중복이 없어야 한다.
- * - 한 페이지를 만드는 데 리뷰 수와 상관없이 쿼리가 2번(리뷰+회원+상담 1번, 이미지 1번)이어야 한다.
+ * - 한 페이지를 만드는 데 리뷰 수와 상관없이 쿼리가 3번(인덱스에서 키 조회, 리뷰+회원+상담, 이미지)이어야 한다.
  */
 @DataJpaTest(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 @Import(QuerydslConfig.class)
@@ -146,7 +146,7 @@ class ReviewCursorPagingTest {
     }
 
     @Test
-    @DisplayName("한 페이지를 만드는 쿼리는 리뷰 수와 관계없이 2번이다 (N+1 없음)")
+    @DisplayName("한 페이지를 만드는 쿼리는 리뷰 수와 관계없이 3번이다 (N+1 없음)")
     void pageUsesConstantNumberOfQueries() {
         statistics.clear();
 
@@ -155,8 +155,8 @@ class ReviewCursorPagingTest {
         assertThat(response.getReviews()).hasSize(20);
         assertThat(response.getReviews()).allSatisfy(r -> assertThat(r.getName()).startsWith("회원"));
         assertThat(response.getReviews().stream().mapToInt(ReviewSummaryResponse::getImageCount).sum()).isPositive();
-        // 리뷰+회원+상담 조회 1번 + 이미지 IN 조회 1번
-        assertThat(statistics.getPrepareStatementCount()).isEqualTo(2);
+        // 키 조회 1번 + 리뷰·회원·상담 조회 1번 + 이미지 IN 조회 1번
+        assertThat(statistics.getPrepareStatementCount()).isEqualTo(3);
     }
 
     @Test

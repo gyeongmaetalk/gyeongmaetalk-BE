@@ -30,7 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -171,27 +175,37 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomApiException(ErrorCode.INVALID_REVIEW_PAGE_SIZE);
         }
 
-        // 한 건 더 조회해서 다음 페이지가 있는지 판단한다(전체 개수를 세지 않음)
+        // 1단계: 인덱스에서 (작성 시각, ID)만 한 건 더 읽어 다음 페이지가 있는지 판단한다(전체 개수를 세지 않음)
         Pageable limit = PageRequest.of(0, size + 1);
-        List<Review> fetched = (cursor == null)
-                ? reviewRepository.findLatestFirstPage(limit)
-                : findLatestAfter(ReviewCursor.decode(cursor), limit);
+        List<ReviewCursor> keys;
+        if (cursor == null) {
+            keys = reviewRepository.findLatestKeys(limit);
+        } else {
+            ReviewCursor after = ReviewCursor.decode(cursor);
+            keys = reviewRepository.findLatestKeysAfter(after.createdAt(), after.id(), limit);
+        }
 
-        boolean hasNext = fetched.size() > size;
-        List<Review> page = hasNext ? fetched.subList(0, size) : fetched;
-        String nextCursor = hasNext ? ReviewCursor.from(page.get(page.size() - 1)).encode() : null;
+        boolean hasNext = keys.size() > size;
+        List<ReviewCursor> pageKeys = hasNext ? keys.subList(0, size) : keys;
+        String nextCursor = hasNext ? pageKeys.get(pageKeys.size() - 1).encode() : null;
+
+        // 2단계: 고른 리뷰만 회원·상담과 함께 조회하고, 1단계 순서대로 다시 정렬한다
+        List<Long> ids = pageKeys.stream().map(ReviewCursor::id).toList();
+        Map<Long, Review> byId = ids.isEmpty() ? Map.of()
+                : reviewRepository.findAllWithMemberAndCounselByIdIn(ids).stream()
+                        .collect(Collectors.toMap(Review::getId, Function.identity()));
+
+        List<ReviewSummaryResponse> reviews = ids.stream()
+                .map(byId::get)
+                .filter(Objects::nonNull)
+                .map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+                .toList();
 
         return ReviewCursorResponse.<ReviewSummaryResponse>builder()
-                .reviews(page.stream()
-                        .map(review -> reviewMapper.toReviewSummaryResponse(review, member))
-                        .toList())
+                .reviews(reviews)
                 .nextCursor(nextCursor)
                 .hasNext(hasNext)
                 .build();
-    }
-
-    private List<Review> findLatestAfter(ReviewCursor cursor, Pageable limit) {
-        return reviewRepository.findLatestAfter(cursor.createdAt(), cursor.id(), limit);
     }
 
     @Override

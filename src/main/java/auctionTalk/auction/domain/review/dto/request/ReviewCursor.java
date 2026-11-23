@@ -1,6 +1,5 @@
 package auctionTalk.auction.domain.review.dto.request;
 
-import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 
@@ -17,10 +16,6 @@ import java.util.Base64;
 public record ReviewCursor(LocalDateTime createdAt, Long id) {
 
     private static final String DELIMITER = "|";
-
-    public static ReviewCursor from(Review review) {
-        return new ReviewCursor(review.getCreatedAt(), review.getId());
-    }
 
     public String encode() {
         String raw = createdAt + DELIMITER + id;
