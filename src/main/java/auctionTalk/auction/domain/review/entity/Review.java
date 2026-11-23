@@ -6,11 +6,18 @@ import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(
+        indexes = {
+                // 최신순 커서 조회: (created_at, id) 범위 스캔으로 정렬 없이 읽는다
+                @Index(name = "idx_review_created_at", columnList = "created_at, id")
+        }
+)
 @Getter
 @Builder
 @AllArgsConstructor
@@ -32,6 +39,8 @@ public class Review extends BaseEntity {
 
     private String content;
 
+    // 목록 조회 시 리뷰마다 이미지를 따로 조회하지 않도록 IN 절로 묶어서 가져온다
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImage> images = new ArrayList<>();
 

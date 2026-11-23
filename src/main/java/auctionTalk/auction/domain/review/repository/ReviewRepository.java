@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -26,6 +27,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByCounsel(Counsel counsel);
 
     Page<Review> findReviewsByMember(Member member, Pageable pageable);
+
+    // 전체 리뷰 + 최신순 커서 조회(첫 페이지). List 반환이라 COUNT 쿼리를 실행하지 않는다.
+    @Query("SELECT r FROM Review r " +
+            "JOIN FETCH r.member " +
+            "JOIN FETCH r.counsel " +
+            "ORDER BY r.createdAt DESC, r.id DESC")
+    List<Review> findLatestFirstPage(Pageable pageable);
+
+    // 전체 리뷰 + 최신순 커서 조회(다음 페이지): 커서보다 앞선 (작성 시각, ID)만 조회
+    @Query("SELECT r FROM Review r " +
+            "JOIN FETCH r.member " +
+            "JOIN FETCH r.counsel " +
+            "WHERE r.createdAt < :createdAt " +
+            "OR (r.createdAt = :createdAt AND r.id < :id) " +
+            "ORDER BY r.createdAt DESC, r.id DESC")
+    List<Review> findLatestAfter(@Param("createdAt") LocalDateTime createdAt,
+                                 @Param("id") Long id,
+                                 Pageable pageable);
 
     // 전체 리뷰 + 최신순
     @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")

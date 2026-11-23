@@ -6,6 +6,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
+import auctionTalk.auction.domain.review.dto.request.ReviewCursor;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.domain.review.dto.response.*;
 import auctionTalk.auction.domain.review.entity.*;
@@ -43,9 +44,12 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewReportRepository reviewReportRepository;
     private final S3Service s3Service;
 
+    private static final int MAX_CURSOR_PAGE_SIZE = 50;
+
     @Override
     @Caching(evict = {
             @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "reviewCursorList", allEntries = true),
             @CacheEvict(value = "counselorReviewList", allEntries = true),
             @CacheEvict(value = "myReviewList", allEntries = true)
     })
@@ -72,6 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "reviewCursorList", allEntries = true),
             @CacheEvict(value = "counselorReviewList", allEntries = true),
             @CacheEvict(value = "myReviewList", allEntries = true)
     })
@@ -102,6 +107,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "reviewCursorList", allEntries = true),
             @CacheEvict(value = "counselorReviewList", allEntries = true),
             @CacheEvict(value = "myReviewList", allEntries = true)
     })
@@ -151,6 +157,41 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toAllReviewPagingResponse(
                 reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
         );
+    }
+
+    @Override
+    @Cacheable(
+            value = "reviewCursorList",
+            key = "'member=' + (#member == null ? 'anonymous' : #member.id) + ':size=' + #size",
+            condition = "#cursor == null"
+    )
+    @Transactional(readOnly = true)
+    public ReviewCursorResponse<ReviewSummaryResponse> inquiryReviewsByCursor(Member member, String cursor, int size) {
+        if (size < 1 || size > MAX_CURSOR_PAGE_SIZE) {
+            throw new CustomApiException(ErrorCode.INVALID_REVIEW_PAGE_SIZE);
+        }
+
+        // 한 건 더 조회해서 다음 페이지가 있는지 판단한다(전체 개수를 세지 않음)
+        Pageable limit = PageRequest.of(0, size + 1);
+        List<Review> fetched = (cursor == null)
+                ? reviewRepository.findLatestFirstPage(limit)
+                : findLatestAfter(ReviewCursor.decode(cursor), limit);
+
+        boolean hasNext = fetched.size() > size;
+        List<Review> page = hasNext ? fetched.subList(0, size) : fetched;
+        String nextCursor = hasNext ? ReviewCursor.from(page.get(page.size() - 1)).encode() : null;
+
+        return ReviewCursorResponse.<ReviewSummaryResponse>builder()
+                .reviews(page.stream()
+                        .map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+                        .toList())
+                .nextCursor(nextCursor)
+                .hasNext(hasNext)
+                .build();
+    }
+
+    private List<Review> findLatestAfter(ReviewCursor cursor, Pageable limit) {
+        return reviewRepository.findLatestAfter(cursor.createdAt(), cursor.id(), limit);
     }
 
     @Override

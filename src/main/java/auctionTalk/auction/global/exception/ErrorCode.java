@@ -50,6 +50,8 @@ public enum ErrorCode {
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW401", "리뷰를 찾을 수 없습니다."),
     INVALID_REVIEW_SORT_TYPE(HttpStatus.BAD_REQUEST, "REVIEW402", "유효하지 않은 리뷰 정렬 타입 입니다."),
+    INVALID_REVIEW_CURSOR(HttpStatus.BAD_REQUEST, "REVIEW403", "유효하지 않은 리뷰 커서입니다."),
+    INVALID_REVIEW_PAGE_SIZE(HttpStatus.BAD_REQUEST, "REVIEW404", "리뷰 조회 개수는 1 이상 50 이하여야 합니다."),
 
     // Property
     PROPERTY_NOT_FOUND(HttpStatus.NOT_FOUND, "PROPERTY401", "추천 매물을 찾을 수 없습니다."),

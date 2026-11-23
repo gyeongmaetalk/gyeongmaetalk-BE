@@ -71,6 +71,22 @@ public class ReviewController {
         return BaseResponse.onSuccess(reviewService.inquiryReviews(member, type, page, size));
     }
 
+    @Operation(summary = "전체 후기 목록 커서 조회 API (최신순)",
+            description = "전체 개수를 세지 않고 커서로 다음 페이지를 조회합니다. 첫 요청은 cursor 없이 보내고, 이후에는 응답의 nextCursor를 그대로 넘깁니다.")
+    @GetMapping("/cursor")
+    @Parameters(value = {
+            @Parameter(name = "cursor", description = "이전 응답의 nextCursor. 첫 페이지는 생략"),
+            @Parameter(name = "size", description = "한 번에 조회할 개수(1~50, 기본 20)"),
+    })
+    public BaseResponse<ReviewCursorResponse<ReviewSummaryResponse>> inquiryReviewsByCursor(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @RequestParam(name = "cursor", required = false) String cursor,
+            @RequestParam(name = "size", defaultValue = "20") int size
+    ){
+        Member member = principal != null ? principal.getMember() : null;
+        return BaseResponse.onSuccess(reviewService.inquiryReviewsByCursor(member, cursor, size));
+    }
+
     @Operation(summary = "내가 쓴 후기 목록 조회 API")
     @GetMapping("/my")
     @Parameters(value = {
