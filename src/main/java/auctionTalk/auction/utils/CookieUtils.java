@@ -7,12 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.util.SerializationUtils;
 
 import java.io.*;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Optional;
 
 public class CookieUtils {
@@ -87,16 +85,5 @@ public class CookieUtils {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
-
-    public static String serialize(Object obj) {
-        return Base64.getUrlEncoder()
-                .encodeToString(SerializationUtils.serialize(obj));
-    }
-
-    public static <T> T deserialize(Cookie cookie, Class<T> cls) {
-        return cls.cast(
-                SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie.getValue()))
-        );
     }
 }
