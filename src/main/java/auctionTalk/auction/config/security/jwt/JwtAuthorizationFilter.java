@@ -38,11 +38,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                if (!jwtTokenProvider.validateToken(token)) {
-                    throw new JwtAuthenticationException(ErrorCode.INVALID_JWT_TOKEN);
-                }
-
-                Claims claims = jwtTokenProvider.parseClaims(token);
+                Claims claims = jwtTokenProvider.parseAccessToken(token);
                 Long memberId = Long.valueOf(claims.getSubject());
 
                 Member member = memberRepository.getMember(memberId);

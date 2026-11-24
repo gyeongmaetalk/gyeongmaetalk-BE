@@ -31,6 +31,18 @@ public class CustomRestControllerAdvice extends ResponseEntityExceptionHandler {
     }
 
     /*
+     * JWT 인증 예외 처리 (토큰 재발급 등 컨트롤러에서 토큰을 검증하는 경우)
+     * - 처리하지 않으면 아래 Exception 처리로 넘어가 500이 된다
+     */
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<Object> handleJwtAuthenticationException(JwtAuthenticationException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), null));
+    }
+
+    /*
      * ConstraintViolationException에 대한 예외 처리
      * - Bean Validation을 위반한 경우
      */
