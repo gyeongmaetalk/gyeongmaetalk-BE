@@ -97,10 +97,11 @@ public class AuthController {
             @Parameter(name = "code", description = "사용자가 입력한 인증번호")
     })
     public BaseResponse<Boolean> verifySms(
+            @AuthenticationPrincipal PrincipalDetails principal,
             @RequestParam String phoneNumber,
             @RequestParam String code
     ){
-        return BaseResponse.onSuccess(smsService.verifyCode(phoneNumber, code));
+        return BaseResponse.onSuccess(smsService.verifyCode(principal.getMember().getId(), phoneNumber, code));
     }
 
     @Operation(summary = "알림 설정 변경 API")

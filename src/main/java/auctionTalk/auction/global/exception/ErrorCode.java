@@ -34,6 +34,12 @@ public enum ErrorCode {
     MEMBER_SOFT_DELETE(HttpStatus.BAD_REQUEST, "MEMBER402", "회원 탈퇴된 사용자 입니다."),
     MEMBER_INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER403", "패스워드가 일치하지 않습니다."),
     MEMBER_IS_PRESENT(HttpStatus.BAD_REQUEST, "MEMBER404", "이미 존재하는 계정입니다."),
+
+    // SMS
+    SMS_SEND_TOO_FREQUENT(HttpStatus.TOO_MANY_REQUESTS, "SMS401", "잠시 후 다시 인증번호를 요청해주세요."),
+    SMS_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "SMS402", "오늘 보낼 수 있는 인증 문자 수를 초과했습니다."),
+    SMS_VERIFY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "SMS403", "인증 시도 횟수를 초과했습니다. 인증번호를 다시 요청해주세요."),
+    SMS_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "SMS404", "휴대폰 번호 인증이 필요합니다."),
     MEMBER_IS_SUBSCRIBED(HttpStatus.BAD_REQUEST, "MEMBER405", "이미 경매대행을 진행중이라 상담 신청이 불가능 합니다."),
 
 
