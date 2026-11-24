@@ -19,6 +19,10 @@ import java.util.UUID;
 @Component
 public class S3Service {
 
+    // 조회용 presigned URL 유효 시간. 응답을 캐시하는 쪽(RedisConfig)은 이보다 짧은 TTL을 써야 만료된 URL을 내보내지 않는다.
+    public static final Duration PRESIGNED_GET_URL_TTL = Duration.ofMinutes(10);
+
+
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
 
@@ -55,7 +59,7 @@ public class S3Service {
 
         PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(
                 builder -> builder
-                        .signatureDuration(Duration.ofMinutes(10))
+                        .signatureDuration(PRESIGNED_GET_URL_TTL)
                         .getObjectRequest(getObjectRequest)
         );
 
