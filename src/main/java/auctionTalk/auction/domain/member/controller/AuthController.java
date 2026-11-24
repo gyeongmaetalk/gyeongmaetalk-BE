@@ -61,14 +61,15 @@ public class AuthController {
 
     @Operation(summary = "토큰 재발급 API")
     @PostMapping("/refresh")
-    public BaseResponse<AuthTokenResponse> refresh(
+    public BaseResponse<MemberIdResponse> refresh(
             @CookieValue(value = "REFRESH_TOKEN") String refreshToken,
             HttpServletResponse response
     ) {
         AuthTokenResponse tokenResponse = authService.refresh(refreshToken);
 
+        // 토큰은 HttpOnly 쿠키로만 전달한다. 본문에 담으면 XSS 발생 시 스크립트가 토큰 원문을 읽을 수 있다.
         CookieUtils.addJwtCookies(response, tokenResponse.toJwtToken());
-        return BaseResponse.onSuccess(tokenResponse);
+        return BaseResponse.onSuccess(new MemberIdResponse(tokenResponse.getMemberId()));
     }
 
     @Operation(summary = "내 정보 조회 API")

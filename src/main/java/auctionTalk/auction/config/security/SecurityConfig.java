@@ -39,6 +39,7 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final AppleOidcUserService appleOidcUserService;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
@@ -74,11 +75,7 @@ public class SecurityConfig {
                                 .oidcUserService(appleOidcUserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 JWT 발급
-                        .failureHandler((request, response, exception) -> {
-                            System.err.println("❌ OAuth2 로그인 실패: " + exception.getMessage());
-                            exception.printStackTrace();
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "OAuth2 로그인 실패: " + exception.getMessage());
-                        })
+                        .failureHandler(oAuth2LoginFailureHandler)
                 );
 
         return http.build();
