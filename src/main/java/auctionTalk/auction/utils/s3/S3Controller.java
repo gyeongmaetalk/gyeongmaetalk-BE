@@ -1,6 +1,8 @@
 package auctionTalk.auction.utils.s3;
 
 import auctionTalk.auction.global.common.BaseResponse;
+import auctionTalk.auction.config.security.auth.PrincipalDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,11 @@ public class S3Controller {
     @GetMapping("/presigned/put")
     public BaseResponse<String> getPresignedUrl(
             @RequestParam String category,
-            @RequestParam String fileName
+            @RequestParam String fileName,
+            @AuthenticationPrincipal PrincipalDetails principal
     ) {
-        return BaseResponse.onSuccess(s3Service.generatePresignedPutUrl(category, fileName));
+        return BaseResponse.onSuccess(s3Service.generatePresignedPutUrl(
+                category, fileName, principal == null ? null : principal.getMember().getId()));
     }
 
     @Operation(summary = "get용 PresignedUrl 발급 API")

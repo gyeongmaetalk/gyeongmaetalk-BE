@@ -60,6 +60,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             List<ReviewImage> images = request.getImageUrls().stream()
+                    .map(key -> s3Service.confirmReviewImage(key, member.getId(), newReview.getId(), List.of()))
+                    .distinct()
                     .map(url -> reviewMapper.toReviewImage(newReview, url))
                     .toList();
 
@@ -79,7 +81,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewIdResponse updateReview(Long reviewId, ReviewUpdateRequest request, Long memberId) {
 
         // 수정 권한 유효성 검사(본인이 아닌 경우 수정 불가)
-        Review review = reviewRepository.getReview(reviewId);
+        Review review = reviewRepository.getReviewForUpdate(reviewId);
         ParamValidator.validModify(review.getMember().getId(), memberId);
 
         review.updateReviewInfo(request);
@@ -90,10 +92,21 @@ public class ReviewServiceImpl implements ReviewService {
         List<String> addKeys = Optional.ofNullable(request.getAddImageUrls())
                 .orElseGet(ArrayList::new);
 
+        List<String> existingKeys = review.getImages().stream().map(ReviewImage::getUrl).toList();
+        s3Service.validateRetainedReviewImages(remainKeys, existingKeys);
+        List<String> confirmedKeys = addKeys.stream()
+                .map(key -> s3Service.confirmReviewImage(key, memberId, reviewId, existingKeys))
+                .distinct()
+                .toList();
+        // An already attached image passed in addImageUrls means retain, not delete and recreate.
+        remainKeys = new ArrayList<>(remainKeys);
+        remainKeys.addAll(confirmedKeys.stream().filter(existingKeys::contains).toList());
+        addKeys = confirmedKeys.stream().filter(key -> !existingKeys.contains(key)).toList();
+
         List<String> deleteKeys = review.updateImages(remainKeys, addKeys);
 
         if (!deleteKeys.isEmpty()) {
-            s3Service.deleteFiles(deleteKeys);
+            s3Service.deleteFilesAfterCommit(deleteKeys);
         }
 
         return new  ReviewIdResponse(review.getId());
@@ -109,7 +122,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewIdResponse deleteReview(Long reviewId, Long memberId){
 
         // 수정 권한 유효성 검사(본인이 아닌 경우 수정 불가)
-        Review review = reviewRepository.getReview(reviewId);
+        Review review = reviewRepository.getReviewForUpdate(reviewId);
         ParamValidator.validModify(review.getMember().getId(), memberId);
 
         reviewRepository.deleteById(reviewId);

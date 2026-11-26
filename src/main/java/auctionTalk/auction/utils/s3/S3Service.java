@@ -1,9 +1,14 @@
 package auctionTalk.auction.utils.s3;
 
+import auctionTalk.auction.global.exception.CustomApiException;
+import auctionTalk.auction.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -14,10 +19,16 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class S3Service {
+
+    public static final String TEMP_REVIEW_PREFIX = "temp/review/";
+    private static final Pattern TEMP_REVIEW_KEY = Pattern.compile(
+            "^temp/review/[1-9][0-9]*/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.webp$");
 
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
@@ -25,8 +36,16 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String generatePresignedPutUrl(String category, String originalFileName) {
-        String fileName = createFileName(category, Objects.requireNonNull(originalFileName));
+    public String generatePresignedPutUrl(String category, String originalFileName, Long memberId) {
+        if (memberId == null || memberId <= 0) {
+            throw new CustomApiException(ErrorCode.UNAUTHORIZED);
+        }
+        if (category == null || !List.of("review", "property", "counselor").contains(category)) {
+            throw new CustomApiException(ErrorCode.BAD_REQUEST);
+        }
+        String fileName = "review".equals(category)
+                ? TEMP_REVIEW_PREFIX + memberId + "/" + UUID.randomUUID() + ".webp"
+                : createFileName(category, Objects.requireNonNull(originalFileName));
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -41,6 +60,114 @@ public class S3Service {
         );
 
         return presignedRequest.url().toString();
+    }
+
+    /**
+     * Copy before the enclosing DB transaction commits. Never persist the temporary key.
+     * The destination is specific to one review and is never overwritten on retry.
+     * Cleanup follows the actual transaction outcome; Lifecycle remains the temp fallback.
+     */
+    public String confirmReviewImage(String key, Long memberId, Long reviewId, List<String> existingKeys) {
+        if (key != null && !key.startsWith(TEMP_REVIEW_PREFIX) && existingKeys.contains(key)) {
+            return key;
+        }
+        if (key == null || !TEMP_REVIEW_KEY.matcher(key).matches()
+                || memberId == null || !key.startsWith(TEMP_REVIEW_PREFIX + memberId + "/")
+                || reviewId == null || reviewId <= 0) {
+            throw new CustomApiException(ErrorCode.BAD_REQUEST);
+        }
+        if (!TransactionSynchronizationManager.isActualTransactionActive()
+                || !TransactionSynchronizationManager.isSynchronizationActive()) {
+            throw new IllegalStateException("Image confirmation requires a DB transaction");
+        }
+        String destination = "review/" + reviewId + "/" + key.substring(TEMP_REVIEW_PREFIX.length());
+        boolean copied = !existsFile(destination);
+        if (copied) {
+            // A missing source, denied copy or network error aborts the DB transaction.
+            s3Client.copyObject(CopyObjectRequest.builder()
+                    .copySource(bucket + "/" + key)
+                    .bucket(bucket)
+                    .key(destination)
+                    .build());
+        } else if (!existingKeys.contains(destination)
+                && TransactionSynchronizationManager.getSynchronizations().stream()
+                .noneMatch(sync -> sync instanceof ReviewImageCopyCleanup cleanup
+                        && cleanup.destination.equals(destination) && cleanup.copied)) {
+            // A concurrent rolled-back transaction may still be compensating this object.
+            // Never adopt an unreferenced copy whose ownership is uncertain.
+            throw new CustomApiException(ErrorCode.BAD_REQUEST);
+        }
+        TransactionSynchronizationManager.registerSynchronization(new ReviewImageCopyCleanup(key, destination, copied));
+        return destination;
+    }
+
+    private class ReviewImageCopyCleanup implements TransactionSynchronization {
+        private final String source;
+        private final String destination;
+        private final boolean copied;
+
+        private ReviewImageCopyCleanup(String source, String destination, boolean copied) {
+            this.source = source;
+            this.destination = destination;
+            this.copied = copied;
+        }
+
+        @Override
+        public void afterCompletion(int status) {
+            String deleteKey;
+            if (status == STATUS_COMMITTED) {
+                deleteKey = source;
+            } else if (status == STATUS_ROLLED_BACK && copied) {
+                deleteKey = destination;
+            } else {
+                if (status == STATUS_UNKNOWN) {
+                    log.error("Review image transaction outcome unknown; cleanup skipped. bucket={}, source={}, destination={}, copied={}",
+                            bucket, source, destination, copied);
+                }
+                return;
+            }
+            try {
+                deleteFile(deleteKey);
+            } catch (RuntimeException e) {
+                log.error("Review image transaction cleanup failed. status={}, bucket={}, source={}, destination={}, deleteKey={}",
+                        status, bucket, source, destination, deleteKey, e);
+            }
+        }
+    }
+
+    public void validateRetainedReviewImages(List<String> retainedKeys, List<String> existingKeys) {
+        if (retainedKeys.stream().anyMatch(key -> key == null
+                || key.startsWith(TEMP_REVIEW_PREFIX) || !existingKeys.contains(key))) {
+            throw new CustomApiException(ErrorCode.BAD_REQUEST);
+        }
+    }
+
+    public void validateNonReviewImages(List<String> keys) {
+        if (keys != null && keys.stream().anyMatch(key -> key != null && key.startsWith(TEMP_REVIEW_PREFIX))) {
+            throw new CustomApiException(ErrorCode.BAD_REQUEST);
+        }
+    }
+
+    public void deleteFilesAfterCommit(List<String> keys) {
+        if (keys.isEmpty()) {
+            return;
+        }
+        if (!TransactionSynchronizationManager.isActualTransactionActive()
+                || !TransactionSynchronizationManager.isSynchronizationActive()) {
+            throw new IllegalStateException("Image deletion requires a DB transaction");
+        }
+        List<String> deletedKeys = List.copyOf(keys);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    deleteFiles(deletedKeys);
+                } catch (RuntimeException e) {
+                    // A committed DB mutation must not be reported as a failed request.
+                    log.error("Committed review image deletion needs retry. keys={}", deletedKeys, e);
+                }
+            }
+        });
     }
 
     public String generatePresignedGetUrl(String fileKey) {
@@ -96,7 +223,10 @@ public class S3Service {
                 .delete(delete)
                 .build();
 
-        s3Client.deleteObjects(request);
+        DeleteObjectsResponse response = s3Client.deleteObjects(request);
+        if (response.hasErrors()) {
+            throw new IllegalStateException("S3 image deletion failed: " + response.errors());
+        }
     }
 
     public boolean existsFile(String key) {

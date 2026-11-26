@@ -35,7 +35,9 @@ public class ReviewImageCleanupScheduler {
             try {
                 String key = reviewImage.getUrl();
 
-                if (s3Service.existsFile(key)) {
+                // Lifecycle owns new temporary objects. Keep S3 cleanup only for legacy rows.
+                if (key != null && !key.startsWith(S3Service.TEMP_REVIEW_PREFIX)
+                        && s3Service.existsFile(key)) {
                     s3Service.deleteFile(key);
                 }
 
