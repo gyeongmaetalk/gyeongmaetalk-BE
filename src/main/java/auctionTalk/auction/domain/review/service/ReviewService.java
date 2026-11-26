@@ -24,4 +24,5 @@ public interface ReviewService {
     AllReviewPagingResponse<MyReviewSummaryResponse> inquiryReviewsByMember(Member member, int page, int size);
     ReviewPagingResponse<ReviewSummaryResponse> inquiryReviewsByCounselor(Long counselorId, Member member, ReviewSortType sortType, int page, int size);
     ReviewDetailResponse inquiryReviewDetail(Long reviewId, Member member);
+    ReviewCursorResponse<ReviewSummaryResponse> inquiryReviewsByCursor(Member member, String cursor, int size);
 }

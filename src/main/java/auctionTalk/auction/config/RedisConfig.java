@@ -24,6 +24,10 @@ import java.util.Map;
 @EnableRedisRepositories
 public class RedisConfig {
 
+    // 리뷰·상담사 목록 캐시에는 S3 presigned URL이 들어 있다.
+    // URL 유효 시간(S3Service.PRESIGNED_GET_URL_TTL, 10분)보다 짧게 둬서 캐시가 만료된 URL을 내보내지 않게 한다.
+    public static final Duration CACHE_TTL = Duration.ofMinutes(5);
+
     @Value("${spring.data.redis.host}")
     private String redisHost;
 
@@ -58,6 +62,7 @@ public class RedisConfig {
                 new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(CACHE_TTL)
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(serializer)
                 );

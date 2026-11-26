@@ -6,6 +6,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCreateRequest;
+import auctionTalk.auction.domain.review.dto.request.ReviewCursor;
 import auctionTalk.auction.domain.review.dto.request.ReviewUpdateRequest;
 import auctionTalk.auction.domain.review.dto.response.*;
 import auctionTalk.auction.domain.review.entity.*;
@@ -29,7 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +48,12 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewReportRepository reviewReportRepository;
     private final S3Service s3Service;
 
+    private static final int MAX_CURSOR_PAGE_SIZE = 50;
+
     @Override
     @Caching(evict = {
             @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "reviewCursorList", allEntries = true),
             @CacheEvict(value = "counselorReviewList", allEntries = true),
             @CacheEvict(value = "myReviewList", allEntries = true)
     })
@@ -74,6 +82,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "reviewCursorList", allEntries = true),
             @CacheEvict(value = "counselorReviewList", allEntries = true),
             @CacheEvict(value = "myReviewList", allEntries = true)
     })
@@ -115,6 +124,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "reviewList", allEntries = true),
+            @CacheEvict(value = "reviewCursorList", allEntries = true),
             @CacheEvict(value = "counselorReviewList", allEntries = true),
             @CacheEvict(value = "myReviewList", allEntries = true)
     })
@@ -164,6 +174,51 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toAllReviewPagingResponse(
                 reviewPage.map(review -> reviewMapper.toReviewSummaryResponse(review, member))
         );
+    }
+
+    @Override
+    @Cacheable(
+            value = "reviewCursorList",
+            key = "'member=' + (#member == null ? 'anonymous' : #member.id) + ':size=' + #size",
+            condition = "#cursor == null"
+    )
+    @Transactional(readOnly = true)
+    public ReviewCursorResponse<ReviewSummaryResponse> inquiryReviewsByCursor(Member member, String cursor, int size) {
+        if (size < 1 || size > MAX_CURSOR_PAGE_SIZE) {
+            throw new CustomApiException(ErrorCode.INVALID_REVIEW_PAGE_SIZE);
+        }
+
+        // 1단계: 인덱스에서 (작성 시각, ID)만 한 건 더 읽어 다음 페이지가 있는지 판단한다(전체 개수를 세지 않음)
+        Pageable limit = PageRequest.of(0, size + 1);
+        List<ReviewCursor> keys;
+        if (cursor == null) {
+            keys = reviewRepository.findLatestKeys(limit);
+        } else {
+            ReviewCursor after = ReviewCursor.decode(cursor);
+            keys = reviewRepository.findLatestKeysAfter(after.createdAt(), after.id(), limit);
+        }
+
+        boolean hasNext = keys.size() > size;
+        List<ReviewCursor> pageKeys = hasNext ? keys.subList(0, size) : keys;
+        String nextCursor = hasNext ? pageKeys.get(pageKeys.size() - 1).encode() : null;
+
+        // 2단계: 고른 리뷰만 회원·상담과 함께 조회하고, 1단계 순서대로 다시 정렬한다
+        List<Long> ids = pageKeys.stream().map(ReviewCursor::id).toList();
+        Map<Long, Review> byId = ids.isEmpty() ? Map.of()
+                : reviewRepository.findAllWithMemberAndCounselByIdIn(ids).stream()
+                        .collect(Collectors.toMap(Review::getId, Function.identity()));
+
+        List<ReviewSummaryResponse> reviews = ids.stream()
+                .map(byId::get)
+                .filter(Objects::nonNull)
+                .map(review -> reviewMapper.toReviewSummaryResponse(review, member))
+                .toList();
+
+        return ReviewCursorResponse.<ReviewSummaryResponse>builder()
+                .reviews(reviews)
+                .nextCursor(nextCursor)
+                .hasNext(hasNext)
+                .build();
     }
 
     @Override

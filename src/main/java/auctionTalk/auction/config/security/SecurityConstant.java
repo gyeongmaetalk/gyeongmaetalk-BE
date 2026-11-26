@@ -23,7 +23,7 @@ public class SecurityConstant {
             "/qna/faq",
 
             //reviews
-            "/reviews/*", "/reviews/list/**", "/reviews/list",
+            "/reviews/*", "/reviews/list/**", "/reviews/list", "/reviews/cursor",
 
             //actuator
             "/actuator/prometheus",
