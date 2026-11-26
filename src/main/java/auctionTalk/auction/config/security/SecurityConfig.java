@@ -51,7 +51,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2AuthorizationRequestResolver authorizationRequestResolver) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configure(http))
+                .cors(cors -> {}) // 기본 설정 = CorsConfig의 corsConfigurationSource 빈 사용
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 규칙은 위에서부터 처음 매칭되는 하나만 적용된다.
                 // 넓은 규칙이 좁은 규칙을 가리지 않도록 관리자 규칙과 예외 규칙을 먼저 둔다.
