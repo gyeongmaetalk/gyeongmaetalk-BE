@@ -22,11 +22,14 @@ import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import auctionTalk.auction.utils.CookieUtils;
+import auctionTalk.auction.utils.sms.SmsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class AuthServiceImpl implements AuthService{
     private final SubscriptionRepository subscriptionRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthMapper authMapper;
+    private final SmsService smsService;
 
     @Override
     @Transactional
@@ -74,6 +78,13 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public MemberIdResponse register(Member member, SignupRequest request){
+        // 가입 시 번호 등록, 마이페이지 번호 변경 모두 이 API를 쓴다. 번호가 새로 들어오거나 바뀔 때만 문자 인증을 요구한다.
+        boolean phoneChanged = !Objects.equals(
+                SmsService.normalizePhone(member.getCellPhone()), SmsService.normalizePhone(request.getCellPhone()));
+        if (phoneChanged && !smsService.consumeVerifiedPhone(member.getId(), request.getCellPhone())) {
+            throw new CustomApiException(ErrorCode.SMS_NOT_VERIFIED);
+        }
+
         member.completeRegistration(request.getName(), request.getBirth(), request.getCellPhone());
 
         memberRepository.save(member);
