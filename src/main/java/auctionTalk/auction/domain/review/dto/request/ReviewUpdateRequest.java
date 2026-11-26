@@ -1,6 +1,8 @@
 package auctionTalk.auction.domain.review.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -16,8 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewUpdateRequest {
 
-    @NotNull(message = "별점은 필수 입력 값입니다.")
-    @Size(min=1, max=5, message = "별점은 1~5사이의 정수값 입니다.")
+    @Min(value = 1, message = "별점은 1~5사이의 정수값 입니다.")
+    @Max(value = 5, message = "별점은 1~5사이의 정수값 입니다.")
     private int score;
 
     @NotNull(message = "리뷰 내용은 필수 입력 값입니다.")
