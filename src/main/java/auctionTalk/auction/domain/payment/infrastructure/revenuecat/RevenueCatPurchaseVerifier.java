@@ -1,7 +1,7 @@
 package auctionTalk.auction.domain.payment.infrastructure.revenuecat;
 
-import auctionTalk.auction.domain.payment.dto.response.RevenueCatCustomerResponse;
-import auctionTalk.auction.domain.payment.dto.response.RevenueCatEntitlement;
+import auctionTalk.auction.domain.payment.infrastructure.revenuecat.dto.RevenueCatCustomerResponse;
+
 import auctionTalk.auction.domain.payment.infrastructure.revenuecat.dto.RevenueCatNonSubscriptionPurchase;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -38,13 +38,6 @@ public class RevenueCatPurchaseVerifier {
 
         if (nonSubscriptionResult != null) {
             return nonSubscriptionResult;
-        }
-
-        RevenueCatVerifiedPurchase entitlementResult =
-                verifyByEntitlements(subscriber, productIdentifier);
-
-        if (entitlementResult != null) {
-            return entitlementResult;
         }
 
         log.warn("[REVENUECAT_PURCHASE_NOT_FOUND] productIdentifier={}, transactionIdentifier={}",
@@ -94,59 +87,6 @@ public class RevenueCatPurchaseVerifier {
                         .purchasedAt(parsePurchaseDate(purchase.getPurchaseDate()))
                         .build())
                 .orElse(null);
-    }
-
-    private RevenueCatVerifiedPurchase verifyByEntitlements(
-            RevenueCatCustomerResponse.RevenueCatSubscriber subscriber,
-            String productIdentifier
-    ) {
-        Map<String, RevenueCatEntitlement> entitlements = subscriber.getEntitlements();
-
-        if (entitlements == null || entitlements.isEmpty()) {
-            log.warn("[REVENUECAT_ENTITLEMENTS_EMPTY] productIdentifier={}", productIdentifier);
-            return null;
-        }
-
-        log.info("[REVENUECAT_ENTITLEMENTS_FOUND] entitlementIds={}", entitlements.keySet());
-
-        RevenueCatEntitlement matchedEntitlement = entitlements.values().stream()
-                .filter(entitlement -> productIdentifier.equals(entitlement.getProductIdentifier()))
-                .filter(this::isActiveEntitlement)
-                .findFirst()
-                .orElse(null);
-
-        if (matchedEntitlement == null) {
-            log.warn("[REVENUECAT_ENTITLEMENT_NOT_FOUND] productIdentifier={}, entitlementIds={}",
-                    productIdentifier,
-                    entitlements.keySet()
-            );
-            return null;
-        }
-
-        log.info("[REVENUECAT_ENTITLEMENT_VERIFIED] productIdentifier={}, store={}, purchaseDate={}, expiresDate={}",
-                matchedEntitlement.getProductIdentifier(),
-                matchedEntitlement.getStore(),
-                matchedEntitlement.getPurchaseDate(),
-                matchedEntitlement.getExpiresDate()
-        );
-
-        return RevenueCatVerifiedPurchase.builder()
-                .productIdentifier(productIdentifier)
-                .transactionIdentifier(null)
-                .store(matchedEntitlement.getStore())
-                .sandbox(true)
-                .purchasedAt(parsePurchaseDate(matchedEntitlement.getPurchaseDate()))
-                .build();
-    }
-
-    private boolean isActiveEntitlement(RevenueCatEntitlement entitlement) {
-        String expiresDate = entitlement.getExpiresDate();
-
-        if (expiresDate == null || expiresDate.isBlank()) {
-            return true;
-        }
-
-        return OffsetDateTime.parse(expiresDate).isAfter(OffsetDateTime.now());
     }
 
     private boolean matchesTransaction(

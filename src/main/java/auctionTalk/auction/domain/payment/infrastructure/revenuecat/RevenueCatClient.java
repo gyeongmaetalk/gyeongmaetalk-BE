@@ -1,6 +1,6 @@
 package auctionTalk.auction.domain.payment.infrastructure.revenuecat;
 
-import auctionTalk.auction.domain.payment.dto.response.RevenueCatCustomerResponse;
+import auctionTalk.auction.domain.payment.infrastructure.revenuecat.dto.RevenueCatCustomerResponse;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;

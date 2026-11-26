@@ -1,4 +1,4 @@
-package auctionTalk.auction.domain.payment.dto.response;
+package auctionTalk.auction.domain.payment.infrastructure.revenuecat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
