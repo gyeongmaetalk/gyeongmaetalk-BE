@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -52,11 +53,16 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configure(http))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 규칙은 위에서부터 처음 매칭되는 하나만 적용된다.
+                // 넓은 규칙이 좁은 규칙을 가리지 않도록 관리자 규칙과 예외 규칙을 먼저 둔다.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll() // 비로그인 허용 API
-                        .requestMatchers(SecurityConstant.AUTHENTICATED_URLS).authenticated() // 로그인 필요
-                        .requestMatchers(SecurityConstant.ADMIN_URLS).hasRole("ADMIN") // 관리자 권한
-                        .anyRequest().authenticated() // 기타 모든 요청은 인증 필요
+                        .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
+                        .requestMatchers(SecurityConstant.ADMIN_URLS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, SecurityConstant.ADMIN_POST_URLS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, SecurityConstant.ADMIN_PATCH_URLS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, SecurityConstant.AUTHENTICATED_GET_URLS).authenticated()
+                        .requestMatchers(HttpMethod.GET, SecurityConstant.PUBLIC_GET_URLS).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리
