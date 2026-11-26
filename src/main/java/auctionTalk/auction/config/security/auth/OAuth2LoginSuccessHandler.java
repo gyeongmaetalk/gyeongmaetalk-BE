@@ -4,7 +4,7 @@ import auctionTalk.auction.config.security.jwt.JwtToken;
 import auctionTalk.auction.config.security.jwt.JwtTokenProvider;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.repository.MemberRepository;
-import auctionTalk.auction.domain.member.repository.TokenRepository;
+import auctionTalk.auction.utils.CookieUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -32,12 +32,8 @@ import java.util.Optional;
 @Slf4j
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final TokenRepository tokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
-
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 60L * 60 * 1000;           // 1시간
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 15L * 24 * 60 * 60 * 1000; // 15일
 
     @Value("${app.redirect-url.dev}")
     private String devRedirectUrl;
@@ -69,35 +65,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 if (StringUtils.hasText(appleName)) {
                     member.updateName(appleName);
                     memberRepository.save(member); // ✅ SuccessHandler는 트랜잭션 아님
-                    log.info("🍎 Apple name 저장 완료: {}", appleName);
+                    log.info("애플 첫 로그인 이름 저장 완료. memberId={}", memberId);
                 }
             }
         }
 
+        // generateTokens가 리프레시 토큰을 Redis에 저장한다. 쿠키 속성·수명은 CookieUtils 한 곳에서 관리한다.
         JwtToken jwtToken = jwtTokenProvider.generateTokens(memberId, member.getRole().name());
-        String accessToken = jwtToken.getAccessToken();
-        String refreshToken = jwtToken.getRefreshToken();
-
-        tokenRepository.saveRefreshToken(memberId, refreshToken);
-
-        ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(Duration.ofMillis(ACCESS_TOKEN_EXPIRE_TIME))
-                .sameSite("None")
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME))
-                .sameSite("None")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        CookieUtils.addJwtCookies(response, jwtToken);
 
         String baseRedirectUrl = resolveRedirectUrl(request);
 
@@ -115,8 +90,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private String extractAppleName(HttpServletRequest request) {
         String userJson = request.getParameter("user");
 
-        log.info("[APPLE_USER_PARAM] user={}", userJson);
-
         if (!StringUtils.hasText(userJson)) {
             return null;
         }
@@ -129,8 +102,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             String firstName = nameNode.path("firstName").asText(null);
             String lastName = nameNode.path("lastName").asText(null);
-
-            log.info("[APPLE_NAME_PARSED] firstName={}, lastName={}", firstName, lastName);
 
             StringBuilder fullName = new StringBuilder();
 
@@ -145,7 +116,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             return StringUtils.hasText(fullName.toString()) ? fullName.toString() : null;
 
         } catch (Exception e) {
-            log.warn("[APPLE_NAME_PARSE_FAILED] userJson={}", userJson, e);
+            log.warn("애플 사용자 이름 파싱 실패: {}", e.getClass().getSimpleName()); // 원문에는 이름·이메일이 있어 남기지 않는다
             return null;
         }
     }

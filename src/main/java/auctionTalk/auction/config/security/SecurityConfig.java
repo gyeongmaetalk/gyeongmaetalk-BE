@@ -80,11 +80,7 @@ public class SecurityConfig {
                                 .oidcUserService(appleOidcUserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 JWT 발급
-                        .failureHandler((request, response, exception) -> {
-                            System.err.println("❌ OAuth2 로그인 실패: " + exception.getMessage());
-                            exception.printStackTrace();
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "OAuth2 로그인 실패: " + exception.getMessage());
-                        })
+                        .failureHandler(new OAuth2LoginFailureHandler())
                 );
 
         return http.build();
