@@ -4,6 +4,7 @@ import auctionTalk.auction.domain.counsel.entity.Counsel;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.review.dto.request.ReviewCursor;
+import auctionTalk.auction.domain.review.dto.response.ReviewStats;
 import auctionTalk.auction.domain.review.entity.Review;
 import auctionTalk.auction.global.exception.CustomApiException;
 import auctionTalk.auction.global.exception.ErrorCode;
@@ -35,7 +36,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                 .orElseThrow(() -> new CustomApiException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
-    List<Review> findAllByCounsel_Counselor(Counselor counselor);
+    // 상담사 평점 표시용. 리뷰 엔티티를 전부 불러와 자바에서 세지 않고 DB에서 개수·평균만 계산한다.
+    @Query("SELECT new auctionTalk.auction.domain.review.dto.response.ReviewStats(COUNT(r), AVG(r.score)) " +
+            "FROM Review r WHERE r.counsel.counselor = :counselor")
+    ReviewStats getStatsByCounselor(@Param("counselor") Counselor counselor);
 
     boolean existsByCounsel(Counsel counsel);
 

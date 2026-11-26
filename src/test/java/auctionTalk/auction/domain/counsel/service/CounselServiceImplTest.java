@@ -14,7 +14,7 @@ import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
 import auctionTalk.auction.domain.member.entity.Role;
-import auctionTalk.auction.domain.review.entity.Review;
+import auctionTalk.auction.domain.review.dto.response.ReviewStats;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
@@ -118,7 +118,7 @@ class CounselServiceImplTest {
             given(subscriptionRepository.existsByMemberAndSubscriptionStatus(member, SubscriptionStatus.IN_PROGRESS))
                     .willReturn(false);
             given(counselorRepository.getCounselor(1L)).willReturn(counselor);
-            given(reviewRepository.findAllByCounsel_Counselor(counselor)).willReturn(List.of());
+            given(reviewRepository.getStatsByCounselor(counselor)).willReturn(new ReviewStats(0L, null));
             given(counselMapper.toMatchCounselorResponse(counselor, 0.0, 0)).willReturn(expectedResponse);
 
             MatchCounselorResponse result = counselService.matchCounselor(request, member);
@@ -177,7 +177,7 @@ class CounselServiceImplTest {
             given(counselFormRepository.getCounselFormById(counselFormId)).willReturn(counselForm);
             given(counselFormRepository.save(any(CounselForm.class)))
                     .willAnswer(invocation -> invocation.getArgument(0));
-            given(reviewRepository.findAllByCounsel_Counselor(counselor)).willReturn(List.of());
+            given(reviewRepository.getStatsByCounselor(counselor)).willReturn(new ReviewStats(0L, null));
             given(counselMapper.toCounselUpdateResponse(counselor, counselFormId, 0.0, 0))
                     .willReturn(expectedResponse);
 
@@ -441,7 +441,7 @@ class CounselServiceImplTest {
 
             given(counselRepository.findByMember(member)).willReturn(Optional.of(existingCounsel));
             given(counselFormRepository.getCounselFormByMember(member)).willReturn(counselForm);
-            given(reviewRepository.findAllByCounsel_Counselor(counselor)).willReturn(List.of());
+            given(reviewRepository.getStatsByCounselor(counselor)).willReturn(new ReviewStats(0L, null));
             given(reviewRepository.existsByCounsel(existingCounsel)).willReturn(false);
             given(counselMapper.toCounselInfoResponse(
                     1L, counselor, counselForm, counselDate, counselTime, false, 0.0, 0
@@ -475,11 +475,6 @@ class CounselServiceImplTest {
                     .counselStatus(CounselStatus.COUNSEL_AFTER)
                     .build();
 
-            Review mockReview1 = mock(Review.class);
-            Review mockReview2 = mock(Review.class);
-            given(mockReview1.getScore()).willReturn(4);
-            given(mockReview2.getScore()).willReturn(5);
-
             CounselInfoResponse infoResponse = CounselInfoResponse.builder()
                     .counselId(1L)
                     .counselorId(1L)
@@ -490,8 +485,8 @@ class CounselServiceImplTest {
 
             given(counselRepository.findByMember(member)).willReturn(Optional.of(existingCounsel));
             given(counselFormRepository.getCounselFormByMember(member)).willReturn(counselForm);
-            given(reviewRepository.findAllByCounsel_Counselor(counselor))
-                    .willReturn(List.of(mockReview1, mockReview2));
+            given(reviewRepository.getStatsByCounselor(counselor))
+                    .willReturn(new ReviewStats(2L, 4.5));
             given(reviewRepository.existsByCounsel(existingCounsel)).willReturn(true);
             given(counselMapper.toCounselInfoResponse(
                     1L, counselor, counselForm, counselDate, counselTime, true, 4.5, 2

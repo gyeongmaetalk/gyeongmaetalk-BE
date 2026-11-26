@@ -39,12 +39,16 @@ public class CounselPushTasklet implements Tasklet {
 
             NotificationSetting setting = member.getNotificationSetting(); // 알림 설정 꺼놨을 시 패스
             if (!setting.isReviewNotificationEnabled()) {
+                // 보내지 않더라도 처리한 것으로 표시한다. 표시하지 않으면 30분마다 다시 조회되고,
+                // 나중에 알림을 켜면 몇 달 지난 상담의 후기 요청이 한꺼번에 발송된다.
+                counsel.updatePushSent();
                 continue;
             }
 
             if (token == null || token.isBlank()) {
                 log.warn("[PushSkip] fcmToken missing. memberId={}, counselId={}",
                         member.getId(), counsel.getId());
+                counsel.updatePushSent();
                 continue;
             }
 

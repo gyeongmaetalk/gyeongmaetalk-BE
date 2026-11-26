@@ -13,7 +13,7 @@ import auctionTalk.auction.domain.counsel.repository.CounselRepository;
 import auctionTalk.auction.domain.counselor.entity.Counselor;
 import auctionTalk.auction.domain.counselor.repository.CounselorRepository;
 import auctionTalk.auction.domain.member.entity.Member;
-import auctionTalk.auction.domain.review.entity.Review;
+import auctionTalk.auction.domain.review.dto.response.ReviewStats;
 import auctionTalk.auction.domain.review.repository.ReviewRepository;
 import auctionTalk.auction.domain.subscription.entity.SubscriptionStatus;
 import auctionTalk.auction.domain.subscription.repository.SubscriptionRepository;
@@ -56,11 +56,9 @@ public class CounselServiceImpl implements CounselService {
 
         Counselor counselor = counselorRepository.getCounselor(1L); // 상담사 고정
 
-        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
-        int reviewCount = reviews.size();
-        double averageScore = reviewCount > 0
-                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
-                : 0.0;
+        ReviewStats stats = reviewRepository.getStatsByCounselor(counselor);
+        int reviewCount = stats.count();
+        double averageScore = stats.average();
 
         return counselMapper.toMatchCounselorResponse(counselor, averageScore, reviewCount);
     }
@@ -75,11 +73,9 @@ public class CounselServiceImpl implements CounselService {
 
         counselFormRepository.save(counselForm);
 
-        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
-        int reviewCount = reviews.size();
-        double averageScore = reviewCount > 0
-                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
-                : 0.0;
+        ReviewStats stats = reviewRepository.getStatsByCounselor(counselor);
+        int reviewCount = stats.count();
+        double averageScore = stats.average();
 
         return counselMapper.toCounselUpdateResponse(counselor, counselForm.getId(), averageScore, reviewCount);
     }
@@ -162,11 +158,9 @@ public class CounselServiceImpl implements CounselService {
         CounselForm counselForm = counselFormRepository.getCounselFormByMember(member);
         Counselor counselor = existingCounsel.getCounselor();
 
-        List<Review> reviews = reviewRepository.findAllByCounsel_Counselor(counselor);
-        int reviewCount = reviews.size();
-        double averageScore = reviewCount > 0
-                ? reviews.stream().mapToDouble(Review::getScore).average().orElse(0.0)
-                : 0.0;
+        ReviewStats stats = reviewRepository.getStatsByCounselor(counselor);
+        int reviewCount = stats.count();
+        double averageScore = stats.average();
 
         boolean isReviewed = reviewRepository.existsByCounsel(existingCounsel);
         CounselInfoResponse info = counselMapper.toCounselInfoResponse(
