@@ -128,7 +128,7 @@ public class FcmService {
 
     @Transactional(readOnly = true)
     public List<NotificationResponse> getNotifications(Member member) {
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(Notification.RETENTION_DAYS);
 
         List<Notification> notifications =
                 notificationRepository.findAllByMemberAndCreatedAtAfterOrderByCreatedAtDesc(member, thirtyDaysAgo);

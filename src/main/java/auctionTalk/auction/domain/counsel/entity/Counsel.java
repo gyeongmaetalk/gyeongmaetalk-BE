@@ -18,6 +18,12 @@ import java.time.LocalTime;
                         name = "uk_counselor_date_time",
                         columnNames = {"counselor_id", "counsel_date", "counsel_time"}
                 )
+        },
+        indexes = {
+                // 리뷰 알림 배치(30분마다): 아직 안 보낸 지난 상담
+                @Index(name = "idx_counsel_push", columnList = "push_sent, counsel_date"),
+                // 상담 상태 갱신 스케줄러(5분마다): 상담 전 상태인 지난 상담
+                @Index(name = "idx_counsel_status_date", columnList = "counsel_status, counsel_date")
         }
 )
 @Getter

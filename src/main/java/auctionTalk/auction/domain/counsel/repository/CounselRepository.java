@@ -46,10 +46,16 @@ public interface CounselRepository extends JpaRepository<Counsel, Long> {
     List<LocalTime> findReservedTimes(@Param("counselorId") Long counselorId,
                                       @Param("date") LocalDate date);
 
-    @Query("SELECT c FROM Counsel c " +
+    default List<Counsel> findAllForPush(LocalDateTime threshold) {
+        return findPushTargets(threshold.toLocalDate(), threshold.toLocalTime());
+    }
+
+    // 컬럼을 TIMESTAMP() 함수로 감싸면 인덱스를 못 쓰므로 날짜·시간 조건으로 풀어서 비교한다(idx_counsel_push).
+    // 발송 대상마다 회원을 따로 조회하지 않도록 회원을 함께 가져온다.
+    @Query("SELECT c FROM Counsel c JOIN FETCH c.member " +
             "WHERE c.pushSent = false " +
-            "AND FUNCTION('TIMESTAMP', c.counselDate, c.counselTime) <= :threshold")
-    List<Counsel> findAllForPush(@Param("threshold") LocalDateTime threshold);
+            "AND (c.counselDate < :date OR (c.counselDate = :date AND c.counselTime <= :time))")
+    List<Counsel> findPushTargets(@Param("date") LocalDate date, @Param("time") LocalTime time);
 
     List<Counsel> findAllByCounselStatusIn(List<CounselStatus> statuses);
 

@@ -108,6 +108,8 @@ class CounselPushTaskletTest {
             assertThat(result).isEqualTo(RepeatStatus.FINISHED);
 
             then(notificationService).shouldHaveNoInteractions();
+            // 보내지 않은 상담도 처리한 것으로 표시해 다음 실행에서 다시 조회되지 않게 한다
+            assertThat(counsel.isPushSent()).isTrue();
         }
 
         @Test
@@ -125,6 +127,8 @@ class CounselPushTaskletTest {
             assertThat(result).isEqualTo(RepeatStatus.FINISHED);
 
             then(notificationService).shouldHaveNoInteractions();
+            // 보내지 않은 상담도 처리한 것으로 표시해 다음 실행에서 다시 조회되지 않게 한다
+            assertThat(counsel.isPushSent()).isTrue();
         }
 
         @Test
@@ -142,6 +146,8 @@ class CounselPushTaskletTest {
             assertThat(result).isEqualTo(RepeatStatus.FINISHED);
 
             then(notificationService).shouldHaveNoInteractions();
+            // 보내지 않은 상담도 처리한 것으로 표시해 다음 실행에서 다시 조회되지 않게 한다
+            assertThat(counsel.isPushSent()).isTrue();
         }
 
         @Test
@@ -199,6 +205,8 @@ class CounselPushTaskletTest {
                     eq(enabledMember),
                     eq(sendTarget)
             );
+            assertThat(List.of(sendTarget, disabledTarget, noTokenTarget))
+                    .allMatch(Counsel::isPushSent);
         }
     }
 }
